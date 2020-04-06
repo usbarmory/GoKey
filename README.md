@@ -7,7 +7,7 @@ andrea.barisani@f-secure.com | andrea@inversepath.com
 Introduction
 ============
 
-The GoKey application aims to provide an [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
+The GoKey application implements an [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
 USB smartcard written in pure Go.
 
 In combination with the [TamaGo framework](https://github.com/f-secure-foundry/tamago)
