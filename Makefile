@@ -87,14 +87,13 @@ clean:
 
 #### dependencies ####
 
-bundle_keys: check_bundled_keys
-	cd $(CURDIR) && go generate
-
-$(APP): check_tamago bundle_keys
+$(APP): check_tamago check_bundled_keys
+	cd $(CURDIR) && ${TAMAGO} generate
 	$(GOENV) $(TAMAGO) build $(GOFLAGS) -o $(CURDIR)/$(APP) || (rm -f $(CURDIR)/tmp.go && exit 1)
 	rm -f $(CURDIR)/tmp.go
 
-gokey_vpcd: bundle_keys
+gokey_vpcd: check_bundled_keys
+	cd $(CURDIR) && go generate
 	go build -tags vpcd -o $(CURDIR)/gokey_vpcd || (rm -f $(CURDIR)/tmp.go && exit 1)
 	rm -f $(CURDIR)/tmp.go
 
