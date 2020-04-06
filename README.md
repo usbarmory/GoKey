@@ -15,7 +15,8 @@ GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
 **WARNING**: GoKey is in early stages of development, all code should be
-considered at alpha stage and not ready for production use.
+considered at beta stage and not ready for production use. GoKey is currently
+working only on Linux hosts, Windows compatibility is being investigated.
 
 ```
 $ gpg --card-status
