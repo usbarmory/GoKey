@@ -28,7 +28,7 @@ DISK_SIZE = 20MiB
 JOBS=2
 # microSD: 0, eMMC: 1
 BOOTDEV ?= 0
-BOOTCOMMAND = ext2load mmc $(BOOTDEV):1 0x90000000 example; bootelf -p 0x90000000
+BOOTCOMMAND = ext2load mmc $(BOOTDEV):1 0x90000000 $(APP); bootelf -p 0x90000000
 
 .PHONY: clean qemu qemu-gdb
 
