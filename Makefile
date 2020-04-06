@@ -101,7 +101,7 @@ qemu: $(APP)
 	$(QEMU) -kernel $(APP)
 
 qemu-gdb: $(APP)
-	$(QEMU) -kernel $(APp) -S -s
+	$(QEMU) -kernel $(APP) -S -s
 
 $(APP).raw: $(APP)
 	@if [ ! -f "$(APP).raw" ]; then \
