@@ -194,6 +194,15 @@ smartcard authentication model:
 | None               | Yes                                   | Good security and convenience, standard SSH authentication required for hardware key decryption |
 | Yes over SSH       | Yes                                   | High security, standard SSH authentication enables key use, securely transmitted key passphrase |
 
+Tutorial
+========
+
+The next sections detail the compilation, configuration, execution and
+operation for bare metal, virtualized and simulated environments.
+
+A simplified tutorial for secure booted USB armory Mk II boards is available in
+the [project wiki](https://github.com/f-secure-foundry/GoKey/wiki).
+
 Compiling
 =========
 
@@ -514,3 +523,19 @@ Send manual commands to GnuPG smart-card daemon (SCD)
 ```
 gpg-connect-agent "SCD RANDOM 256" /bye | perl -pe 'chomp;s/^D\s//;s/%(0[AD]|25)/chr(hex($1))/eg;if(eof&&/^OK$/){exit}'
 ```
+
+License
+=======
+
+GoKey | https://github.com/f-secure-foundry/GoKey  
+Copyright (c) F-Secure Corporation
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation under version 3 of the License.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+See accompanying LICENSE file for full details.
