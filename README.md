@@ -18,37 +18,7 @@ GoKey is meant to be executed on ARM bare metal on hardware such as the
 considered at beta stage and not ready for production use. GoKey is currently
 working only on Linux hosts, Windows compatibility is being investigated.
 
-```
-$ gpg --card-status
-Reader ...........: USB armory Mk II [Smart Card Control] (0.1) 00 00
-Application ID ...: D276000124010304F5ECAABBCCDD0000
-Application type .: OpenPGP
-Version ..........: 3.4
-Manufacturer .....: F-Secure
-Serial number ....: AABBCCDD
-Name of cardholder: Gopher
-Language prefs ...: [not set]
-Salutation .......:
-URL of public key : http://foundry.f-secure.com
-Login data .......: [not set]
-Signature PIN ....: forced
-Key attributes ...: nistp521 nistp521 nistp521
-Max. PIN lengths .: 254 127 127
-PIN retry counter : 3 0 0
-Signature counter : 0
-Signature key ....: 13EA C025 7B05 C3BB 0115  D058 CD3B AA21 D6D0 6B04
-      created ....: 2020-03-06 09:46:18
-Encryption key....: 639F 5FE9 0561 9DF6 DF12  9DCD A769 DF53 FC16 0AD8
-      created ....: 2020-03-06 09:45:53
-Authentication key: [none]
-General key info..: sub  nistp521/CD3BAA21D6D06B04 2020-03-06 Test NIST P-521
-sec#  nistp521/09404CC74CCF2142  created: 2020-03-06  expires: never
-ssb>  nistp521/A769DF53FC160AD8  created: 2020-03-06  expires: never
-                                 card-no: F5EC AABBCCDD
-ssb>  nistp521/CD3BAA21D6D06B04  created: 2020-03-06  expires: never
-                                 card-no: F5EC AABBCCDD
-ssb#  nistp521/A9779D74C4ABBC2F  created: 2020-03-06  expires: never
-```
+![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
 
 Security model
 --------------
