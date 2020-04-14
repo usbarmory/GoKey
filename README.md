@@ -275,7 +275,7 @@ make NAME="Alice" PGP_SECRET_KEY=<secret key path> gokey_imx6
 
 For native hardware execution you can bundle the bootloader (U-Boot) and
 application in a raw image (`gokey_imx6.raw`), for microSD or eMMC flashing, as
-follows:
+follows (example raw target [pre-requisites](https://github.com/f-secure-foundry/usbarmory-debian-base_image/blob/master/README.md#pre-requisites) for Debian):
 
 ```
 # microSD: BOOTDEV=0, eMMC: BOOTDEV=1
