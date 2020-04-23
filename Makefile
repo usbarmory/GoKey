@@ -145,7 +145,6 @@ u-boot-${UBOOT_VER}: check_usbarmory_git
 		patch -p1 < ${USBARMORY_GIT}/software/u-boot/0001-ARM-mx6-add-support-for-USB-armory-Mk-II-board.patch && \
 		patch -p1 < ${USBARMORY_GIT}/software/u-boot/0001-Drop-linker-generated-array-creation-when-CONFIG_CMD.patch
 
-
 u-boot-${UBOOT_VER}/u-boot-dtb.imx: u-boot-${UBOOT_VER}
 	cd u-boot-${UBOOT_VER} && \
 		make distclean && \
