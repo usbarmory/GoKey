@@ -67,8 +67,8 @@ func (card *Interface) Verify(P1 byte, P2 byte, passphrase []byte) (rapdu *apdu.
 	switch P1 {
 	case PW_VERIFY:
 		if len(passphrase) == 0 {
+			// return access status when PW empty
 			if !subkey.PrivateKey.Encrypted {
-				log.Printf("VERIFY: % X already unlocked", subkey.PrivateKey.Fingerprint)
 				return CommandCompleted(nil), nil
 			} else {
 				return VerifyFail(card.errorCounterPW1), nil
@@ -76,14 +76,15 @@ func (card *Interface) Verify(P1 byte, P2 byte, passphrase []byte) (rapdu *apdu.
 		}
 
 		if !subkey.PrivateKey.Encrypted {
-			// To support the out-of-band `unlock` management command over
-			// SSH we slighly deviate from specifications.
+			// To support the out-of-band `unlock` management
+			// command over SSH we deviate from specifications.
 			//
-			// If the PW is already decrypted then we return success rather
-			// than re-verifying the passphrase.
+			// If the key is already decrypted then we return
+			// success rather than re-verifying the passphrase.
 			//
 			// This prevents plaintext transmission of the passphrase
 			// (which can be a dummy if already unlocked).
+			log.Printf("VERIFY: % X already unlocked", subkey.PrivateKey.Fingerprint)
 			return CommandCompleted(nil), nil
 		}
 
