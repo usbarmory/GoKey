@@ -160,10 +160,10 @@ smartcard authentication model:
 |:-------------------|---------------------------------------|-------------------------------------------------------------------------------------------------|
 | None               | None                                  | No security, device can be used without any authentication                                      |
 | Yes over VERIFY    | None                                  | Low security, passphrase transmitted in plaintext over USB                                      |
-| Yes over SSH       | None                                  | Better security, securely transmitted key passphrase                                            |
+| Yes over SSH       | None                                  | Better security, passphrase transmitted securely                                                |
 | Yes over VERIFY    | Yes                                   | Good security, plaintext passphrase but standard SSH authentication required to enable key use  |
 | None               | Yes                                   | Good security and convenience, standard SSH authentication required for hardware key decryption |
-| Yes over SSH       | Yes                                   | High security, standard SSH authentication enables key use, securely transmitted key passphrase |
+| Yes over SSH       | Yes                                   | High security, standard SSH authentication enables key use, passphrase transmitted securely     |
 
 Tutorial
 ========
