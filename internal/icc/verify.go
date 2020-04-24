@@ -64,18 +64,18 @@ func (card *Interface) Verify(P1 byte, P2 byte, passphrase []byte) (rapdu *apdu.
 		return CommandNotAllowed(), nil
 	}
 
+	var msg string
+
 	switch P1 {
 	case PW_VERIFY:
 		if len(passphrase) == 0 {
 			// return access status when PW empty
 			if !subkey.PrivateKey.Encrypted {
-				return CommandCompleted(nil), nil
+				rapdu = CommandCompleted(nil)
 			} else {
-				return VerifyFail(card.errorCounterPW1), nil
+				rapdu = VerifyFail(card.errorCounterPW1)
 			}
-		}
-
-		if !subkey.PrivateKey.Encrypted {
+		} else if !subkey.PrivateKey.Encrypted {
 			// To support the out-of-band `unlock` management
 			// command over SSH we deviate from specifications.
 			//
@@ -84,40 +84,49 @@ func (card *Interface) Verify(P1 byte, P2 byte, passphrase []byte) (rapdu *apdu.
 			//
 			// This prevents plaintext transmission of the passphrase
 			// (which can be a dummy if already unlocked).
-			log.Printf("VERIFY: % X already unlocked", subkey.PrivateKey.Fingerprint)
-			return CommandCompleted(nil), nil
-		}
-
-		if card.errorCounterPW1 == 0 {
-			return VerifyFail(card.errorCounterPW1), nil
-		}
-
-		if err = subkey.PrivateKey.Decrypt(passphrase); err == nil {
-			log.Printf("VERIFY: % X unlocked", subkey.PrivateKey.Fingerprint)
+			msg = "already unlocked"
+		} else if card.errorCounterPW1 == 0 {
+			// for now this counter is volatile across reboots
+			msg = "error counter blocked, cannot unlock"
+			rapdu = VerifyFail(card.errorCounterPW1)
+		} else if subkey.PrivateKey.Decrypt(passphrase) == nil {
+			// correct verification sets resets counter to default value
+			card.errorCounterPW1 = DEFAULT_PW1_ERROR_COUNTER
+			msg = "unlocked"
+		} else {
+			// The standard is not clear on the specific conditions
+			// that decrese the counter as "incorrect usage" is
+			// mentioned. This implementation only cares to prevent
+			// passphrase brute forcing.
+			card.errorCounterPW1 -= 1
+			msg = "unlock error"
+			rapdu = VerifyFail(card.errorCounterPW1)
 		}
 	case PW_LOCK:
 		if subkey.PrivateKey.Encrypted {
-			log.Printf("VERIFY: % X already locked", subkey.PrivateKey.Fingerprint)
+			msg = "already locked"
 		} else {
 			subkey.PrivateKey = card.Restore(subkey)
 
 			if subkey.PrivateKey.Encrypted {
-				log.Printf("VERIFY: % X locked", subkey.PrivateKey.Fingerprint)
+				msg = "locked"
 			} else {
-				log.Printf("VERIFY: % X remains unlocked (no passphrase)", subkey.PrivateKey.Fingerprint)
+				msg = "remains unlocked (no passphrase)"
 			}
 		}
 	default:
 		return CommandNotAllowed(), nil
 	}
 
-	if err != nil {
-		log.Printf("VERIFY: % X unlock error", subkey.PrivateKey.Fingerprint)
-		card.errorCounterPW1 -= 1
-		return VerifyFail(card.errorCounterPW1), nil
+	if msg != "" {
+		log.Printf("VERIFY: % X %s", subkey.PrivateKey.Fingerprint, msg)
 	}
 
-	return CommandCompleted(nil), nil
+	if rapdu == nil {
+		rapdu = CommandCompleted(nil)
+	}
+
+	return
 }
 
 func (card *Interface) signalVerificationStatus() {

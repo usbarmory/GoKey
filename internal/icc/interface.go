@@ -46,6 +46,8 @@ const (
 	COMPUTE_DIGITAL_SIGNATURE = 0x9e9a
 	DECIPHER                  = 0x8086
 	ENCIPHER                  = 0x8680
+
+	DEFAULT_PW1_ERROR_COUNTER = 3
 )
 
 // Interface implements an OpenPGP card instance.
@@ -138,7 +140,7 @@ func (card *Interface) Init() (err error) {
 		card.aut = *card.Aut.PrivateKey
 	}
 
-	card.errorCounterPW1 = 0x03
+	card.errorCounterPW1 = DEFAULT_PW1_ERROR_COUNTER
 	card.initialized = true
 
 	log.Printf("OpenPGP card initialized")
