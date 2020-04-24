@@ -35,8 +35,8 @@ func CCIDTx(_ []byte, lastErr error) (in []byte, err error) {
 // CCIDRx implements the endpoint 1 OUT function, used to receive APDU
 // requests from host to device.
 func CCIDRx(out []byte, lastErr error) (_ []byte, err error) {
-	imx6.SetARMFreq(900);
-	defer imx6.SetARMFreq(198);
+	imx6.SetARMFreq(900)
+	defer imx6.SetARMFreq(198)
 
 	in, err := CCID.Rx(out)
 
