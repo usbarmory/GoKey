@@ -290,7 +290,7 @@ image (`gokey_imx6_signed.raw`), for microSD or eMMC flashing, as follows:
 ```
 # microSD: BOOTDEV=0, eMMC: BOOTDEV=1
 # for KEYS_PATH, see https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)
-make raw_signed SVNS=ssh BOOTDEV=0 NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path>
+make raw_signed SNVS=ssh BOOTDEV=0 NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path>
 ```
 
 To flash raw images follow [these instructions](https://github.com/f-secure-foundry/usbarmory-debian-base_image#installation)
