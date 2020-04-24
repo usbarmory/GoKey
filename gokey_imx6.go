@@ -33,7 +33,7 @@ func init() {
 		return
 	}
 
-	if err := imx6.SetARMFreq(900000000); err != nil {
+	if err := imx6.SetARMFreq(900); err != nil {
 		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
 	}
 }
@@ -106,6 +106,10 @@ func main() {
 	imxusb.USB1.Init()
 	imxusb.USB1.DeviceMode()
 	imxusb.USB1.Reset()
+
+	if err := imx6.SetARMFreq(198); err != nil {
+		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
+	}
 
 	// never returns
 	imxusb.USB1.Start(device)

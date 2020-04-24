@@ -6,6 +6,8 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+// +build tamago,arm
+
 package gokey
 
 import (
@@ -22,6 +24,8 @@ import (
 	"regexp"
 
 	"github.com/f-secure-foundry/GoKey/internal/icc"
+
+	"github.com/f-secure-foundry/GoKey/tamago/imx6"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -147,6 +151,9 @@ func handleChannel(newChannel ssh.NewChannel) {
 
 	go func() {
 		defer conn.Close()
+
+		imx6.SetARMFreq(900)
+		defer imx6.SetARMFreq(198)
 
 		log.SetOutput(io.MultiWriter(os.Stdout, term))
 		defer log.SetOutput(os.Stdout)
