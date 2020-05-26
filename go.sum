@@ -1,8 +1,8 @@
 github.com/cenkalti/backoff v0.0.0-20190506075156-2146c9339422/go.mod h1:b6Nc7NRH5C4aCISLry0tLnTjcuTEvoiqcWDdsU0sOGM=
 github.com/f-secure-foundry/gvisor v0.0.0-20191224100818-98827aa91607 h1:qEivZMI07i5BH8QIe41AhkxczCmBOIXih624UpnT8Vw=
 github.com/f-secure-foundry/gvisor v0.0.0-20191224100818-98827aa91607/go.mod h1:rPM8OvTBwX0eD8lW4bytttlKgsWOsHwWu0U9fj3y/BU=
-github.com/f-secure-foundry/tamago v0.0.0-20200521194817-b586004978a1 h1:RPGKNxSg9XPToLzNrG89eV2M+RsZdaHuourf7qpvez8=
-github.com/f-secure-foundry/tamago v0.0.0-20200521194817-b586004978a1/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
+github.com/f-secure-foundry/tamago v0.0.0-20200525204459-8bae59189dcf h1:c1Na2CWCoAZl+qygvoQvF7yGvx0eRRYCcgmFy5nfNqg=
+github.com/f-secure-foundry/tamago v0.0.0-20200525204459-8bae59189dcf/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
 github.com/gofrs/flock v0.6.1-0.20180915234121-886344bea079/go.mod h1:F1TvTiK9OcQqauNUHlbJvyl9Qa1QvF/gOUDKA14jxHU=
 github.com/golang/mock v1.3.1/go.mod h1:sBzyDLLjw3U8JLTeZvSv8jJB+tU5PVekmnlKIyFUx0Y=
 github.com/golang/protobuf v1.3.1 h1:YF8+flBXS5eO826T4nzqPrxfhQThhXl0YzfuUPu4SBg=
