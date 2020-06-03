@@ -267,34 +267,20 @@ to be disabled and removed after this step is completed (to prevent eMMC wear),
 alternatively you can cross compile from another host or use the
 [latest binary release](https://github.com/f-secure-foundry/tamago-go/releases/latest)).
 
-Build the `gokey_imx6` application executable:
+Build the `gokey.imx` application executable:
 
 ```
-make NAME="Alice" PGP_SECRET_KEY=<secret key path> gokey_imx6
-```
-
-For native hardware execution you can bundle the bootloader (U-Boot) and
-application in a raw image (`gokey_imx6.raw`), for microSD or eMMC flashing, as
-follows (example raw target [pre-requisites](https://github.com/f-secure-foundry/usbarmory-debian-base_image/blob/master/README.md#pre-requisites) for Debian):
-
-```
-# microSD: BOOTDEV=0, eMMC: BOOTDEV=1
-make raw BOOTDEV=0 NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path>
+make imx CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path>
 ```
 
 For signed images to be executed on [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
 USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
-(SNVS), you can bundle the signed bootloader (U-Boot) and application in a raw
-image (`gokey_imx6_signed.raw`), for microSD or eMMC flashing, as follows:
+(SNVS), use the `signed_imx` target:
 
 ```
-# microSD: BOOTDEV=0, eMMC: BOOTDEV=1
 # for KEYS_PATH, see https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)
-make raw_signed SNVS=ssh BOOTDEV=0 NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path>
+make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path> SNVS="ssh"
 ```
-
-To flash raw images follow [these instructions](https://github.com/f-secure-foundry/usbarmory-debian-base_image#installation)
-using the built images.
 
 Virtual Smart Card
 ------------------
@@ -358,21 +344,21 @@ yet.
 Executing
 =========
 
-USB armory Mk II: raw image
+USB armory Mk II: imx image
 ---------------------------
 
-Follow [these instructions](https://github.com/f-secure-foundry/usbarmory-debian-base_image#installation)
-using the built `gokey_imx6.raw` or `gokey_imx6_signed.raw` image.
+Follow [these instructions](https://github.com/f-secure-foundry/usbarmory/wiki/Boot-Modes-(Mk-II)#flashing-bootable-images-on-externalinternal-media)
+using the built `gokey.imx` or `gokey_signed.imx` image.
 
 USB armory Mk II: existing bootloader
 -------------------------------------
 
-Copy the compiled application on an external microSD card (replace `$dev` with
+Copy the built `gokey` binary on an external microSD card (replace `$dev` with
 `0`) or the internal eMMC (replace `$dev` with `1`), then launch it from the
 U-Boot console as follows:
 
 ```
-ext2load mmc $dev:1 0x90000000 example
+ext2load mmc $dev:1 0x90000000 gokey
 bootelf -p 0x90000000
 ```
 
@@ -381,7 +367,7 @@ For non-interactive execution modify the U-Boot configuration accordingly.
 QEMU
 ----
 
-Launch an emulated run of the `gokey_imx6` application executable with the
+Launch an emulated run of the `gokey` application executable with the
 `qemu` target:
 
 ```
