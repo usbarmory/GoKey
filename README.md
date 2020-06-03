@@ -279,7 +279,7 @@ USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
 
 ```
 # for KEYS_PATH, see https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)
-make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path> SNVS="ssh"
+make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path> SNVS=ssh
 ```
 
 Virtual Smart Card
