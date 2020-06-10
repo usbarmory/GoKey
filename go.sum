@@ -7,8 +7,8 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/f-secure-foundry/gvisor v0.0.0-20191224100818-98827aa91607 h1:qEivZMI07i5BH8QIe41AhkxczCmBOIXih624UpnT8Vw=
 github.com/f-secure-foundry/gvisor v0.0.0-20191224100818-98827aa91607/go.mod h1:rPM8OvTBwX0eD8lW4bytttlKgsWOsHwWu0U9fj3y/BU=
-github.com/f-secure-foundry/tamago v0.0.0-20200609085001-1cf499249137 h1:WXm098Ow+ik/8UjbX+gg9LO593XP8ZfH8VPVPwh/gTc=
-github.com/f-secure-foundry/tamago v0.0.0-20200609085001-1cf499249137/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
+github.com/f-secure-foundry/tamago v0.0.0-20200610074239-bca5eb456ad4 h1:jVDpPVmXXuWfkylljhXymijMtPNB+Y4QhoIhfQTRuGE=
+github.com/f-secure-foundry/tamago v0.0.0-20200610074239-bca5eb456ad4/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
 github.com/gofrs/flock v0.6.1-0.20180915234121-886344bea079/go.mod h1:F1TvTiK9OcQqauNUHlbJvyl9Qa1QvF/gOUDKA14jxHU=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
