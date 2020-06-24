@@ -10,7 +10,6 @@ package icc
 
 import (
 	"bytes"
-	"math"
 
 	"github.com/keybase/go-crypto/openpgp"
 	"github.com/keybase/go-crypto/openpgp/armor"
@@ -74,23 +73,4 @@ func getOID(name string) (oid []byte) {
 	}
 
 	return
-}
-
-// p19, 5.4.1. Uncompressed Point Format for NIST Curves, RFC8422
-func getUncompressedPointFormat(x []byte, y []byte, octets int) []byte {
-	buf := new(bytes.Buffer)
-
-	// uncompressed(4)
-	buf.WriteByte(0x04)
-
-	for _, v := range [][]byte{x, y} {
-		// padding
-		for i := int(math.Ceil(float64(octets) / 8)); i > len(v); i-- {
-			buf.WriteByte(0x00)
-		}
-
-		buf.Write(v)
-	}
-
-	return buf.Bytes()
 }

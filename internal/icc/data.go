@@ -11,6 +11,7 @@ package icc
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"encoding/binary"
 	"fmt"
 	"log"
@@ -511,10 +512,10 @@ func (card *Interface) GenerateAsymmetricKeyPair(params uint16, crt []byte) (rap
 		data.Write(tlv(DO_RSA_MOD, mod))
 		data.Write(tlv(DO_RSA_EXP, exp))
 	case *ecdsa.PublicKey:
-		pp := getUncompressedPointFormat(pubKey.X.Bytes(), pubKey.Y.Bytes(), pubKey.Params().BitSize)
+		pp := elliptic.Marshal(pubKey, pubKey.X, pubKey.Y)
 		data.Write(tlv(DO_EXT_PUB_KEY, pp))
 	case *ecdh.PublicKey:
-		pp := getUncompressedPointFormat(pubKey.X.Bytes(), pubKey.Y.Bytes(), pubKey.Params().BitSize)
+		pp := elliptic.Marshal(pubKey, pubKey.X, pubKey.Y)
 		data.Write(tlv(DO_EXT_PUB_KEY, pp))
 	default:
 		err = fmt.Errorf("unexpected public key type in GENERATE %T", pubKey)
