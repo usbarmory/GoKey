@@ -183,6 +183,8 @@ func (card *Interface) Decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 		Y.SetBytes(pubKey[1+expectedSize:])
 
 		plaintext = privKey.DecryptShared(X, Y)
+		// pad to match expected size
+		plaintext = append(make([]byte, expectedSize-len(plaintext)), plaintext...)
 	default:
 		log.Printf("invalid private key for PSO:DEC")
 		return CardKeyNotSupported(), nil
