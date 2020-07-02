@@ -52,7 +52,7 @@ func aesCBC(data []byte, decrypt bool) (rapdu *apdu.RAPDU, err error) {
 	}
 
 	iv := make([]byte, aes.BlockSize)
-	key, err := imx6.DCP.DeriveKey(RID, iv)
+	key, err := imx6.DCP.DeriveKey(RID, iv, -1)
 
 	if err != nil {
 		return
@@ -86,7 +86,7 @@ func encrypt(input []byte, diversifier []byte) (output []byte, err error) {
 	// derivation, therefore we use the empty allocated IV before it being
 	// filled.
 	iv := make([]byte, aes.BlockSize)
-	key, err := imx6.DCP.DeriveKey(diversifier, iv)
+	key, err := imx6.DCP.DeriveKey(diversifier, iv, -1)
 
 	if err != nil {
 		return
@@ -107,7 +107,7 @@ func Decrypt(input []byte, diversifier []byte) (output []byte, err error) {
 	// derivation, therefore we use the empty allocated IV before it being
 	// filled.
 	iv := make([]byte, aes.BlockSize)
-	key, err := imx6.DCP.DeriveKey(diversifier, iv)
+	key, err := imx6.DCP.DeriveKey(diversifier, iv, -1)
 
 	if err != nil {
 		return
