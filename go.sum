@@ -9,6 +9,8 @@ github.com/f-secure-foundry/gvisor v0.0.0-20191224100818-98827aa91607 h1:qEivZMI
 github.com/f-secure-foundry/gvisor v0.0.0-20191224100818-98827aa91607/go.mod h1:rPM8OvTBwX0eD8lW4bytttlKgsWOsHwWu0U9fj3y/BU=
 github.com/f-secure-foundry/tamago v0.0.0-20200702080126-71cb40f0a220 h1:y5UeYHr6nb+SgDWVdJnfz5AYR3BB0DCB5OOZf5uuVRQ=
 github.com/f-secure-foundry/tamago v0.0.0-20200702080126-71cb40f0a220/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
+github.com/f-secure-foundry/tamago v0.0.0-20200709144150-40f294d0df3a h1:kWBRIi0wa7XwTk8pGD846koWUoZ+Sq4jg7d+0ZS/OpY=
+github.com/f-secure-foundry/tamago v0.0.0-20200709144150-40f294d0df3a/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
 github.com/gofrs/flock v0.6.1-0.20180915234121-886344bea079/go.mod h1:F1TvTiK9OcQqauNUHlbJvyl9Qa1QvF/gOUDKA14jxHU=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
@@ -51,6 +53,8 @@ github.com/vishvananda/netns v0.0.0-20171111001504-be1fbeda1936/go.mod h1:ZjcWmF
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 h1:psW17arqaxU48Z5kZ0CQnkZWQJsqcURM6tKiBApRjXI=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
+golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899 h1:DZhuSZLsGlFL4CmhA8BcRA0mnthyA/nZ00AqCUo7vHg=
+golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
