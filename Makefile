@@ -23,7 +23,6 @@ QEMU ?= qemu-system-arm -machine mcimx6ul-evk -cpu cortex-a7 -m 512M \
 
 SHELL = /bin/bash
 DCD=imx6ul-512mb.cfg
-JOBS=2
 
 .PHONY: clean qemu qemu-gdb
 
