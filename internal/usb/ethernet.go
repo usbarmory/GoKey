@@ -20,6 +20,7 @@ import (
 
 	"gvisor.dev/gvisor/pkg/tcpip"
 	"gvisor.dev/gvisor/pkg/tcpip/buffer"
+	"gvisor.dev/gvisor/pkg/tcpip/stack"
 	"gvisor.dev/gvisor/pkg/tcpip/link/channel"
 )
 
@@ -133,24 +134,26 @@ func ECMControl(_ []byte, lastErr error) (in []byte, err error) {
 // ECMTx implements the endpoint 1 IN function, used to transmit Ethernet
 // packet from device to host.
 func ECMTx(_ []byte, lastErr error) (in []byte, err error) {
-	select {
-	case info := <-link.C:
-		hdr := info.Pkt.Header.View()
-		payload := info.Pkt.Data.ToView()
+	info, valid := link.Read()
 
-		proto := make([]byte, 2)
-		binary.BigEndian.PutUint16(proto, uint16(info.Proto))
-
-		// Ethernet frame header
-		in = append(in, hostMACBytes...)
-		in = append(in, deviceMACBytes...)
-		in = append(in, proto...)
-		// packet header
-		in = append(in, hdr...)
-		// payload
-		in = append(in, payload...)
-	default:
+	if !valid {
+		return
 	}
+
+	hdr := info.Pkt.Header.View()
+	payload := info.Pkt.Data.ToView()
+
+	proto := make([]byte, 2)
+	binary.BigEndian.PutUint16(proto, uint16(info.Proto))
+
+	// Ethernet frame header
+	in = append(in, hostMACBytes...)
+	in = append(in, deviceMACBytes...)
+	in = append(in, proto...)
+	// packet header
+	in = append(in, hdr...)
+	// payload
+	in = append(in, payload...)
 
 	return
 }
@@ -173,7 +176,7 @@ func ECMRx(out []byte, lastErr error) (_ []byte, err error) {
 	proto := tcpip.NetworkProtocolNumber(binary.BigEndian.Uint16(rx[12:14]))
 	payload := buffer.NewViewFromBytes(rx[14:])
 
-	pkt := tcpip.PacketBuffer{
+	pkt := &stack.PacketBuffer{
 		LinkHeader: hdr,
 		Data:       payload.ToVectorisedView(),
 	}

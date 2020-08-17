@@ -252,7 +252,7 @@ func startSSHServer(s *stack.Stack, addr tcpip.Address, port uint16, nic tcpip.N
 	}
 
 	fullAddr := tcpip.FullAddress{Addr: addr, Port: port, NIC: nic}
-	listener, err := gonet.NewListener(s, fullAddr, ipv4.ProtocolNumber)
+	listener, err := gonet.ListenTCP(s, fullAddr, ipv4.ProtocolNumber)
 
 	if err != nil {
 		log.Fatal("listener error: ", err)
