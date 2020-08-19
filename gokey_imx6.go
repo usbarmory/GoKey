@@ -13,6 +13,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 
 	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/ccid"
@@ -21,12 +22,15 @@ import (
 
 	"github.com/f-secure-foundry/tamago/imx6"
 	imxusb "github.com/f-secure-foundry/tamago/imx6/usb"
+	"github.com/f-secure-foundry/tamago/imx6/usb/ethernet"
 	_ "github.com/f-secure-foundry/tamago/usbarmory/mark-two"
 )
 
-const IP = "10.0.0.10"
-const hostMAC = "1a:55:89:a2:69:42"
-const deviceMAC = "1a:55:89:a2:69:41"
+const (
+	hostMAC = "1a:55:89:a2:69:42"
+	deviceMAC = "1a:55:89:a2:69:41"
+	IP = "10.0.0.10"
+)
 
 func init() {
 	if !imx6.Native {
@@ -99,16 +103,38 @@ func main() {
 		return
 	}
 
+	hostAddress, err := net.ParseMAC(hostMAC)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	deviceAddress, err := net.ParseMAC(deviceMAC)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Configure Ethernet over USB endpoints
 	// (ECM protocol, only supported on Linux hosts).
-	usb.ConfigureECM(device, hostMAC, deviceMAC, link)
+	eth := ethernet.NIC{
+		Host: hostAddress,
+		Device: deviceAddress,
+		Link: link,
+	}
+
+	err = eth.Init(device, 0)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	imxusb.USB1.Init()
 	imxusb.USB1.DeviceMode()
 	imxusb.USB1.Reset()
 
 	if err := imx6.SetARMFreq(198); err != nil {
-		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
+		log.Fatalf("WARNING: error setting ARM frequency: %v\n", err)
 	}
 
 	// never returns
