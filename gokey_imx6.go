@@ -27,9 +27,9 @@ import (
 )
 
 const (
-	hostMAC = "1a:55:89:a2:69:42"
+	hostMAC   = "1a:55:89:a2:69:42"
 	deviceMAC = "1a:55:89:a2:69:41"
-	IP = "10.0.0.10"
+	IP        = "10.0.0.10"
 )
 
 func init() {
@@ -118,9 +118,9 @@ func main() {
 	// Configure Ethernet over USB endpoints
 	// (ECM protocol, only supported on Linux hosts).
 	eth := ethernet.NIC{
-		Host: hostAddress,
+		Host:   hostAddress,
 		Device: deviceAddress,
-		Link: link,
+		Link:   link,
 	}
 
 	err = eth.Init(device, 0)
