@@ -70,7 +70,7 @@ check_bundled_keys:
 
 clean:
 	rm -f $(APP) gokey_vpcd
-	@rm -fr $(APP).bin $(APP).imx $(APP)-signed.imx $(APP).csf
+	@rm -fr $(APP).bin $(APP).imx $(APP)-signed.imx $(APP).csf $(APP).dcd
 
 qemu: $(APP)
 	$(QEMU) -kernel $(APP)
