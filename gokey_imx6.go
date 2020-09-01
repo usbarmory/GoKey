@@ -20,10 +20,10 @@ import (
 	"github.com/f-secure-foundry/GoKey/internal/icc"
 	"github.com/f-secure-foundry/GoKey/internal/usb"
 
-	"github.com/f-secure-foundry/tamago/imx6"
-	imxusb "github.com/f-secure-foundry/tamago/imx6/usb"
-	"github.com/f-secure-foundry/tamago/imx6/usb/ethernet"
-	_ "github.com/f-secure-foundry/tamago/usbarmory/mark-two"
+	"github.com/f-secure-foundry/tamago/soc/imx6"
+	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
+	"github.com/f-secure-foundry/tamago/soc/imx6/usb/ethernet"
+	_ "github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 )
 
 const (

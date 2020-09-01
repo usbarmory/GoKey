@@ -49,6 +49,8 @@ github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1 h1:IaLDpOj
 github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1/go.mod h1:n17AP1iZxpRCzqyHLJdpa2e1SzY1rNZ9tt3/MePxlGs=
 github.com/f-secure-foundry/tamago v0.0.0-20200821161239-d7ddbcb6ba75 h1:A920Rj1+Zy2i4hfw7BLXYweE+u2UDOMYfz3tLKesV10=
 github.com/f-secure-foundry/tamago v0.0.0-20200821161239-d7ddbcb6ba75/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
+github.com/f-secure-foundry/tamago v0.0.0-20200901084418-da45d094d319 h1:63gwr2ediGJSausj8bjCz4xCCTmt6vJX+n3cVB91rc4=
+github.com/f-secure-foundry/tamago v0.0.0-20200901084418-da45d094d319/go.mod h1:DqIfWSA3FGzHRg3lrltaiqlpVSZwqRkRTbuLz335LoI=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e/go.mod h1:bBOAhwG1umN6/6ZUMtDFBMQR8jRg9O75tm9K00oMsK4=

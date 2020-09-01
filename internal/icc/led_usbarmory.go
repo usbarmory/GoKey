@@ -11,7 +11,7 @@
 package icc
 
 import (
-	"github.com/f-secure-foundry/tamago/usbarmory/mark-two"
+	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 )
 
 // LED turns on/off an LED by name.

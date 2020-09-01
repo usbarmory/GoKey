@@ -17,7 +17,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/f-secure-foundry/tamago/imx6"
+	"github.com/f-secure-foundry/tamago/soc/imx6"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
 )

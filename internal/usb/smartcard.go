@@ -13,8 +13,8 @@ package usb
 import (
 	"github.com/f-secure-foundry/GoKey/internal/ccid"
 
-	"github.com/f-secure-foundry/tamago/imx6"
-	"github.com/f-secure-foundry/tamago/imx6/usb"
+	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
 )
 
 var queue = make(chan []byte)

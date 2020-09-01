@@ -3,7 +3,7 @@ module github.com/f-secure-foundry/GoKey
 go 1.15
 
 require (
-	github.com/f-secure-foundry/tamago v0.0.0-20200821161239-d7ddbcb6ba75
+	github.com/f-secure-foundry/tamago v0.0.0-20200901084418-da45d094d319
 	github.com/hsanjuan/go-nfctype4 v0.0.0-20200427083210-bd42ed8410a1
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a

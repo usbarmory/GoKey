@@ -11,7 +11,7 @@
 package usb
 
 import (
-	"github.com/f-secure-foundry/tamago/imx6/usb"
+	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
 )
 
 const configurationIndex = 0
