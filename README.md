@@ -275,10 +275,10 @@ make imx CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key pa
 
 For signed images to be executed on [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
 USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
-(SNVS), use the `signed_imx` target:
+(SNVS), the `imx_signed` target should be used with the relevant `HAB_KEYS`
+set:
 
 ```
-# for HAB_KEYS, see https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)
 make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> HAB_KEYS=<secure boot keys path> SNVS=ssh
 ```
 
