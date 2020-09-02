@@ -278,8 +278,8 @@ USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
 (SNVS), use the `signed_imx` target:
 
 ```
-# for KEYS_PATH, see https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)
-make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> KEYS_PATH=<secure boot keys path> SNVS=ssh
+# for HAB_KEYS, see https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)
+make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> HAB_KEYS=<secure boot keys path> SNVS=ssh
 ```
 
 Virtual Smart Card

@@ -51,8 +51,8 @@ check_usbarmory_git:
 	fi
 
 check_hab_keys:
-	@if [ "${KEYS_PATH}" == "" ]; then \
-		echo 'You need to set the KEYS_PATH variable to the path of secure/verified boot keys'; \
+	@if [ "${HAB_KEYS}" == "" ]; then \
+		echo 'You need to set the HAB_KEYS variable to the path of secure boot keys'; \
 		echo 'See https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II)'; \
 		exit 1; \
 	fi
@@ -111,11 +111,11 @@ $(APP).imx: $(APP).bin $(APP).dcd
 
 $(APP)-signed.imx: check_usbarmory_git check_hab_keys $(APP).imx
 	${USBARMORY_GIT}/software/secure_boot/usbarmory_csftool \
-		--csf_key ${KEYS_PATH}/CSF_1_key.pem \
-		--csf_crt ${KEYS_PATH}/CSF_1_crt.pem \
-		--img_key ${KEYS_PATH}/IMG_1_key.pem \
-		--img_crt ${KEYS_PATH}/IMG_1_crt.pem \
-		--table   ${KEYS_PATH}/SRK_1_2_3_4_table.bin \
+		--csf_key ${HAB_KEYS}/CSF_1_key.pem \
+		--csf_crt ${HAB_KEYS}/CSF_1_crt.pem \
+		--img_key ${HAB_KEYS}/IMG_1_key.pem \
+		--img_crt ${HAB_KEYS}/IMG_1_crt.pem \
+		--table   ${HAB_KEYS}/SRK_1_2_3_4_table.bin \
 		--index   1 \
 		--image   $(APP).imx \
 		--output  $(APP).csf && \
