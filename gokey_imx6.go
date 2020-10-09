@@ -23,6 +23,7 @@ import (
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
 	"github.com/f-secure-foundry/tamago/soc/imx6/usb/ethernet"
+
 	_ "github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 )
 
