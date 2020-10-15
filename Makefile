@@ -75,6 +75,8 @@ clean:
 qemu: $(APP)
 	$(QEMU) -kernel $(APP)
 
+qemu-gdb: GOFLAGS := $(GOFLAGS:-s=)
+qemu-gdb: GOFLAGS := $(GOFLAGS:-w=)
 qemu-gdb: $(APP)
 	$(QEMU) -kernel $(APP) -S -s
 
