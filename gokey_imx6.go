@@ -86,7 +86,7 @@ func main() {
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
-		err := u2f.Configure(device, u2fPublicKey, u2fPrivateKey)
+		err := u2f.Configure(device, u2fPublicKey, u2fPrivateKey, SNVS)
 
 		if err != nil {
 			log.Printf("U2F configuration error: %v", err)

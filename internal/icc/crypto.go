@@ -17,7 +17,6 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
-	"errors"
 	"log"
 	"math"
 	"math/big"
@@ -250,39 +249,6 @@ func EncryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) 
 	mac.Write(output[len(iv):])
 
 	output = append(output, mac.Sum(nil)...)
-
-	return
-}
-
-// DecryptOFB performs symmetric AES decryption using AES-256-OFB. The
-// ciphertext format is expected to have the initialization vector prepended
-// and an HMAC for authentication appended: `iv (16 bytes) || ciphertext ||
-// hmac (32 bytes)`.
-func DecryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) {
-	block, err := aes.NewCipher(key)
-
-	if err != nil {
-		return
-	}
-
-	mac := hmac.New(sha256.New, key)
-	mac.Write(iv)
-
-	if len(input) < mac.Size() {
-		return nil, errors.New("invalid length for decrypt")
-	}
-
-	inputMac := input[len(input)-mac.Size():]
-	mac.Write(input[0 : len(input)-mac.Size()])
-
-	if !hmac.Equal(inputMac, mac.Sum(nil)) {
-		return nil, errors.New("invalid HMAC")
-	}
-
-	stream := cipher.NewOFB(block, iv)
-	output = make([]byte, len(input)-mac.Size())
-
-	stream.XORKeyStream(output, input[0:len(input)-mac.Size()])
 
 	return
 }

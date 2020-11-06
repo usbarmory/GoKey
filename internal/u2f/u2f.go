@@ -12,14 +12,17 @@ package u2f
 
 import (
 	"errors"
+	"fmt"
+
+	"github.com/f-secure-foundry/GoKey/internal/snvs"
+
+	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
 
 	"github.com/gsora/fidati"
 	"github.com/gsora/fidati/keyring"
 	"github.com/gsora/fidati/u2fhid"
 	"github.com/gsora/fidati/u2ftoken"
-
-	"github.com/f-secure-foundry/tamago/soc/imx6"
-	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
 )
 
 // Present is a channel used to signal user presence.
@@ -27,8 +30,17 @@ var Presence chan bool
 
 var u2fKeyring *keyring.Keyring
 
-func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte) (err error) {
+func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte, SNVS bool) (err error) {
 	k := &keyring.Keyring{}
+
+	if SNVS && len(u2fPrivateKey) != 0 {
+		u2fPrivateKey, err = snvs.Decrypt(u2fPrivateKey, []byte(DiversifierU2F))
+
+		if err != nil {
+			return fmt.Errorf("key decryption failed, %v", err)
+		}
+	}
+
 	token, err := u2ftoken.New(k, u2fPublicKey, u2fPrivateKey)
 
 	if err != nil {

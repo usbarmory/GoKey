@@ -24,6 +24,7 @@ import (
 	"regexp"
 
 	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/f-secure-foundry/GoKey/internal/snvs"
 	"github.com/f-secure-foundry/GoKey/internal/u2f"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
@@ -334,7 +335,7 @@ func StartSSHServer(s *stack.Stack, IP string, authorizedKey []byte, privateKey 
 	card = c
 
 	if card.SNVS && len(privateKey) != 0 {
-		privateKey, err = icc.Decrypt(privateKey, []byte(DiversifierSSH))
+		privateKey, err = snvs.Decrypt(privateKey, []byte(DiversifierSSH))
 
 		if err != nil {
 			return fmt.Errorf("key decryption failed, %v", err)

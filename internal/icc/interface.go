@@ -15,6 +15,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/f-secure-foundry/GoKey/internal/snvs"
+
 	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/keybase/go-crypto/openpgp"
 	"github.com/keybase/go-crypto/openpgp/packet"
@@ -117,7 +119,7 @@ func (card *Interface) Init() (err error) {
 	}
 
 	if card.SNVS {
-		card.ArmoredKey, err = Decrypt(card.ArmoredKey, []byte(DiversifierPGP))
+		card.ArmoredKey, err = snvs.Decrypt(card.ArmoredKey, []byte(DiversifierPGP))
 	}
 
 	if err != nil {
