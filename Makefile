@@ -120,7 +120,6 @@ $(APP)-signed.imx: check_usbarmory_git check_hab_keys $(APP).imx
 		--img_crt ${HAB_KEYS}/IMG_1_crt.pem \
 		--table   ${HAB_KEYS}/SRK_1_2_3_4_table.bin \
 		--index   1 \
-		--serial \
 		--image   $(APP).imx \
 		--output  $(APP).csf && \
 	cat $(APP).imx $(APP).csf > $(APP)-signed.imx
