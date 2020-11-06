@@ -20,6 +20,9 @@ import (
 	"github.com/keybase/go-crypto/openpgp/packet"
 )
 
+// Diversifier for hardware key derivation (OpenPGP key wrapping).
+const DiversifierPGP = "GoKeySNVSOpenPGP"
+
 const (
 	// p48, 7.1 Usage of ISO Standard Commands, OpenPGP application Version 3.4.
 	SELECT                       = 0xa4

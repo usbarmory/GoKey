@@ -7,16 +7,16 @@ andrea.barisani@f-secure.com | andrea@inversepath.com
 Introduction
 ============
 
-The GoKey application implements an [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
-USB smartcard written in pure Go.
+The GoKey application implements an USB smartcard in pure Go with support for:
+
+  * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
+  * [FIDO2 U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
 
 In combination with the [TamaGo framework](https://github.com/f-secure-foundry/tamago)
 GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-**WARNING**: GoKey is in early stages of development, all code should be
-considered at beta stage and not ready for production use. GoKey is currently
-working only on Linux hosts, Windows compatibility is being investigated.
+**WARNING**: GoKey currently works only on Linux hosts.
 
 ![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
 
@@ -35,9 +35,9 @@ AES encryption/decryption of user data, through the Secure Non-Volatile Storage
 The OTPMK is used to derive device specific keys, which can be used for the
 following operations:
 
-* Bundling of OpenPGP/SSH private keys, within the GoKey firmware, in encrypted
-  form. This ensures that bundled keys are authenticated, confidential and only
-  decrypted on a specific unit.
+* Bundling of OpenPGP/SSH/U2F private keys, within the GoKey firmware, in
+  encrypted form. This ensures that bundled keys are authenticated, confidential
+  and only decrypted on a specific unit.
 
 * Creation of the AES256 Data Object used by PSO:DEC (in AES mode) and PSO:ENC,
   this entails that AES encryption/decryption operations can only be executed
@@ -48,8 +48,8 @@ On units which are *not* secure booted:
 * The OpenPGP private key is bundled without hardware encryption, and therefore
   only encrypted with the user passphrase (if present in the key).
 
-* The optional SSH private key is bundled without hardware encryption, and
-  therefore left in plaintext.
+* The optional SSH and U2F private keys are bundled without hardware
+  encryption, and therefore left in plaintext.
 
 * PSO:DEC (in AES mode) and PSO:ENC are not available.
 
@@ -184,8 +184,8 @@ directory:
 git clone https://github.com/f-secure-foundry/GoKey && cd GoKey
 ```
 
-OpenPGP keys
-------------
+Keys
+====
 
 As a pre-requisite for all compilation targets, the following environment
 variables must be set or passed to the make command:
@@ -211,6 +211,9 @@ variables must be set or passed to the make command:
 
   When SNVS is set the key is encrypted, before being bundled, for a specific
   hardware unit.
+
+OpenPGP
+-------
 
 * `PGP_SECRET_KEY`: secret OpenPGP keys in ASCII armor format, bundled in
   the output firmware.
@@ -247,6 +250,21 @@ gpg --armor --export-options export-minimal,export-clean --export-secret-key ID
 
 *IMPORTANT*: Please note that only RSA, ECDSA, ECDH keys are supported. Any
 other key (such as ElGamal, Ed25519) will not work.
+
+U2F keys
+--------
+
+To enable U2F support using the [fidati](https://github.com/gsora/fidati)
+library, the following variables can be set:
+
+* `U2F_PUBLIC_KEY`: optional U2F device attestation certificate,
+  if empty the U2F interface is disabled.
+
+* `U2F_PRIVATE_KEY`: optional U2F device attestation private key,
+  if empty the U2F interface is disabled.
+
+  When SNVS is set the key is encrypted, before being bundled, for a specific
+  hardware unit.
 
 Bare metal
 ----------
@@ -286,7 +304,7 @@ Virtual Smart Card
 ------------------
 
 The [virtual smart card project](http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html)
-allows testing of the GoKey firmware in userspace.
+allows testing of GoKey OpenPGP functionality in userspace.
 
 Build the `gokey_vpcd` application executable:
 
@@ -294,8 +312,8 @@ Build the `gokey_vpcd` application executable:
 make gokey_vpcd
 ```
 
-Configuration
-=============
+OpenPGP configuration
+=====================
 
 CCID driver
 -----------
@@ -405,8 +423,8 @@ sudo systemctl start pcscd
 ./gokey_vpcd -c 127.0.0.1:35963
 ```
 
-Operation
-=========
+OpenPGP operation
+=================
 
 You should be able to use the GoKey smartcard like any other OpenPGP card, you
 can test its operation with the following commands:
@@ -458,10 +476,11 @@ and perform additional management functions.
 ```
   exit, quit                    # close session
   help                          # this help
-  init                          # initialize card
+  init                          # initialize OpenPGP card
+  u2f                           # initialize U2F token
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
-  status                        # display card status
+  status                        # display OpenPGP card status
   lock   (all|sig|dec)          # key lock
   unlock (all|sig|dec)          # key unlock, prompts decryption passphrase
 ```
@@ -480,6 +499,11 @@ Send manual commands to GnuPG smart-card daemon (SCD)
 ```
 gpg-connect-agent "SCD RANDOM 256" /bye | perl -pe 'chomp;s/^D\s//;s/%(0[AD]|25)/chr(hex($1))/eg;if(eof&&/^OK$/){exit}'
 ```
+
+U2F operation
+=============
+
+TODO
 
 License
 =======

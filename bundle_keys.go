@@ -38,7 +38,9 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/f-secure-foundry/GoKey/internal/u2f"
 
 	"golang.org/x/sys/unix"
 )
@@ -60,6 +62,9 @@ func main() {
 	var sshPublicKey []byte
 	var sshPrivateKey []byte
 	var pgpSecretKey []byte
+
+	var u2fPublicKey []byte
+	var u2fPrivateKey []byte
 
 	if os.Getenv("SNVS") != "" {
 		SNVS = true
@@ -91,9 +96,29 @@ func main() {
 
 	if sshPrivateKeyPath := os.Getenv("SSH_PRIVATE_KEY"); sshPrivateKeyPath != "" {
 		if SNVS {
-			sshPrivateKey, err = encrypt(sshPrivateKeyPath, icc.DiversifierSSH)
+			sshPrivateKey, err = encrypt(sshPrivateKeyPath, gokey.DiversifierSSH)
 		} else {
 			sshPrivateKey, err = ioutil.ReadFile(sshPrivateKeyPath)
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if u2fPublicKeyPath := os.Getenv("U2F_PUBLIC_KEY"); u2fPublicKeyPath != "" {
+		u2fPublicKey, err = ioutil.ReadFile(u2fPublicKeyPath)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if u2fPrivateKeyPath := os.Getenv("U2F_PRIVATE_KEY"); u2fPrivateKeyPath != "" {
+		if SNVS {
+			u2fPrivateKey, err = encrypt(u2fPrivateKeyPath, u2f.DiversifierU2F)
+		} else {
+			u2fPrivateKey, err = ioutil.ReadFile(u2fPrivateKeyPath)
 		}
 
 		if err != nil {
@@ -143,6 +168,14 @@ func init() {
 
 	if len(sshPrivateKey) > 0 {
 		out.WriteString(fmt.Sprintf("\tsshPrivateKey = []byte(%s)\n", strconv.Quote(string(sshPrivateKey))))
+	}
+
+	if len(u2fPublicKey) > 0 {
+		out.WriteString(fmt.Sprintf("\tu2fPublicKey = []byte(%s)\n", strconv.Quote(string(u2fPublicKey))))
+	}
+
+	if len(u2fPrivateKey) > 0 {
+		out.WriteString(fmt.Sprintf("\tu2fPrivateKey = []byte(%s)\n", strconv.Quote(string(u2fPrivateKey))))
 	}
 
 	out.WriteString(fmt.Sprintf("\tpgpSecretKey = []byte(%s)\n", strconv.Quote(string(pgpSecretKey))))

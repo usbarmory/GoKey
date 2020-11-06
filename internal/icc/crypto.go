@@ -27,12 +27,6 @@ import (
 	"github.com/keybase/go-crypto/rsa"
 )
 
-// Diversifier for hardware key derivation (OpenPGP key wrapping).
-const DiversifierPGP = "GoKeySNVSOpenPGP"
-
-// Diversifier for hardware key derivation (SSH private key wrapping).
-const DiversifierSSH = "GoKeySNVSOpenSSH"
-
 const (
 	// p65, 7.2.11 PSO: DECIPHER, OpenPGP application Version 3.4
 	RSA_PADDING = 0x00

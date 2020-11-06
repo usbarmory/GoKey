@@ -24,6 +24,7 @@ import (
 	"regexp"
 
 	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/f-secure-foundry/GoKey/internal/u2f"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 
@@ -34,20 +35,29 @@ import (
 	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
 	"gvisor.dev/gvisor/pkg/tcpip/network/ipv4"
 	"gvisor.dev/gvisor/pkg/tcpip/stack"
+
+	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 )
 
-var card *icc.Interface
+func init() {
+	imx6.I2C1.Init()
+	usbarmory.EnableDebugAccessory()
+}
+
 
 const help = `
   exit, quit                    # close session
   help                          # this help
-  init                          # initialize card
+  init                          # initialize OpenPGP smartcard
+  u2f                           # initialize U2F token
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
-  status                        # display card status
+  status                        # display OpenPGP card status
   lock   (all|sig|dec)          # key lock
   unlock (all|sig|dec)          # key unlock, prompts decryption passphrase
 `
+
+var card *icc.Interface
 
 var lockCommandPattern = regexp.MustCompile(`(lock|unlock) (all|sig|dec)`)
 
@@ -110,6 +120,8 @@ func handleCommand(term *terminal.Terminal, cmd string) (err error) {
 		res = string(term.Escape.Cyan) + help + string(term.Escape.Reset)
 	case "init":
 		err = card.Init()
+	case "u2f":
+		err = u2f.Init()
 	case "rand":
 		buf := make([]byte, 32)
 		_, _ = rand.Read(buf)
@@ -321,7 +333,7 @@ func StartSSHServer(s *stack.Stack, IP string, authorizedKey []byte, privateKey 
 	card = c
 
 	if card.SNVS && len(privateKey) != 0 {
-		privateKey, err = icc.Decrypt(privateKey, []byte(icc.DiversifierSSH))
+		privateKey, err = icc.Decrypt(privateKey, []byte(DiversifierSSH))
 
 		if err != nil {
 			return fmt.Errorf("key decryption failed, %v", err)

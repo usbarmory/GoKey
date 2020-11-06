@@ -24,6 +24,9 @@ import (
 
 const MTU = 1500
 
+// Diversifier for hardware key derivation (SSH private key wrapping).
+const DiversifierSSH = "GoKeySNVSOpenSSH"
+
 func configureNetworkStack(addr tcpip.Address, nic tcpip.NICID, hwaddr string) (s *stack.Stack, link *channel.Endpoint) {
 	s = stack.New(stack.Options{
 		NetworkProtocols: []stack.NetworkProtocol{

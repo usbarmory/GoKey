@@ -9,6 +9,7 @@
 BUILD_USER = $(shell whoami)
 BUILD_HOST = $(shell hostname)
 BUILD_DATE = $(shell /bin/date -u "+%Y-%m-%d %H:%M:%S")
+BUILD_TAGS = "linkramsize"
 BUILD = ${BUILD_USER}@${BUILD_HOST} on ${BUILD_DATE}
 REV = $(shell git rev-parse --short HEAD 2> /dev/null)
 PKG = "github.com/f-secure-foundry/GoKey"
@@ -16,7 +17,7 @@ PKG = "github.com/f-secure-foundry/GoKey"
 APP := gokey
 GOENV := GO_EXTLINK_ENABLED=0 CGO_ENABLED=0 GOOS=tamago GOARM=7 GOARCH=arm
 TEXT_START := 0x80010000 # ramStart (defined in imx6/imx6ul/memory.go) + 0x10000
-GOFLAGS := -ldflags "-s -w -T $(TEXT_START) -E _rt0_arm_tamago -R 0x1000 -X '${PKG}/internal.Build=${BUILD}' -X '${PKG}/internal.Revision=${REV}'"
+GOFLAGS := -tags ${BUILD_TAGS} -ldflags "-s -w -T $(TEXT_START) -E _rt0_arm_tamago -R 0x1000 -X '${PKG}/internal.Build=${BUILD}' -X '${PKG}/internal.Revision=${REV}'"
 QEMU ?= qemu-system-arm -machine mcimx6ul-evk -cpu cortex-a7 -m 512M \
         -nographic -monitor none -serial null -serial stdio -net none \
         -semihosting -d unimp
@@ -119,6 +120,7 @@ $(APP)-signed.imx: check_usbarmory_git check_hab_keys $(APP).imx
 		--img_crt ${HAB_KEYS}/IMG_1_crt.pem \
 		--table   ${HAB_KEYS}/SRK_1_2_3_4_table.bin \
 		--index   1 \
+		--serial \
 		--image   $(APP).imx \
 		--output  $(APP).csf && \
 	cat $(APP).imx $(APP).csf > $(APP)-signed.imx

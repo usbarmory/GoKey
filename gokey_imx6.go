@@ -13,24 +13,17 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 
 	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/ccid"
 	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/f-secure-foundry/GoKey/internal/u2f"
 	"github.com/f-secure-foundry/GoKey/internal/usb"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
-	"github.com/f-secure-foundry/tamago/soc/imx6/usb/ethernet"
 
 	_ "github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
-)
-
-const (
-	hostMAC   = "1a:55:89:a2:69:42"
-	deviceMAC = "1a:55:89:a2:69:41"
-	IP        = "10.0.0.10"
 )
 
 func init() {
@@ -65,7 +58,7 @@ func main() {
 		err := card.Init()
 
 		if err != nil {
-			log.Printf("card initialization error: %v", err)
+			log.Printf("OpenPGP ICC initialization error: %v", err)
 		}
 	}
 
@@ -81,53 +74,20 @@ func main() {
 
 		// configure Smart Card over USB endpoints (CCID protocol)
 		usb.ConfigureCCID(device, reader)
-	}
-
-	// start basic networking
-	stack, link := gokey.StartNetworking(deviceMAC, IP)
-
-	if len(sshPublicKey) != 0 {
-		started := make(chan bool)
-
-		// start SSH server for management console
-		err := gokey.StartSSHServer(stack, IP, sshPublicKey, sshPrivateKey, card, started)
-
-		if err != nil {
-			log.Printf("SSH server initialization error: %v", err)
-		}
-
-		// wait for ssh server to start before responding to USB requests
-		<-started
-	}
-
-	if !imx6.Native {
+	} else {
 		return
 	}
 
-	hostAddress, err := net.ParseMAC(hostMAC)
-
-	if err != nil {
-		log.Fatal(err)
+	if len(sshPublicKey) != 0 {
+		startNetworking(device, card)
 	}
 
-	deviceAddress, err := net.ParseMAC(deviceMAC)
+	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
+		err := u2f.Configure(device, u2fPublicKey, u2fPrivateKey)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Configure Ethernet over USB endpoints
-	// (ECM protocol, only supported on Linux hosts).
-	eth := ethernet.NIC{
-		Host:   hostAddress,
-		Device: deviceAddress,
-		Link:   link,
-	}
-
-	err = eth.Init(device, 0)
-
-	if err != nil {
-		log.Fatal(err)
+		if err != nil {
+			log.Printf("U2F initialization error: %v", err)
+		}
 	}
 
 	imxusb.USB1.Init()
