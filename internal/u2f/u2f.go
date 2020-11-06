@@ -11,6 +11,8 @@
 package u2f
 
 import (
+	"errors"
+
 	"github.com/gsora/fidati"
 	"github.com/gsora/fidati/keyring"
 	"github.com/gsora/fidati/u2fhid"
@@ -23,10 +25,11 @@ import (
 // Present is a channel used to signal user presence.
 var Presence chan bool
 
-var u2fKeyring keyring.Keyring
+var u2fKeyring *keyring.Keyring
 
 func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte) (err error) {
-	token, err := u2ftoken.New(&u2fKeyring, u2fPublicKey, u2fPrivateKey)
+	k := &keyring.Keyring{}
+	token, err := u2ftoken.New(k, u2fPublicKey, u2fPrivateKey)
 
 	if err != nil {
 		return
@@ -38,26 +41,27 @@ func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte) (e
 		return
 	}
 
-	if err != nil {
-		return
-	}
-
 	err = fidati.ConfigureUSB(device.Configurations[0], device, hid)
 
 	if err != nil {
 		return
 	}
 
-	numInterfaces := len(device.Configurations[0].Interfaces)
-
 	// resolve conflict with Ethernet over USB
+	numInterfaces := len(device.Configurations[0].Interfaces)
 	device.Configurations[0].Interfaces[numInterfaces-1].Endpoints[usb.OUT].EndpointAddress = 0x04
 	device.Configurations[0].Interfaces[numInterfaces-1].Endpoints[usb.IN].EndpointAddress = 0x84
+
+	u2fKeyring = k
 
 	return
 }
 
 func Init(managed bool) (err error) {
+	if u2fKeyring == nil {
+		return errors.New("cannot initialize U2F, missing configuration")
+	}
+
 	if managed {
 		Presence = make(chan bool)
 	}
