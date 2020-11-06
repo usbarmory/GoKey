@@ -228,9 +228,7 @@ func handleChannel(newChannel ssh.NewChannel) {
 				w := binary.BigEndian.Uint32(req.Payload[4+termVariableSize:])
 				h := binary.BigEndian.Uint32(req.Payload[4+termVariableSize+4:])
 
-				log.Printf("resizing terminal (%s:%dx%d)", req.Type, w, h)
 				_ = term.SetSize(int(w), int(h))
-
 				_ = req.Reply(true, nil)
 			case "window-change":
 				// p10, 6.7.  Window Dimension Change Message, RFC4254
@@ -242,7 +240,6 @@ func handleChannel(newChannel ssh.NewChannel) {
 				w := binary.BigEndian.Uint32(req.Payload)
 				h := binary.BigEndian.Uint32(req.Payload[4:])
 
-				log.Printf("resizing terminal (%s:%dx%d)", req.Type, w, h)
 				_ = term.SetSize(int(w), int(h))
 			}
 		}

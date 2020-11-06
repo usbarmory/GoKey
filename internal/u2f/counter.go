@@ -53,8 +53,8 @@ func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
-func (c *Counter) Increment(appID []byte, challenge []byte, keyHandle []byte) (cnt uint32, err error) {
-	log.Printf("U2F increment appId:%x challenge:%x keyHandle:%x", appID, challenge, keyHandle)
+func (c *Counter) Increment(appID []byte, _ []byte, _ []byte) (cnt uint32, err error) {
+	log.Printf("U2F increment appId:%x", appID)
 
 	return c.cmd(increment)
 }
