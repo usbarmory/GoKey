@@ -78,12 +78,23 @@ func main() {
 		return
 	}
 
+	var managed bool
+
 	if len(sshPublicKey) != 0 {
 		startNetworking(device, card)
+		managed = true
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
 		err := u2f.Configure(device, u2fPublicKey, u2fPrivateKey)
+
+		if err != nil {
+			log.Printf("U2F configuration error: %v", err)
+		}
+
+		if !managed {
+			err = u2f.Init(false)
+		}
 
 		if err != nil {
 			log.Printf("U2F initialization error: %v", err)

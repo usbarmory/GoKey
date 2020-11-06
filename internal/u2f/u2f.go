@@ -13,12 +13,15 @@ package u2f
 import (
 	"github.com/gsora/fidati"
 	"github.com/gsora/fidati/keyring"
-	"github.com/gsora/fidati/u2ftoken"
 	"github.com/gsora/fidati/u2fhid"
+	"github.com/gsora/fidati/u2ftoken"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
 )
+
+// Present is a channel used to signal user presence.
+var Presence chan bool
 
 var u2fKeyring keyring.Keyring
 
@@ -48,13 +51,13 @@ func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte) (e
 	numInterfaces := len(device.Configurations[0].Interfaces)
 
 	// resolve conflict with Ethernet over USB
-	device.Configurations[0].Interfaces[numInterfaces - 1].Endpoints[usb.OUT].EndpointAddress = 0x04
-	device.Configurations[0].Interfaces[numInterfaces - 1].Endpoints[usb.IN].EndpointAddress = 0x84
+	device.Configurations[0].Interfaces[numInterfaces-1].Endpoints[usb.OUT].EndpointAddress = 0x04
+	device.Configurations[0].Interfaces[numInterfaces-1].Endpoints[usb.IN].EndpointAddress = 0x84
 
 	return
 }
 
-func Init() (err error) {
+func Init(managed bool) (err error) {
 	counter := &Counter{}
 	err = counter.Init()
 
@@ -68,8 +71,15 @@ func Init() (err error) {
 		return
 	}
 
+	counter.Presence = Presence
 	u2fKeyring.MasterKey = key
 	u2fKeyring.Counter = counter
+
+	if managed {
+		counter.UserPresence = counter.verifyUserPresence
+	} else {
+		counter.UserPresence = counter.implicitUserPresence
+	}
 
 	return
 }

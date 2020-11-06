@@ -10,7 +10,7 @@ Introduction
 The GoKey application implements an USB smartcard in pure Go with support for:
 
   * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
-  * [FIDO2 U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
+  * [FIDO U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
 
 In combination with the [TamaGo framework](https://github.com/f-secure-foundry/tamago)
 GoKey is meant to be executed on ARM bare metal on hardware such as the
@@ -274,6 +274,11 @@ The U2F library performs peer-specific key derivation using a master secret
 GoKey derives such master secret using the SNVS to obtain an authenticated
 device specific value.
 
+Note that the configuration of the management interface (see _Management_) by
+means of previously mention variables affects whether FIDO U2F user presence is
+tested interactively or automatically acknowledged at each request (see _U2F
+operation_).
+
 Bare metal
 ----------
 
@@ -458,7 +463,7 @@ the LEDs are used as follows:
 |:-------------:|--------------------------------------------------|----------------------------------------|
 | blue + white  | at startup: card is initializing¹                | card has been initialized              |
 | blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
-| white         | security Operation in progress                   | no Security Operation in progress      |
+| white         | OpenPGP security operation in progress           | no security Operation in progress      |
 
 ¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
 
@@ -466,7 +471,8 @@ Management interface
 --------------------
 
 When running on bare metal the GoKey firmware exposes, on top of the USB CCID
-smartcard, an SSH server started on [Ethernet over USB](https://github.com/f-secure-foundry/usbarmory/wiki/Host-communication).
+smartcard and/or U2F token interfaces, an SSH server started on
+[Ethernet over USB](https://github.com/f-secure-foundry/usbarmory/wiki/Host-communication).
 
 The SSH server authenticates the user using the public key passed at
 compilation time with the `SSH_PUBLIC_KEY` environment variable. Any username
@@ -482,15 +488,18 @@ smartcard clients which issue unencrypted VERIFY commands with PIN/passphrases,
 and perform additional management functions.
 
 ```
-  exit, quit                    # close session
   help                          # this help
-  init                          # initialize OpenPGP card
-  u2f                           # initialize U2F token
+  exit, quit                    # close session
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
+
+  init                          # initialize OpenPGP card
   status                        # display OpenPGP card status
-  lock   (all|sig|dec)          # key lock
-  unlock (all|sig|dec)          # key unlock, prompts decryption passphrase
+  lock   (all|sig|dec)          # OpenPGP key(s) lock
+  unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
+
+  u2f                           # initialize U2F token
+  p                             # confirm user presence
 ```
 
 To prevent plaintext transmission of the PIN/passhprase, the VERIFY command
@@ -511,7 +520,15 @@ gpg-connect-agent "SCD RANDOM 256" /bye | perl -pe 'chomp;s/^D\s//;s/%(0[AD]|25)
 U2F operation
 =============
 
-TODO
+The U2F functionality can be used with any website or application that supports
+FIDO U2F.
+
+When the SSH interface is enabled (see _Management_) the U2F functionality must
+be initialized with the `u2f` command, additionally user presence must be
+demonstrated with the `2` command.
+
+When the SSH interface is disabled user presence is automatically acknowledged
+at each request.
 
 License
 =======

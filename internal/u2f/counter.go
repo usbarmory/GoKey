@@ -12,6 +12,8 @@ package u2f
 
 import (
 	"encoding/binary"
+	"log"
+	"time"
 
 	"github.com/f-secure-foundry/armoryctl/atecc608a"
 )
@@ -22,17 +24,23 @@ const (
 	increment  = 1
 	// Counter KeyID, #1 is used as it is never attached to any key.
 	keyID = 0x01
+	// user presence timeout in seconds
+	timeout = 10
 )
 
 // ATECC608A monotonic counter
-type Counter struct {}
+type Counter struct {
+	UserPresence func() bool
+	Presence     chan bool
+}
 
-func (counter *Counter) Init() (err error) {
+func (c *Counter) Init() (err error) {
+	c.Presence = make(chan bool)
 	_, err = atecc608a.SelfTest()
 	return
 }
 
-func (counter *Counter) cmd(mode byte) (cnt uint32, err error) {
+func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
 	res, err := atecc608a.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil)
 
 	if err != nil {
@@ -43,11 +51,28 @@ func (counter *Counter) cmd(mode byte) (cnt uint32, err error) {
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
-func (counter *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error) {
-	return counter.cmd(increment)
+func (c *Counter) Increment(appID []byte, challenge []byte, keyHandle []byte) (cnt uint32, err error) {
+	log.Printf("U2F increment appId:%x challenge:%x keyHandle:%x", appID, challenge, keyHandle)
+
+	return c.cmd(increment)
 }
 
-// Counter reads the ATECC608A monotonic counter in slot <1> (not attached to any key).
-func (counter *Counter) Read() (cnt uint32, err error) {
-	return counter.cmd(read)
+// Read reads the ATECC608A monotonic counter in slot <1> (not attached to any key).
+func (c *Counter) Read() (cnt uint32, err error) {
+	return c.cmd(read)
+}
+
+func (c *Counter) verifyUserPresence() bool {
+	log.Printf("U2F request for user presence, issue `p` command to confirm")
+
+	select {
+	case <-c.Presence:
+		return true
+	case <-time.After(timeout * time.Second):
+		return false
+	}
+}
+
+func (c *Counter) implicitUserPresence() bool {
+	return true
 }

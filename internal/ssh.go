@@ -35,26 +35,21 @@ import (
 	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
 	"gvisor.dev/gvisor/pkg/tcpip/network/ipv4"
 	"gvisor.dev/gvisor/pkg/tcpip/stack"
-
-	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 )
 
-func init() {
-	imx6.I2C1.Init()
-	usbarmory.EnableDebugAccessory()
-}
-
-
 const help = `
-  exit, quit                    # close session
   help                          # this help
-  init                          # initialize OpenPGP smartcard
-  u2f                           # initialize U2F token
+  exit, quit                    # close session
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
+
+  init                          # initialize OpenPGP smartcard
   status                        # display OpenPGP card status
   lock   (all|sig|dec)          # key lock
   unlock (all|sig|dec)          # key unlock, prompts decryption passphrase
+
+  u2f                           # initialize U2F token
+  p                             # confirm user presence
 `
 
 var card *icc.Interface
@@ -121,7 +116,13 @@ func handleCommand(term *terminal.Terminal, cmd string) (err error) {
 	case "init":
 		err = card.Init()
 	case "u2f":
-		err = u2f.Init()
+		err = u2f.Init(true)
+	case "p":
+		select {
+		case u2f.Presence <- true:
+		default:
+			res = "presence not requested"
+		}
 	case "rand":
 		buf := make([]byte, 32)
 		_, _ = rand.Read(buf)
