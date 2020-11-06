@@ -266,6 +266,14 @@ library, the following variables can be set:
   When SNVS is set the key is encrypted, before being bundled, for a specific
   hardware unit.
 
+The ATECC608A security element, present on all USB armory Mk II models, is used
+as hardware backed monotonic counter for U2F purposes.
+
+The U2F library performs peer-specific key derivation using a master secret
+([U2F Key Wrapping](https://www.yubico.com/blog/yubicos-u2f-key-wrapping)),
+GoKey derives such master secret using the SNVS to obtain an authenticated
+device specific value.
+
 Bare metal
 ----------
 
