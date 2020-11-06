@@ -13,6 +13,7 @@ package u2f
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/f-secure-foundry/GoKey/internal/snvs"
 
@@ -93,6 +94,8 @@ func Init(managed bool) (err error) {
 
 	u2fKeyring.MasterKey = key
 	u2fKeyring.Counter = counter
+
+	log.Printf("U2F token initialized")
 
 	return
 }
