@@ -58,8 +58,12 @@ func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte) (e
 }
 
 func Init(managed bool) (err error) {
+	if managed {
+		Presence = make(chan bool)
+	}
+
 	counter := &Counter{}
-	err = counter.Init()
+	err = counter.Init(Presence)
 
 	if err != nil {
 		return
@@ -71,15 +75,8 @@ func Init(managed bool) (err error) {
 		return
 	}
 
-	counter.Presence = Presence
 	u2fKeyring.MasterKey = key
 	u2fKeyring.Counter = counter
-
-	if managed {
-		counter.UserPresence = counter.verifyUserPresence
-	} else {
-		counter.UserPresence = counter.implicitUserPresence
-	}
 
 	return
 }

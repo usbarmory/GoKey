@@ -30,12 +30,14 @@ const (
 
 // ATECC608A monotonic counter
 type Counter struct {
-	UserPresence func() bool
-	Presence     chan bool
+	presence chan bool
 }
 
-func (c *Counter) Init() (err error) {
-	c.Presence = make(chan bool)
+// Init initializes the U2F counter function. A channel can be passed to
+// receive user presence notifications, if nil user presence is automatically
+// assumed.
+func (c *Counter) Init(presence chan bool) (err error) {
+	c.presence = presence
 	_, err = atecc608a.SelfTest()
 	return
 }
@@ -62,17 +64,18 @@ func (c *Counter) Read() (cnt uint32, err error) {
 	return c.cmd(read)
 }
 
-func (c *Counter) verifyUserPresence() bool {
+// UserPresence verifies the user presence.
+func (c *Counter) UserPresence() bool {
+	if c.presence == nil {
+		return true
+	}
+
 	log.Printf("U2F request for user presence, issue `p` command to confirm")
 
 	select {
-	case <-c.Presence:
+	case <-c.presence:
 		return true
 	case <-time.After(timeout * time.Second):
 		return false
 	}
-}
-
-func (c *Counter) implicitUserPresence() bool {
-	return true
 }
