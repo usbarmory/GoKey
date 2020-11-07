@@ -60,8 +60,8 @@ github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1 h1:IaLDpOj
 github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1/go.mod h1:n17AP1iZxpRCzqyHLJdpa2e1SzY1rNZ9tt3/MePxlGs=
 github.com/f-secure-foundry/tamago v0.0.0-20201019091057-9fc569523656 h1:gXpoVdUavMPlvjXA0bXTITYX1/Y1qKU7EBkOkFybeRo=
 github.com/f-secure-foundry/tamago v0.0.0-20201019091057-9fc569523656/go.mod h1:+xmhdYxGfaNhWUZ/F1mbwFu38H73slg/k/oPjOL7tc8=
-github.com/f-secure-foundry/tamago v0.0.0-20201106123740-636a76e10891 h1:O3Gvi9lSKWNvUTotJSjxMFL4RBBNDsEsdya0f+mkMgE=
-github.com/f-secure-foundry/tamago v0.0.0-20201106123740-636a76e10891/go.mod h1:+xmhdYxGfaNhWUZ/F1mbwFu38H73slg/k/oPjOL7tc8=
+github.com/f-secure-foundry/tamago v0.0.0-20201107175817-b08870c21469 h1:12AYCzJUhkAL/0NXx5YwuUGwjAA61sjulaCTqhoCU9I=
+github.com/f-secure-foundry/tamago v0.0.0-20201107175817-b08870c21469/go.mod h1:+xmhdYxGfaNhWUZ/F1mbwFu38H73slg/k/oPjOL7tc8=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fuzxxl/nfc/v2 v2.1.3/go.mod h1:I11FBJg/xqZnMu029uRebpKgaEx0N5Oe8AH+3L8e6Sk=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
@@ -264,8 +264,8 @@ golang.org/x/sys v0.0.0-20200217220822-9197077df867/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200915084602-288bc346aa39/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201101102859-da207088b7d1/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20201106081118-db71ae66460a h1:ALUFBKlIyeY7y5ZgPJmblk/vKz+zBQSnNiPkt41sgeg=
-golang.org/x/sys v0.0.0-20201106081118-db71ae66460a/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20201107080550-4d91cf3a1aaf h1:kt3wY1Lu5MJAnKTfoMR52Cu4gwvna4VTzNOiT8tY73s=
+golang.org/x/sys v0.0.0-20201107080550-4d91cf3a1aaf/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
