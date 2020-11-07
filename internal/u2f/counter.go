@@ -55,7 +55,6 @@ func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
 func (c *Counter) Increment(appID []byte, _ []byte, _ []byte) (cnt uint32, err error) {
 	log.Printf("U2F increment appId:%x", appID)
-
 	return c.cmd(increment)
 }
 
@@ -70,12 +69,13 @@ func (c *Counter) UserPresence() bool {
 		return true
 	}
 
-	log.Printf("U2F request for user presence, issue `p` command to confirm")
+	log.Printf("U2F user presence request, type `p` within %ds to confirm", timeout)
 
 	select {
 	case <-c.presence:
 		return true
 	case <-time.After(timeout * time.Second):
+		log.Printf("U2F user presence request timed out")
 		return false
 	}
 }

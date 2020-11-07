@@ -72,7 +72,7 @@ func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte, SN
 
 func Init(managed bool) (err error) {
 	if u2fKeyring == nil {
-		return errors.New("cannot initialize U2F, missing configuration")
+		return errors.New("U2F token initialization failed, missing configuration")
 	}
 
 	if managed {
