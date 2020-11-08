@@ -13,9 +13,11 @@ package u2f
 import (
 	"encoding/binary"
 	"log"
+	"runtime"
 	"time"
 
 	"github.com/f-secure-foundry/armoryctl/atecc608a"
+	"github.com/f-secure-foundry/armoryctl/led"
 )
 
 const (
@@ -52,6 +54,25 @@ func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
 	return binary.LittleEndian.Uint32(res), nil
 }
 
+func blink(done chan bool) {
+	var on bool
+
+	for {
+		select {
+		case <-done:
+			led.Set("white", false)
+			return
+		default:
+		}
+
+		on = !on
+		led.Set("white", on)
+
+		runtime.Gosched()
+		time.Sleep(100 * time.Second)
+	}
+}
+
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
 func (c *Counter) Increment(appID []byte, _ []byte, _ []byte) (cnt uint32, err error) {
 	log.Printf("U2F increment appId:%x", appID)
@@ -64,18 +85,24 @@ func (c *Counter) Read() (cnt uint32, err error) {
 }
 
 // UserPresence verifies the user presence.
-func (c *Counter) UserPresence() bool {
+func (c *Counter) UserPresence() (present bool) {
 	if c.presence == nil {
 		return true
 	}
+
+	var done = make(chan bool)
+	go blink(done)
 
 	log.Printf("U2F user presence request, type `p` within %ds to confirm", timeout)
 
 	select {
 	case <-c.presence:
-		return true
+		present = true
 	case <-time.After(timeout * time.Second):
 		log.Printf("U2F user presence request timed out")
-		return false
 	}
+
+	done <- true
+
+	return
 }

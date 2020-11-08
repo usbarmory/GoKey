@@ -4,9 +4,9 @@ go 1.15
 
 require (
 	github.com/albenik/go-serial/v2 v2.1.0 // indirect
-	github.com/f-secure-foundry/armoryctl v0.0.0-20201106132543-cbcd84d6ba83
+	github.com/f-secure-foundry/armoryctl v0.0.0-20201108170104-eb1c9fdef607
 	github.com/f-secure-foundry/tamago v0.0.0-20201107175817-b08870c21469
-	github.com/gsora/fidati v0.0.0-20201106184003-29320d613ab3
+	github.com/gsora/fidati v0.0.0-20201108165801-74aa6cc7881d
 	github.com/hsanjuan/go-nfctype4 v0.0.1
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897

@@ -54,8 +54,8 @@ github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymF
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/f-secure-foundry/armoryctl v0.0.0-20201106132543-cbcd84d6ba83 h1:uYvvveo+ubXUei4DnDRhP4jPpMoWKDbZFogtzsZhe/8=
-github.com/f-secure-foundry/armoryctl v0.0.0-20201106132543-cbcd84d6ba83/go.mod h1:+VH7ksGdu093Hqn/vq61jKep1B6DvgxtJaczjn2hVUQ=
+github.com/f-secure-foundry/armoryctl v0.0.0-20201108170104-eb1c9fdef607 h1:bdS2lf9lzQCCryy8DLgBUSDcieWdY/G0mWjn0iNe6Nk=
+github.com/f-secure-foundry/armoryctl v0.0.0-20201108170104-eb1c9fdef607/go.mod h1:+VH7ksGdu093Hqn/vq61jKep1B6DvgxtJaczjn2hVUQ=
 github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1 h1:IaLDpOjc1kAdgv/fC94OuEjXfTNg9dQH3UvAGNZhNK0=
 github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1/go.mod h1:n17AP1iZxpRCzqyHLJdpa2e1SzY1rNZ9tt3/MePxlGs=
 github.com/f-secure-foundry/tamago v0.0.0-20201019091057-9fc569523656 h1:gXpoVdUavMPlvjXA0bXTITYX1/Y1qKU7EBkOkFybeRo=
@@ -110,8 +110,8 @@ github.com/google/subcommands v1.0.2-0.20190508160503-636abe8753b8/go.mod h1:Zjh
 github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
-github.com/gsora/fidati v0.0.0-20201106184003-29320d613ab3 h1:BGhqr6C+UfGv2lV9vbnBj1sa3ySFm2B5i2JfJMBD/O0=
-github.com/gsora/fidati v0.0.0-20201106184003-29320d613ab3/go.mod h1:NOuYbCzR5yZQ4u3GV8x4i8VOZEaMmoZ2mzQ1S/uaWEA=
+github.com/gsora/fidati v0.0.0-20201108165801-74aa6cc7881d h1:s2pHIcoQZOx2jPs1B4h60OXpOtNtUj7dSJLgH0Wqjvs=
+github.com/gsora/fidati v0.0.0-20201108165801-74aa6cc7881d/go.mod h1:NOuYbCzR5yZQ4u3GV8x4i8VOZEaMmoZ2mzQ1S/uaWEA=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
