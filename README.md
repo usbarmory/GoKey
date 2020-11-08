@@ -190,13 +190,14 @@ Keys
 As a pre-requisite for all compilation targets, the following environment
 variables must be set or passed to the make command:
 
-* `SNVS`: when set to a non empty value, use hardware encryption for OpenPGP/SSH
-  private key wrapping, see the _Security Model_ section for more information.
+* `SNVS`: when set to a non empty value, use hardware encryption for OpenPGP,
+  SSH and U2F private keys wrapping, see the _Security Model_ section for more
+  information.
 
-  If set to "ssh" the OpenPGP key decryption, rather than happening at boot,
-  must be initialized by the user over SSH using the `init` command (see
-  _Management_). This helps mitigating physical hardware attacks against the
-  SNVS decryption process for the OpenPGP key on a stolen devices.
+  If set to "ssh", OpenPGP and U2F key decryption, rather than executed at
+  boot, must be initialized by the user over SSH (see _Management_). This improve
+  resilience against physical hardware attacks as the SNVS decryption process
+  cannot happen automatically on a stolen devices.
 
   This option can only be used when compiling on a [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
   [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
@@ -395,19 +396,6 @@ bootelf -p 0x90000000
 
 For non-interactive execution modify the U-Boot configuration accordingly.
 
-QEMU
-----
-
-Launch an emulated run of the `gokey` application executable with the
-`qemu` target:
-
-```
-make qemu
-```
-
-The emulated run configures a card and dump its status on standard output, no
-other operation is currently supported.
-
 Virtual Smart Card
 ------------------
 
@@ -463,7 +451,8 @@ the LEDs are used as follows:
 |:-------------:|--------------------------------------------------|----------------------------------------|
 | blue + white  | at startup: card is initializing¹                | card has been initialized              |
 | blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
-| white         | OpenPGP security operation in progress           | no security Operation in progress      |
+| white         | OpenPGP security operation in progress           | no security operation in progress      |
+| white         | blinking: U2F user presence is requested         | presence not requested                 |
 
 ¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
 

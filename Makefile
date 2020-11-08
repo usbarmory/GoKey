@@ -18,13 +18,9 @@ APP := gokey
 GOENV := GO_EXTLINK_ENABLED=0 CGO_ENABLED=0 GOOS=tamago GOARM=7 GOARCH=arm
 TEXT_START := 0x80010000 # ramStart (defined in imx6/imx6ul/memory.go) + 0x10000
 GOFLAGS := -tags ${BUILD_TAGS} -ldflags "-s -w -T $(TEXT_START) -E _rt0_arm_tamago -R 0x1000 -X '${PKG}/internal.Build=${BUILD}' -X '${PKG}/internal.Revision=${REV}'"
-QEMU ?= qemu-system-arm -machine mcimx6ul-evk -cpu cortex-a7 -m 512M \
-        -nographic -monitor none -serial null -serial stdio -net none \
-        -semihosting -d unimp
-
 SHELL = /bin/bash
 
-.PHONY: clean qemu qemu-gdb
+.PHONY: clean
 
 #### primary targets ####
 
@@ -72,14 +68,6 @@ check_bundled_keys:
 clean:
 	rm -f $(APP) gokey_vpcd
 	@rm -fr $(APP).bin $(APP).imx $(APP)-signed.imx $(APP).csf $(APP).dcd
-
-qemu: $(APP)
-	$(QEMU) -kernel $(APP)
-
-qemu-gdb: GOFLAGS := $(GOFLAGS:-s=)
-qemu-gdb: GOFLAGS := $(GOFLAGS:-w=)
-qemu-gdb: $(APP)
-	$(QEMU) -kernel $(APP) -S -s
 
 gokey_vpcd: check_bundled_keys
 	cd $(CURDIR) && go generate

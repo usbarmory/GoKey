@@ -27,10 +27,6 @@ import (
 )
 
 func init() {
-	if !imx6.Native {
-		return
-	}
-
 	if err := imx6.SetARMFreq(900); err != nil {
 		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
 	}
@@ -67,22 +63,15 @@ func main() {
 		ICC: card,
 	}
 
-	if imx6.Native {
-		// set card serial number to 2nd half of NXP Unique ID
-		uid := imx6.UniqueID()
-		copy(card.Serial[0:4], uid[4:8])
+	// set card serial number to 2nd half of NXP Unique ID
+	uid := imx6.UniqueID()
+	copy(card.Serial[0:4], uid[4:8])
 
-		// configure Smart Card over USB endpoints (CCID protocol)
-		usb.ConfigureCCID(device, reader)
-	} else {
-		return
-	}
-
-	var managed bool
+	// configure Smart Card over USB endpoints (CCID protocol)
+	usb.ConfigureCCID(device, reader)
 
 	if len(sshPublicKey) != 0 {
 		startNetworking(device, card)
-		managed = true
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
@@ -92,7 +81,7 @@ func main() {
 			log.Printf("U2F configuration error: %v", err)
 		}
 
-		if !managed {
+		if initAtBoot {
 			err = u2f.Init(false)
 		}
 

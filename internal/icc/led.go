@@ -11,10 +11,10 @@
 package icc
 
 import (
-	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
+	"github.com/f-secure-foundry/armoryctl/led"
 )
 
 // LED turns on/off an LED by name.
 func LED(name string, on bool) (err error) {
-	return usbarmory.LED(name, on)
+	return led.Set(name, on)
 }

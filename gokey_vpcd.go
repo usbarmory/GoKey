@@ -59,12 +59,10 @@ func main() {
 		Debug:      true,
 	}
 
-	if initAtBoot {
-		err := card.Init()
+	err := card.Init()
 
-		if err != nil {
-			log.Printf("initialization error: %v", err)
-		}
+	if err != nil {
+		log.Printf("initialization error: %v", err)
 	}
 
 	for {

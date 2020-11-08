@@ -31,7 +31,7 @@ func init() {
 	//
 	// This is leveraged to create the AES256 DO used by PSO:DEC and
 	// PSO:ENC and to allow encrypted bundling of OpenPGP secret keys.
-	if imx6.Native && imx6.DCP.SNVS() {
+	if imx6.DCP.SNVS() {
 		imx6.DCP.Init()
 	}
 }
