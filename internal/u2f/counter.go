@@ -69,7 +69,7 @@ func blink(done chan bool) {
 		led.Set("white", on)
 
 		runtime.Gosched()
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 }
 

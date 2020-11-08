@@ -482,12 +482,13 @@ and perform additional management functions.
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
 
-  init                          # initialize OpenPGP card
-  status                        # display OpenPGP card status
+  init                          # initialize OpenPGP smartcard
+  status                        # display smarcard status
   lock   (all|sig|dec)          # OpenPGP key(s) lock
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
 
-  u2f                           # initialize U2F token
+  u2f                           # initialize U2F token w/  user presence test
+  u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
 ```
 

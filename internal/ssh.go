@@ -45,11 +45,12 @@ const help = `
   reboot                        # restart
 
   init                          # initialize OpenPGP smartcard
-  status                        # display OpenPGP card status
+  status                        # display smartcard status
   lock   (all|sig|dec)          # key lock
   unlock (all|sig|dec)          # key unlock, prompts decryption passphrase
 
-  u2f                           # initialize U2F token
+  u2f                           # initialize U2F token w/  user presence test
+  u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
 `
 
@@ -118,11 +119,17 @@ func handleCommand(term *terminal.Terminal, cmd string) (err error) {
 		err = card.Init()
 	case "u2f":
 		err = u2f.Init(true)
+	case "u2f !test":
+		err = u2f.Init(false)
 	case "p":
-		select {
-		case u2f.Presence <- true:
-		default:
-			res = "presence not requested"
+		if u2f.Presence == nil {
+			res = "presence not required"
+		} else {
+			select {
+			case u2f.Presence <- true:
+			default:
+				res = "presence not requested"
+			}
 		}
 	case "rand":
 		buf := make([]byte, 32)
