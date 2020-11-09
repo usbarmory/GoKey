@@ -38,39 +38,14 @@ type Counter struct {
 // Init initializes the U2F counter function. A channel can be passed to
 // receive user presence notifications, if nil user presence is automatically
 // assumed.
-func (c *Counter) Init(presence chan bool) (err error) {
+func (c *Counter) Init(presence chan bool) (cnt uint32, err error) {
 	c.presence = presence
-	_, err = atecc608a.SelfTest()
-	return
-}
 
-func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
-	res, err := atecc608a.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil)
-
-	if err != nil {
+	if _, err = atecc608a.SelfTest(); err != nil {
 		return
 	}
 
-	return binary.LittleEndian.Uint32(res), nil
-}
-
-func blink(done chan bool) {
-	var on bool
-
-	for {
-		select {
-		case <-done:
-			led.Set("white", false)
-			return
-		default:
-		}
-
-		on = !on
-		led.Set("white", on)
-
-		runtime.Gosched()
-		time.Sleep(200 * time.Millisecond)
-	}
+	return c.Read()
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
@@ -105,4 +80,33 @@ func (c *Counter) UserPresence() (present bool) {
 	done <- true
 
 	return
+}
+
+func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
+	res, err := atecc608a.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil)
+
+	if err != nil {
+		return
+	}
+
+	return binary.LittleEndian.Uint32(res), nil
+}
+
+func blink(done chan bool) {
+	var on bool
+
+	for {
+		select {
+		case <-done:
+			led.Set("white", false)
+			return
+		default:
+		}
+
+		on = !on
+		led.Set("white", on)
+
+		runtime.Gosched()
+		time.Sleep(200 * time.Millisecond)
+	}
 }

@@ -82,7 +82,7 @@ func Init(managed bool) (err error) {
 	}
 
 	counter := &Counter{}
-	err = counter.Init(Presence)
+	cnt, err := counter.Init(Presence)
 
 	if err != nil {
 		return
@@ -97,7 +97,7 @@ func Init(managed bool) (err error) {
 	u2fKeyring.MasterKey = key
 	u2fKeyring.Counter = counter
 
-	log.Printf("U2F token initialized, user presence test: %v", managed)
+	log.Printf("U2F token initialized, managed:%v counter:%d", managed, cnt)
 
 	return
 }
