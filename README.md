@@ -268,7 +268,8 @@ library, the following variables can be set:
   hardware unit.
 
 The ATECC608A security element, present on all USB armory Mk II models, is used
-as hardware backed monotonic counter for U2F purposes.
+as hardware backed monotonic counter for U2F purposes. The counter runs out at
+2097151, which is considered a range sufficient for its intended purpose.
 
 The U2F library performs peer-specific key derivation using a master secret
 ([U2F Key Wrapping](https://www.yubico.com/blog/yubicos-u2f-key-wrapping)),
