@@ -60,8 +60,8 @@ dcd:
 	cp -f $(GOMODCACHE)/$(TAMAGO_PKG)/board/f-secure/usbarmory/mark-two/imximage.cfg $(APP).dcd
 
 check_bundled_keys:
-	@if [ "${PGP_SECRET_KEY}" == "" ] || [ ! -f "${PGP_SECRET_KEY}" ]; then \
-		echo 'You need to set the PGP_SECRET_KEY variable to the path of a valid PGP secret key'; \
+	@if { [ "${PGP_SECRET_KEY}" == "" ] || [ ! -f "${PGP_SECRET_KEY}" ]; } && { [ "${U2F_PRIVATE_KEY}" == "" ] || [ ! -f "${U2F_PRIVATE_KEY}" ]; } then \
+		echo 'You need to set either PGP_SECRET_KEY or U2F_PRIVATE_KEY variables to a valid path'; \
 		exit 1; \
 	fi
 

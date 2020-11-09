@@ -50,28 +50,26 @@ func main() {
 		Debug:      false,
 	}
 
-	if initAtBoot {
-		err := card.Init()
+	if len(pgpSecretKey) != 0 {
+		if initAtBoot {
+			err := card.Init()
 
-		if err != nil {
-			log.Printf("OpenPGP ICC initialization error: %v", err)
+			if err != nil {
+				log.Printf("OpenPGP ICC initialization error: %v", err)
+			}
 		}
-	}
 
-	// initialize CCID interface
-	reader := &ccid.Interface{
-		ICC: card,
-	}
+		// initialize CCID interface
+		reader := &ccid.Interface{
+			ICC: card,
+		}
 
-	// set card serial number to 2nd half of NXP Unique ID
-	uid := imx6.UniqueID()
-	copy(card.Serial[0:4], uid[4:8])
+		// set card serial number to 2nd half of NXP Unique ID
+		uid := imx6.UniqueID()
+		copy(card.Serial[0:4], uid[4:8])
 
-	// configure Smart Card over USB endpoints (CCID protocol)
-	usb.ConfigureCCID(device, reader)
-
-	if len(sshPublicKey) != 0 {
-		startNetworking(device, card)
+		// configure Smart Card over USB endpoints (CCID protocol)
+		usb.ConfigureCCID(device, reader)
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
@@ -88,6 +86,10 @@ func main() {
 		if err != nil {
 			log.Printf("U2F initialization error: %v", err)
 		}
+	}
+
+	if len(sshPublicKey) != 0 {
+		startNetworking(device, card)
 	}
 
 	imxusb.USB1.Init()

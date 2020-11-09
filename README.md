@@ -16,7 +16,7 @@ In combination with the [TamaGo framework](https://github.com/f-secure-foundry/t
 GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-**WARNING**: GoKey currently works only on Linux hosts.
+**WARNING**: OpenPGP and SSH management currently work only on Linux hosts.
 
 ![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
 
@@ -48,7 +48,7 @@ On units which are *not* secure booted:
 * The OpenPGP private key is bundled without hardware encryption, and therefore
   only encrypted with the user passphrase (if present in the key).
 
-* The optional SSH and U2F private keys are bundled without hardware
+* The SSH and U2F private keys are bundled without hardware
   encryption, and therefore left in plaintext.
 
 * PSO:DEC (in AES mode) and PSO:ENC are not available.
@@ -128,8 +128,8 @@ authenticated by the hardware and only holds encrypted content which can be
 unlocked by a specific device *and* a specific user.
 
 Additionally, to help mitigating attacks against the first layer of hardware
-key wrapping, OpenPGP hardware decryption can be configured to take place only
-when a user is successfully authenticated through the management interface.
+key wrapping, hardware decryption can be configured to take place only when a
+user is successfully authenticated through the management interface.
 
 The security model of GoKey, opposed to conventional smartcards, entails that a
 stolen device gives no opportunity for an attacker to extract private key
@@ -150,7 +150,6 @@ traditional smartcard:
 |:--------------------------|------------------|----------------------|---------------------|-------------------------|--------------------------|--------------------|
 | Traditional smartcards    | Flash protection | Flash protection     | JCOP                | JCOP applets            | Yes                      | No                 |
 | GoKey on USB armory Mk II | Secure boot      | SoC security element | Bare metal Go       | Bare metal Go           | No                       | Yes                |
-
 
 The following table summarizes the multiple authentication options available,
 depending on OpenPGP and GoKey configuration, which enhance the traditional
@@ -184,9 +183,6 @@ directory:
 git clone https://github.com/f-secure-foundry/GoKey && cd GoKey
 ```
 
-Keys
-====
-
 As a pre-requisite for all compilation targets, the following environment
 variables must be set or passed to the make command:
 
@@ -202,11 +198,11 @@ variables must be set or passed to the make command:
   This option can only be used when compiling on a [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
   [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-* `SSH_PUBLIC_KEY`: optional public key for SSH client authentication by the
-  network management interface (see _Management_). If empty the SSH interface
-  is disabled.
+* `SSH_PUBLIC_KEY`: public key for SSH client authentication by the network
+  management interface (see _Management_). If empty the SSH interface is
+  disabled.
 
-* `SSH_PRIVATE_KEY`: optional private key for SSH client authentication of the
+* `SSH_PRIVATE_KEY`: private key for SSH client authentication of the
   management interface SSH server (see _Management_). If empty the SSH server
   key is randomly generated at each boot. The key must not have a passphrase.
 
@@ -216,13 +212,13 @@ variables must be set or passed to the make command:
 OpenPGP
 -------
 
-* `PGP_SECRET_KEY`: secret OpenPGP keys in ASCII armor format, bundled in
-  the output firmware.
+* `PGP_SECRET_KEY`: OpenPGP secret keys in ASCII armor format, bundled
+  in the output firmware. If empty OpenPGP smartcard support is disabled.
 
   When SNVS is set the key is encrypted, before being bundled, for a specific
   hardware unit.
 
-* `URL`: public key URL (optional).
+* `URL`: optional public key URL.
 
 * `NAME`, `LANGUAGE`, `SEX`: optional cardholder related data elements.
 
@@ -258,14 +254,18 @@ U2F keys
 To enable U2F support using the [fidati](https://github.com/gsora/fidati)
 library, the following variables can be set:
 
-* `U2F_PUBLIC_KEY`: optional U2F device attestation certificate,
-  if empty the U2F interface is disabled.
+* `U2F_PUBLIC_KEY`: U2F device attestation certificate, if empty the U2F
+  interface is disabled.
 
-* `U2F_PRIVATE_KEY`: optional U2F device attestation private key,
-  if empty the U2F interface is disabled.
+* `U2F_PRIVATE_KEY`: U2F device attestation private key, if empty the U2F
+  interface is disabled.
 
   When SNVS is set the key is encrypted, before being bundled, for a specific
   hardware unit.
+
+The attestation key material can be created using the
+[gen-cert](https://github.com/gsora/fidati/tree/master/cmd/gen-cert) tool from
+the [fidati](https://github.com/gsora/fidati) library.
 
 The ATECC608A security element, present on all USB armory Mk II models, is used
 as hardware backed monotonic counter for U2F purposes. The counter runs out at
@@ -276,13 +276,12 @@ The U2F library performs peer-specific key derivation using a master secret
 GoKey derives such master secret using the SNVS to obtain an authenticated
 device specific value.
 
-Note that the configuration of the management interface (see _Management_) by
-means of previously mention variables affects whether FIDO U2F user presence is
-tested interactively or automatically acknowledged at each request (see _U2F
-operation_).
+When the management interface is disabled, FIDO U2F user presence is
+automatically acknowledged, otherwise it can be configured at initialization
+throught the management interface (see _Management_).
 
-Bare metal
-----------
+Building the bare metal executable
+----------------------------------
 
 Build the [TamaGo compiler](https://github.com/f-secure-foundry/tamago-go)
 (or use the [latest binary release](https://github.com/f-secure-foundry/tamago-go/releases/latest)):
@@ -300,7 +299,7 @@ to be disabled and removed after this step is completed (to prevent eMMC wear),
 alternatively you can cross compile from another host or use the
 [latest binary release](https://github.com/f-secure-foundry/tamago-go/releases/latest)).
 
-Build the `gokey.imx` application executable:
+Build the `gokey.imx` application executable with the desired variables:
 
 ```
 make imx CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path>
@@ -315,20 +314,8 @@ set:
 make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> HAB_KEYS=<secure boot keys path> SNVS=ssh
 ```
 
-Virtual Smart Card
-------------------
-
-The [virtual smart card project](http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html)
-allows testing of GoKey OpenPGP functionality in userspace.
-
-Build the `gokey_vpcd` application executable:
-
-```
-make gokey_vpcd
-```
-
-OpenPGP configuration
-=====================
+OpenPGP host configuration
+==========================
 
 CCID driver
 -----------
@@ -395,67 +382,10 @@ ext2load mmc $dev:1 0x90000000 gokey
 bootelf -p 0x90000000
 ```
 
-For non-interactive execution modify the U-Boot configuration accordingly.
+For non-interactive execution modify U-Boot configuration accordingly.
 
-Virtual Smart Card
-------------------
-
-* Install [vsmartcard](http://frankmorgner.github.io/vsmartcard/index.html), Arch Linux users can use the
-  [virtualsmartcard AUR package](https://aur.archlinux.org/packages/virtualsmartcard/).
-
-* Ensure that a configuration for `vpcd` is added in your `pcsc` configuration.
-  On Arch Linux the following is automatically created in `/etc/reader.conf.d`:
-
-```
-FRIENDLYNAME "Virtual PCD"
-DEVICENAME   /dev/null:0x8C7B
-LIBPATH      //usr/lib/pcsc/drivers/serial/libifdvpcd.so
-CHANNELID    0x8C7B
-```
-
-* Launch the PC/SC daemon:
-
-```
-sudo systemctl start pcscd
-```
-
-* Launch the `gokey_vpcd` executable:
-
-```
-./gokey_vpcd -c 127.0.0.1:35963
-```
-
-OpenPGP operation
-=================
-
-You should be able to use the GoKey smartcard like any other OpenPGP card, you
-can test its operation with the following commands:
-
-* OpenSC detection: `pcsc_scan`
-
-* OpenSC explorer: `opensc-explorer`
-
-* OpenPGP tool key information: `openpgp-tool -K`
-
-* GnuPG card status: `gpg --card-status`
-
-When checking card status note that a `>` after key information tags indicate
-that the key is stored on a smartcard.
-
-LED status
-----------
-
-When running on the [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki)
-the LEDs are used as follows:
-
-| LED           | On                                               | Off                                    |
-|:-------------:|--------------------------------------------------|----------------------------------------|
-| blue + white  | at startup: card is initializing¹                | card has been initialized              |
-| blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
-| white         | OpenPGP security operation in progress           | no security operation in progress      |
-| white         | blinking: U2F user presence is requested         | presence not requested                 |
-
-¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
+Operation
+=========
 
 Management interface
 --------------------
@@ -473,9 +403,9 @@ The SSH server private key is passed at compilation time with the
 generated at each boot.
 
 The server responds on address 10.0.0.10, with standard port 22, and can be use
-used to securely message passphrase verification, in alternative to the
-smartcard clients which issue unencrypted VERIFY commands with PIN/passphrases,
-and perform additional management functions.
+used to securely message passphrase verification, in alternative to smartcard
+clients which issue unencrypted VERIFY commands with PIN/passphrases, signal
+U2F user presence and perform additional management functions.
 
 ```
   help                          # this help
@@ -493,9 +423,94 @@ and perform additional management functions.
   p                             # confirm user presence
 ```
 
-To prevent plaintext transmission of the PIN/passhprase, the VERIFY command
-will take any PIN (>= 6 characters) if the relevant OpenPGP key has been
-already unlocked over SSH.
+Note that to prevent plaintext transmission of the PIN/passhprase, the VERIFY
+command requested by any OpenPGP host client will take any PIN (>= 6
+characters) if the relevant OpenPGP key has been already unlocked over SSH.
+
+OpenPGP smartcard
+-----------------
+
+You should be able to use the GoKey smartcard like any other OpenPGP card, you
+can test its operation with the following commands:
+
+* OpenSC detection: `pcsc_scan`
+
+* OpenSC explorer: `opensc-explorer`
+
+* OpenPGP tool key information: `openpgp-tool -K`
+
+* GnuPG card status: `gpg --card-status`
+
+When checking card status note that a `>` after key information tags indicate
+that the key is stored on a smartcard.
+
+U2F token
+---------
+
+The U2F functionality can be used with any website or application that supports
+FIDO U2F.
+
+When the SSH interface is enabled (see _Management_) the U2F functionality must
+be initialized with the `u2f` command, user presence can be demonstrated with
+the `p` command (not required if `u2f !test` is used for initialization).
+
+When the SSH interface is disabled user presence is automatically acknowledged
+at each request.
+
+LED status
+----------
+
+On the [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki)
+the LEDs are used as follows:
+
+| LED           | On                                               | Off                                    |
+|:-------------:|--------------------------------------------------|----------------------------------------|
+| blue + white  | at startup: card is initializing¹                | card has been initialized              |
+| blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
+| white         | OpenPGP security operation in progress           | no security operation in progress      |
+| white         | blinking: U2F user presence is requested         | no presence requested                  |
+
+¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
+
+Debugging
+=========
+
+Virtual Smart Card
+------------------
+
+The [virtual smart card project](http://frankmorgner.github.io/vsmartcard/virtualsmartcard/README.html)
+allows testing of GoKey OpenPGP functionality in userspace.
+
+Build the `gokey_vpcd` application executable:
+
+```
+make gokey_vpcd PGP_SECRET_KEY=<secret key path>
+```
+
+On the host install [vsmartcard](http://frankmorgner.github.io/vsmartcard/index.html),
+Arch Linux users can use the [virtualsmartcard AUR package](https://aur.archlinux.org/packages/virtualsmartcard/).
+
+Ensure that a configuration for `vpcd` is added in your `pcsc` configuration.
+On Arch Linux the following is automatically created in `/etc/reader.conf.d`:
+
+```
+FRIENDLYNAME "Virtual PCD"
+DEVICENAME   /dev/null:0x8C7B
+LIBPATH      //usr/lib/pcsc/drivers/serial/libifdvpcd.so
+CHANNELID    0x8C7B
+```
+
+Launch the PC/SC daemon:
+
+```
+sudo systemctl start pcscd
+```
+
+Launch the built `gokey_vpcd` executable:
+
+```
+./gokey_vpcd -c 127.0.0.1:35963
+```
 
 Send manual commands to GnuPG smart-card daemon (SCD)
 -----------------------------------------------------
@@ -507,19 +522,6 @@ Send manual commands to GnuPG smart-card daemon (SCD)
 ```
 gpg-connect-agent "SCD RANDOM 256" /bye | perl -pe 'chomp;s/^D\s//;s/%(0[AD]|25)/chr(hex($1))/eg;if(eof&&/^OK$/){exit}'
 ```
-
-U2F operation
-=============
-
-The U2F functionality can be used with any website or application that supports
-FIDO U2F.
-
-When the SSH interface is enabled (see _Management_) the U2F functionality must
-be initialized with the `u2f` command, additionally user presence must be
-demonstrated with the `2` command.
-
-When the SSH interface is disabled user presence is automatically acknowledged
-at each request.
 
 License
 =======

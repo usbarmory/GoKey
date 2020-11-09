@@ -62,7 +62,6 @@ func main() {
 	var sshPublicKey []byte
 	var sshPrivateKey []byte
 	var pgpSecretKey []byte
-
 	var u2fPublicKey []byte
 	var u2fPrivateKey []byte
 
@@ -86,6 +85,10 @@ func main() {
 		log.Printf("████████████████████████████████████████████████████████████████████████████████")
 	}
 
+	if os.Getenv("SNVS") == "ssh" && len(sshPublicKey) == 0 {
+		log.Fatal("SSH_PUBLIC_KEY is required with SNVS=ssh")
+	}
+
 	if sshPublicKeyPath := os.Getenv("SSH_PUBLIC_KEY"); sshPublicKeyPath != "" {
 		sshPublicKey, err = ioutil.ReadFile(sshPublicKeyPath)
 
@@ -99,6 +102,18 @@ func main() {
 			sshPrivateKey, err = encrypt(sshPrivateKeyPath, gokey.DiversifierSSH)
 		} else {
 			sshPrivateKey, err = ioutil.ReadFile(sshPrivateKeyPath)
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if pgpSecretKeyPath := os.Getenv("PGP_SECRET_KEY"); pgpSecretKeyPath != "" {
+		if SNVS {
+			pgpSecretKey, err = encrypt(pgpSecretKeyPath, icc.DiversifierPGP)
+		} else {
+			pgpSecretKey, err = ioutil.ReadFile(pgpSecretKeyPath)
 		}
 
 		if err != nil {
@@ -124,20 +139,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-	}
-
-	if os.Getenv("SNVS") == "ssh" && len(sshPublicKey) == 0 {
-		log.Fatal("SSH_PUBLIC_KEY is required with SNVS=ssh")
-	}
-
-	if SNVS {
-		pgpSecretKey, err = encrypt(os.Getenv("PGP_SECRET_KEY"), icc.DiversifierPGP)
-	} else {
-		pgpSecretKey, err = ioutil.ReadFile(os.Getenv("PGP_SECRET_KEY"))
-	}
-
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	out, err := os.Create("tmp.go")
@@ -170,6 +171,14 @@ func init() {
 		out.WriteString(fmt.Sprintf("\tsshPrivateKey = []byte(%s)\n", strconv.Quote(string(sshPrivateKey))))
 	}
 
+	if len(pgpSecretKey) > 0 {
+		out.WriteString(fmt.Sprintf("\tpgpSecretKey = []byte(%s)\n", strconv.Quote(string(pgpSecretKey))))
+		out.WriteString(fmt.Sprintf("\tURL = %s\n", strconv.Quote(os.Getenv("URL"))))
+		out.WriteString(fmt.Sprintf("\tNAME = %s\n", strconv.Quote(os.Getenv("NAME"))))
+		out.WriteString(fmt.Sprintf("\tLANGUAGE = %s\n", strconv.Quote(os.Getenv("LANGUAGE"))))
+		out.WriteString(fmt.Sprintf("\tSEX = %s\n", strconv.Quote(os.Getenv("SEX"))))
+	}
+
 	if len(u2fPublicKey) > 0 {
 		out.WriteString(fmt.Sprintf("\tu2fPublicKey = []byte(%s)\n", strconv.Quote(string(u2fPublicKey))))
 	}
@@ -177,12 +186,6 @@ func init() {
 	if len(u2fPrivateKey) > 0 {
 		out.WriteString(fmt.Sprintf("\tu2fPrivateKey = []byte(%s)\n", strconv.Quote(string(u2fPrivateKey))))
 	}
-
-	out.WriteString(fmt.Sprintf("\tpgpSecretKey = []byte(%s)\n", strconv.Quote(string(pgpSecretKey))))
-	out.WriteString(fmt.Sprintf("\tURL = %s\n", strconv.Quote(os.Getenv("URL"))))
-	out.WriteString(fmt.Sprintf("\tNAME = %s\n", strconv.Quote(os.Getenv("NAME"))))
-	out.WriteString(fmt.Sprintf("\tLANGUAGE = %s\n", strconv.Quote(os.Getenv("LANGUAGE"))))
-	out.WriteString(fmt.Sprintf("\tSEX = %s\n", strconv.Quote(os.Getenv("SEX"))))
 
 	out.WriteString(`
 }
