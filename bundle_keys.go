@@ -85,16 +85,16 @@ func main() {
 		log.Printf("████████████████████████████████████████████████████████████████████████████████")
 	}
 
-	if os.Getenv("SNVS") == "ssh" && len(sshPublicKey) == 0 {
-		log.Fatal("SSH_PUBLIC_KEY is required with SNVS=ssh")
-	}
-
 	if sshPublicKeyPath := os.Getenv("SSH_PUBLIC_KEY"); sshPublicKeyPath != "" {
 		sshPublicKey, err = ioutil.ReadFile(sshPublicKeyPath)
 
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if os.Getenv("SNVS") == "ssh" && len(sshPublicKey) == 0 {
+		log.Fatal("SSH_PUBLIC_KEY is required with SNVS=ssh")
 	}
 
 	if sshPrivateKeyPath := os.Getenv("SSH_PRIVATE_KEY"); sshPrivateKeyPath != "" {
