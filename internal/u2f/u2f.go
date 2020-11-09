@@ -11,9 +11,12 @@
 package u2f
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
+
+	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/f-secure-foundry/GoKey/internal/snvs"
 
@@ -82,19 +85,26 @@ func Init(managed bool) (err error) {
 	}
 
 	counter := &Counter{}
-	cnt, err := counter.Init(Presence)
+	info, cnt, err := counter.Init(Presence)
 
 	if err != nil {
 		return
 	}
 
-	key, err := imx6.DCP.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
+	var mk []byte
 
-	if err != nil {
-		return
+	if imx6.DCP.SNVS() {
+		mk, err = imx6.DCP.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
+
+		if err != nil {
+			return
+		}
+	} else {
+		uid := imx6.UniqueID()
+		mk = pbkdf2.Key([]byte(info), uid[:], 4096, 16, sha256.New)
 	}
 
-	u2fKeyring.MasterKey = key
+	u2fKeyring.MasterKey = mk
 	u2fKeyring.Counter = counter
 
 	log.Printf("U2F token initialized, managed:%v counter:%d", managed, cnt)

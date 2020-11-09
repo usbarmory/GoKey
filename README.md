@@ -43,19 +43,30 @@ following operations:
   this entails that AES encryption/decryption operations can only be executed
   on a specific unit.
 
-On units which are *not* secure booted:
+On units which are *not* secure booted (not recommended):
 
-* The OpenPGP private key is bundled without hardware encryption, and therefore
-  only encrypted with the user passphrase (if present in the key).
+* The OpenPGP private key is bundled without hardware encryption, its sole
+  protection can therefore be encryption with the user passphrase (if present
+  in the key).
 
-* The SSH and U2F private keys are bundled without hardware
-  encryption, and therefore left in plaintext.
+* The SSH and U2F private keys are bundled without hardware encryption, and
+  therefore readable from the firmware image.
+
+* The U2F master key is derived from the ATECC608A security element S/N and the
+  SoC unique ID, both readable from a stolen device without secure boot in
+  place.
 
 * PSO:DEC (in AES mode) and PSO:ENC are not available.
 
-A GoKey firmware, bundled with device specific encrypted key material, can be
-created by compiling it on the same unit it will be later executed on, with the
-[mxs-dcp kernel module](https://github.com/f-secure-foundry/mxs-dcp) loaded.
+For certain users and uses, a non secure booted device might lead to an
+acceptable level of risk in case of a stolen device, nonetheless it is highly
+recommended to always use a secure booted device for all configurations and to
+leverage on SNVS features (see _Compiling_).
+
+On a secure booted unit the GoKey firmware, bundled with private keys encrypted
+with the device unique key, can be built by compiling on the device itself with
+the [mxs-dcp kernel module](https://github.com/f-secure-foundry/mxs-dcp)
+loaded.
 
 The module is included in all [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki)
 standard [Debian base image releases](https://github.com/f-secure-foundry/usbarmory-debian-base_image).
