@@ -52,9 +52,9 @@ On units which are *not* secure booted (not recommended):
 * The SSH and U2F private keys are bundled without hardware encryption, and
   therefore readable from the firmware image.
 
-* The U2F master key is derived from the ATECC608A security element S/N and the
-  SoC unique ID, both readable from a stolen device without secure boot in
-  place.
+* The U2F master key is derived from the ATECC608A security element random S/N
+  and the SoC unique ID, both are readable from a stolen device without secure
+  boot in place.
 
 * PSO:DEC (in AES mode) and PSO:ENC are not available.
 

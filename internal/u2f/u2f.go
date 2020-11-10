@@ -85,7 +85,7 @@ func Init(managed bool) (err error) {
 	}
 
 	counter := &Counter{}
-	info, cnt, err := counter.Init(Presence)
+	cnt, err := counter.Init(Presence)
 
 	if err != nil {
 		return
@@ -100,8 +100,19 @@ func Init(managed bool) (err error) {
 			return
 		}
 	} else {
+		// On non-secure booted units we derive the master key from the
+		// ATECC608A security element random S/N and the SoC unique ID.
+		//
+		// This provides a non-predictable master key which must
+		// however be assumed compromised if a device is stolen/lost.
 		uid := imx6.UniqueID()
-		mk = pbkdf2.Key([]byte(info), uid[:], 4096, 16, sha256.New)
+		sn, err := counter.Info()
+
+		if err != nil {
+			return err
+		}
+
+		mk = pbkdf2.Key([]byte(sn), uid[:], 4096, 16, sha256.New)
 	}
 
 	u2fKeyring.MasterKey = mk

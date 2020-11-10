@@ -35,23 +35,22 @@ type Counter struct {
 	presence chan bool
 }
 
-// Init initializes the U2F counter function. A channel can be passed to
+// Init initializes an ATECC608A backed U2F counter. A channel can be passed to
 // receive user presence notifications, if nil user presence is automatically
 // assumed.
-func (c *Counter) Init(presence chan bool) (info string, cnt uint32, err error) {
+func (c *Counter) Init(presence chan bool) (cnt uint32, err error) {
 	c.presence = presence
 
 	if _, err = atecc608a.SelfTest(); err != nil {
 		return
 	}
 
-	if info, err = atecc608a.Info(); err != nil {
-		return
-	}
+	return c.Read()
+}
 
-	cnt, err = c.Read()
-
-	return
+// Info gathers the ATECC608A random S/N and model.
+func (c *Counter) Info() (info string, err error) {
+	return atecc608a.Info()
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
