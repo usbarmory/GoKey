@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/albenik/go-serial/v2 v2.1.0 // indirect
-	github.com/f-secure-foundry/armoryctl v0.0.0-20201108170104-eb1c9fdef607
+	github.com/f-secure-foundry/armoryctl v0.0.0-20201110142402-84c117e94adb
 	github.com/f-secure-foundry/tamago v0.0.0-20201107175817-b08870c21469
 	github.com/gsora/fidati v0.0.0-20201109141604-a3b0757d02d1
 	github.com/hsanjuan/go-nfctype4 v0.0.1

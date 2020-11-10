@@ -56,6 +56,8 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/f-secure-foundry/armoryctl v0.0.0-20201108170104-eb1c9fdef607 h1:bdS2lf9lzQCCryy8DLgBUSDcieWdY/G0mWjn0iNe6Nk=
 github.com/f-secure-foundry/armoryctl v0.0.0-20201108170104-eb1c9fdef607/go.mod h1:+VH7ksGdu093Hqn/vq61jKep1B6DvgxtJaczjn2hVUQ=
+github.com/f-secure-foundry/armoryctl v0.0.0-20201110142402-84c117e94adb h1:4MPwc2QKfQ2+ZbzKCqZLvLwScP7/8co/DqIH3/fq288=
+github.com/f-secure-foundry/armoryctl v0.0.0-20201110142402-84c117e94adb/go.mod h1:OehB8aC5N8uRDn3HnQHexig6sRjxDnLZRg42tA+bC5M=
 github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1 h1:IaLDpOjc1kAdgv/fC94OuEjXfTNg9dQH3UvAGNZhNK0=
 github.com/f-secure-foundry/gvisor v0.0.0-20200812210008-801bb984d4b1/go.mod h1:n17AP1iZxpRCzqyHLJdpa2e1SzY1rNZ9tt3/MePxlGs=
 github.com/f-secure-foundry/tamago v0.0.0-20201019091057-9fc569523656 h1:gXpoVdUavMPlvjXA0bXTITYX1/Y1qKU7EBkOkFybeRo=
