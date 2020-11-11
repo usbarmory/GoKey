@@ -107,10 +107,8 @@ github.com/google/subcommands v1.0.2-0.20190508160503-636abe8753b8/go.mod h1:Zjh
 github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
-github.com/gsora/fidati v0.0.0-20201109141604-a3b0757d02d1 h1:VDmeSU3DmHEwqhPq0/rLdr/oPsX/ePQ2OCug/DNfgyY=
-github.com/gsora/fidati v0.0.0-20201109141604-a3b0757d02d1/go.mod h1:NOuYbCzR5yZQ4u3GV8x4i8VOZEaMmoZ2mzQ1S/uaWEA=
-github.com/gsora/fidati v0.0.0-20201111101246-23af4f22498f h1:MYugOvyWxrCxlU8qx9OJBEo8tqODV2DPz/b5lsFIK84=
-github.com/gsora/fidati v0.0.0-20201111101246-23af4f22498f/go.mod h1:NOuYbCzR5yZQ4u3GV8x4i8VOZEaMmoZ2mzQ1S/uaWEA=
+github.com/gsora/fidati v0.0.0-20201111113948-b0d4c16708b9 h1:QaaB4M+yATq6I+olqG59qpze4GOVh5XmXNUX2DcOpQQ=
+github.com/gsora/fidati v0.0.0-20201111113948-b0d4c16708b9/go.mod h1:NOuYbCzR5yZQ4u3GV8x4i8VOZEaMmoZ2mzQ1S/uaWEA=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=

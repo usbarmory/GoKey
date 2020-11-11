@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/f-secure-foundry/armoryctl v0.0.0-20201111102916-d2bb1b09dba7
 	github.com/f-secure-foundry/tamago v0.0.0-20201107175817-b08870c21469
-	github.com/gsora/fidati v0.0.0-20201111101246-23af4f22498f
+	github.com/gsora/fidati v0.0.0-20201111113948-b0d4c16708b9
 	github.com/hsanjuan/go-nfctype4 v0.0.1
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
