@@ -88,7 +88,7 @@ func (c *Counter) UserPresence() (present bool) {
 }
 
 func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
-	res, err := atecc608a.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil)
+	res, err := atecc608a.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil, true)
 
 	if err != nil {
 		return
