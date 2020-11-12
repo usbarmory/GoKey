@@ -64,6 +64,10 @@ check_bundled_keys:
 		echo 'You need to set either PGP_SECRET_KEY or U2F_PRIVATE_KEY variables to a valid path'; \
 		exit 1; \
 	fi
+	@if { [ -f "${U2F_PRIVATE_KEY}" ]; } && { [ "${U2F_PUBLIC_KEY}" == "" ] || [ ! -f "${U2F_PUBLIC_KEY}" ]; } then \
+		echo 'You need to set the U2F_PUBLIC_KEY variable to a valid path'; \
+		exit 1; \
+	fi
 
 clean:
 	rm -f $(APP) gokey_vpcd

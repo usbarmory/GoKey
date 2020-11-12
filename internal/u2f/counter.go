@@ -54,9 +54,17 @@ func (c *Counter) Info() (info string, err error) {
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
-func (c *Counter) Increment(appID []byte, _ []byte, _ []byte) (cnt uint32, err error) {
-	log.Printf("U2F increment appId:%x", appID)
-	return c.cmd(increment)
+func (c *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error) {
+	cnt, err = c.cmd(increment)
+
+	if err != nil {
+		log.Printf("U2F increment failed, %v", err)
+		return
+	}
+
+	log.Printf("U2F increment, counter:%d", cnt)
+
+	return
 }
 
 // Read reads the ATECC608A monotonic counter in slot <1> (not attached to any key).
