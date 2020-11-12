@@ -29,29 +29,40 @@ import (
 	"github.com/gsora/fidati/u2ftoken"
 )
 
-// Present is a channel used to signal user presence.
-var Presence chan bool
+// Token represents an U2F authenticator instance.
+type Token struct {
+	// Attestation certificate
+	PublicKey []byte
+	// Attestation private key
+	PrivateKey []byte
+	// Keyring instance
+	Keyring *keyring.Keyring
+	// Monotonic counter instance
+	Counter *Counter
+	// Presence is a channel used to signal user presence, when undefined
+	// user presence is implicitly acknowledged.
+	Presence chan bool
+}
 
-var u2fKeyring *keyring.Keyring
+// Configure initializes the U2F token attestation keys and USB configuration.
+func Configure(device *usb.Device, token *Token, SNVS bool) (err error) {
+	token.Keyring = &keyring.Keyring{}
 
-func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte, SNVS bool) (err error) {
-	k := &keyring.Keyring{}
-
-	if SNVS && len(u2fPrivateKey) != 0 {
-		u2fPrivateKey, err = snvs.Decrypt(u2fPrivateKey, []byte(DiversifierU2F))
+	if SNVS {
+		token.PrivateKey, err = snvs.Decrypt(token.PrivateKey, []byte(DiversifierU2F))
 
 		if err != nil {
-			return fmt.Errorf("key decryption failed, %v", err)
+			return fmt.Errorf("U2F key decryption failed, %v", err)
 		}
 	}
 
-	token, err := u2ftoken.New(k, u2fPublicKey, u2fPrivateKey)
+	t, err := u2ftoken.New(token.Keyring, token.PublicKey, token.PrivateKey)
 
 	if err != nil {
 		return
 	}
 
-	hid, err := u2fhid.NewHandler(token)
+	hid, err := u2fhid.NewHandler(t)
 
 	if err != nil {
 		return
@@ -68,24 +79,17 @@ func Configure(device *usb.Device, u2fPublicKey []byte, u2fPrivateKey []byte, SN
 	device.Configurations[0].Interfaces[numInterfaces-1].Endpoints[usb.OUT].EndpointAddress = 0x04
 	device.Configurations[0].Interfaces[numInterfaces-1].Endpoints[usb.IN].EndpointAddress = 0x84
 
-	u2fKeyring = k
-
 	return
 }
 
-func Init(managed bool) (err error) {
-	if u2fKeyring == nil {
+// Init initializes an U2F authenticator instance.
+func (token *Token) Init() (err error) {
+	if token.Keyring == nil {
 		return errors.New("U2F token initialization failed, missing configuration")
 	}
 
-	if managed {
-		Presence = make(chan bool)
-	} else {
-		Presence = nil
-	}
-
-	counter := &Counter{}
-	cnt, err := counter.Init(Presence)
+	token.Counter = &Counter{}
+	cnt, err := token.Counter.Init(token.Presence)
 
 	if err != nil {
 		return
@@ -106,7 +110,7 @@ func Init(managed bool) (err error) {
 		// This provides a non-predictable master key which must
 		// however be assumed compromised if a device is stolen/lost.
 		uid := imx6.UniqueID()
-		sn, err := counter.Info()
+		sn, err := token.Counter.Info()
 
 		if err != nil {
 			return err
@@ -115,10 +119,10 @@ func Init(managed bool) (err error) {
 		mk = pbkdf2.Key([]byte(sn), uid[:], 4096, 16, sha256.New)
 	}
 
-	u2fKeyring.MasterKey = mk
-	u2fKeyring.Counter = counter
+	token.Keyring.MasterKey = mk
+	token.Keyring.Counter = token.Counter
 
-	log.Printf("U2F token initialized, managed:%v counter:%d", managed, cnt)
+	log.Printf("U2F token initialized, managed:%v counter:%d", (token.Presence != nil), cnt)
 
 	return
 }

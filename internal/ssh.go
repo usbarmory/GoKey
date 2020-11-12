@@ -54,15 +54,33 @@ const help = `
   p                             # confirm user presence
 `
 
-var card *icc.Interface
+// Console represents the management SSH server instance.
+type Console struct {
+	Stack     *stack.Stack
+	Interface tcpip.NICID
+	Address   string
+	Port      uint16
+
+	AuthorizedKey []byte
+	PrivateKey    []byte
+
+	// OpenPGP smartcard instance
+	Card *icc.Interface
+	// U2F token instance
+	Token *u2f.Token
+
+	Started chan bool
+
+	term *terminal.Terminal
+}
 
 var lockCommandPattern = regexp.MustCompile(`(lock|unlock) (all|sig|dec)`)
 
-func lockCommand(term *terminal.Terminal, op string, arg string) (res string) {
+func (c *Console) lockCommand(op string, arg string) (res string) {
 	var err error
 	var pws []byte
 
-	if !card.Initialized() {
+	if !c.Card.Initialized() {
 		return "card not initialized, forgot to issue 'init' first?"
 	}
 
@@ -81,21 +99,21 @@ func lockCommand(term *terminal.Terminal, op string, arg string) (res string) {
 	switch op {
 	case "lock":
 		for _, pw := range pws {
-			if _, err := card.Verify(icc.PW_LOCK, pw, nil); err != nil {
+			if _, err := c.Card.Verify(icc.PW_LOCK, pw, nil); err != nil {
 				return err.Error()
 			}
 		}
 	case "unlock":
 		var passphrase string
 
-		passphrase, err = term.ReadPassword("Passphrase: ")
+		passphrase, err = c.term.ReadPassword("Passphrase: ")
 
 		if err != nil {
 			break
 		}
 
 		for _, pw := range pws {
-			_, err = card.Verify(icc.PW_VERIFY, pw, []byte(passphrase))
+			_, err = c.Card.Verify(icc.PW_VERIFY, pw, []byte(passphrase))
 		}
 	}
 
@@ -106,7 +124,7 @@ func lockCommand(term *terminal.Terminal, op string, arg string) (res string) {
 	return
 }
 
-func handleCommand(term *terminal.Terminal, cmd string) (err error) {
+func (c *Console) handleCommand(cmd string) (err error) {
 	var res string
 
 	switch cmd {
@@ -114,47 +132,49 @@ func handleCommand(term *terminal.Terminal, cmd string) (err error) {
 		res = "logout"
 		err = io.EOF
 	case "help":
-		res = string(term.Escape.Cyan) + help + string(term.Escape.Reset)
+		res = string(c.term.Escape.Cyan) + help + string(c.term.Escape.Reset)
 	case "init":
-		err = card.Init()
+		err = c.Card.Init()
 	case "u2f":
-		err = u2f.Init(true)
+		c.Token.Presence = make(chan bool)
+		err = c.Token.Init()
 	case "u2f !test":
-		err = u2f.Init(false)
+		c.Token.Presence = nil
+		err = c.Token.Init()
 	case "p":
-		if u2f.Presence == nil {
-			res = "presence not required"
+		if c.Token.Presence == nil {
+			res = "U2F presence not required"
 		} else {
 			select {
-			case u2f.Presence <- true:
+			case c.Token.Presence <- true:
 			default:
-				res = "presence not requested"
+				res = "U2F presence not requested"
 			}
 		}
 	case "rand":
 		buf := make([]byte, 32)
 		_, _ = rand.Read(buf)
-		res = string(term.Escape.Cyan) + fmt.Sprintf("%x", buf) + string(term.Escape.Reset)
+		res = string(c.term.Escape.Cyan) + fmt.Sprintf("%x", buf) + string(c.term.Escape.Reset)
 	case "reboot":
 		reboot()
 	case "status":
-		res = card.Status()
+		res = c.Card.Status()
 	default:
 		m := lockCommandPattern.FindStringSubmatch(cmd)
 
 		if len(m) == 3 {
-			res = lockCommand(term, m[1], m[2])
+			res = c.lockCommand(m[1], m[2])
 		} else {
 			res = "unknown command, type `help`"
 		}
 	}
 
-	fmt.Fprintln(term, res)
+	fmt.Fprintln(c.term, res)
 
 	return
 }
 
-func handleChannel(newChannel ssh.NewChannel) {
+func (c *Console) handleChannel(newChannel ssh.NewChannel) {
 	if t := newChannel.ChannelType(); t != "session" {
 		_ = newChannel.Reject(ssh.UnknownChannelType, fmt.Sprintf("unknown channel type: %s", t))
 		return
@@ -167,8 +187,8 @@ func handleChannel(newChannel ssh.NewChannel) {
 		return
 	}
 
-	term := terminal.NewTerminal(conn, "")
-	term.SetPrompt(string(term.Escape.Red) + "> " + string(term.Escape.Reset))
+	c.term = terminal.NewTerminal(conn, "")
+	c.term.SetPrompt(string(c.term.Escape.Red) + "> " + string(c.term.Escape.Reset))
 
 	go func() {
 		defer conn.Close()
@@ -176,14 +196,14 @@ func handleChannel(newChannel ssh.NewChannel) {
 		imx6.SetARMFreq(900)
 		defer imx6.SetARMFreq(198)
 
-		log.SetOutput(io.MultiWriter(os.Stdout, term))
+		log.SetOutput(io.MultiWriter(os.Stdout, c.term))
 		defer log.SetOutput(os.Stdout)
 
-		fmt.Fprintf(term, "%s\n", Banner)
-		fmt.Fprintf(term, "%s\n", string(term.Escape.Cyan)+help+string(term.Escape.Reset))
+		fmt.Fprintf(c.term, "%s\n", Banner)
+		fmt.Fprintf(c.term, "%s\n", string(c.term.Escape.Cyan)+help+string(c.term.Escape.Reset))
 
 		for {
-			cmd, err := term.ReadLine()
+			cmd, err := c.term.ReadLine()
 
 			if err == io.EOF {
 				break
@@ -194,7 +214,7 @@ func handleChannel(newChannel ssh.NewChannel) {
 				continue
 			}
 
-			err = handleCommand(term, cmd)
+			err = c.handleCommand(cmd)
 
 			if err == io.EOF {
 				break
@@ -235,7 +255,7 @@ func handleChannel(newChannel ssh.NewChannel) {
 				w := binary.BigEndian.Uint32(req.Payload[4+termVariableSize:])
 				h := binary.BigEndian.Uint32(req.Payload[4+termVariableSize+4:])
 
-				_ = term.SetSize(int(w), int(h))
+				_ = c.term.SetSize(int(w), int(h))
 				_ = req.Reply(true, nil)
 			case "window-change":
 				// p10, 6.7.  Window Dimension Change Message, RFC4254
@@ -247,37 +267,38 @@ func handleChannel(newChannel ssh.NewChannel) {
 				w := binary.BigEndian.Uint32(req.Payload)
 				h := binary.BigEndian.Uint32(req.Payload[4:])
 
-				_ = term.SetSize(int(w), int(h))
+				_ = c.term.SetSize(int(w), int(h))
 			}
 		}
 	}()
 }
 
-func handleChannels(chans <-chan ssh.NewChannel) {
+func (c *Console) handleChannels(chans <-chan ssh.NewChannel) {
 	for newChannel := range chans {
-		go handleChannel(newChannel)
+		go c.handleChannel(newChannel)
 	}
 }
 
-func startSSHServer(s *stack.Stack, addr tcpip.Address, port uint16, nic tcpip.NICID, authorizedKey []byte, privateKey []byte, started chan bool) {
+func (c *Console) startSSHServer() {
 	var key interface{}
 	var err error
 
-	pubKey, _, _, _, err := ssh.ParseAuthorizedKey(authorizedKey)
+	pubKey, _, _, _, err := ssh.ParseAuthorizedKey(c.AuthorizedKey)
 
 	if err != nil {
 		log.Fatal("invalid authorized key: ", err)
 	}
 
-	fullAddr := tcpip.FullAddress{Addr: addr, Port: port, NIC: nic}
-	listener, err := gonet.ListenTCP(s, fullAddr, ipv4.ProtocolNumber)
+	addr := tcpip.Address(net.ParseIP(c.Address)).To4()
+	fullAddr := tcpip.FullAddress{Addr: addr, Port: c.Port, NIC: c.Interface}
+	listener, err := gonet.ListenTCP(c.Stack, fullAddr, ipv4.ProtocolNumber)
 
 	if err != nil {
 		log.Fatal("listener error: ", err)
 	}
 
 	srv := &ssh.ServerConfig{
-		PublicKeyCallback: func(c ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
+		PublicKeyCallback: func(meta ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
 			if bytes.Equal(key.Marshal(), pubKey.Marshal()) {
 				return &ssh.Permissions{
 					Extensions: map[string]string{
@@ -285,12 +306,12 @@ func startSSHServer(s *stack.Stack, addr tcpip.Address, port uint16, nic tcpip.N
 					},
 				}, nil
 			}
-			return nil, fmt.Errorf("unknown public key for %q", c.User())
+			return nil, fmt.Errorf("unknown public key for %q", meta.User())
 		},
 	}
 
-	if len(privateKey) != 0 {
-		key, err = ssh.ParseRawPrivateKey(privateKey)
+	if len(c.PrivateKey) != 0 {
+		key, err = ssh.ParseRawPrivateKey(c.PrivateKey)
 	} else {
 		key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	}
@@ -305,11 +326,11 @@ func startSSHServer(s *stack.Stack, addr tcpip.Address, port uint16, nic tcpip.N
 		log.Fatal("key conversion error: ", err)
 	}
 
-	log.Printf("starting ssh server (%s) at %s:%d", ssh.FingerprintSHA256(signer.PublicKey()), addr.String(), port)
+	log.Printf("starting ssh server (%s) at %s:%d", ssh.FingerprintSHA256(signer.PublicKey()), addr.String(), c.Port)
 
 	srv.AddHostKey(signer)
 
-	started <- true
+	c.Started <- true
 
 	for {
 		conn, err := listener.Accept()
@@ -329,25 +350,22 @@ func startSSHServer(s *stack.Stack, addr tcpip.Address, port uint16, nic tcpip.N
 		log.Printf("new ssh connection from %s (%s)", sshConn.RemoteAddr(), sshConn.ClientVersion())
 
 		go ssh.DiscardRequests(reqs)
-		go handleChannels(chans)
+		go c.handleChannels(chans)
 	}
 }
 
 // StartSSHServer configures and start the management SSH server.
-func StartSSHServer(s *stack.Stack, IP string, authorizedKey []byte, privateKey []byte, c *icc.Interface, started chan bool) (err error) {
-	addr := tcpip.Address(net.ParseIP(IP)).To4()
-	card = c
-
-	if card.SNVS && len(privateKey) != 0 {
-		privateKey, err = snvs.Decrypt(privateKey, []byte(DiversifierSSH))
+func (c *Console) Start() (err error) {
+	if c.Card.SNVS && len(c.PrivateKey) != 0 {
+		c.PrivateKey, err = snvs.Decrypt(c.PrivateKey, []byte(DiversifierSSH))
 
 		if err != nil {
-			return fmt.Errorf("key decryption failed, %v", err)
+			return fmt.Errorf("SSH key decryption failed, %v", err)
 		}
 	}
 
 	go func() {
-		startSSHServer(s, addr, 22, 1, authorizedKey, privateKey, started)
+		c.startSSHServer()
 	}()
 
 	return

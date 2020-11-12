@@ -30,7 +30,7 @@ const (
 	timeout = 10
 )
 
-// ATECC608A monotonic counter
+// Counter represents an ATECC608A based monotonic counter instance.
 type Counter struct {
 	presence chan bool
 }
@@ -83,6 +83,10 @@ func (c *Counter) UserPresence() (present bool) {
 	}
 
 	done <- true
+
+	if present {
+		log.Printf("U2F user presence confirmed")
+	}
 
 	return
 }

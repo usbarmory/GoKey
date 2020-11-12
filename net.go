@@ -16,6 +16,7 @@ import (
 
 	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/f-secure-foundry/GoKey/internal/u2f"
 
 	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
 	"github.com/f-secure-foundry/tamago/soc/imx6/usb/ethernet"
@@ -27,22 +28,32 @@ const (
 	IP        = "10.0.0.10"
 )
 
-func startNetworking(device *imxusb.Device, card *icc.Interface) {
+func startNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.Token) {
 	// start basic networking
 	stack, link := gokey.StartNetworking(deviceMAC, IP)
 
 	if len(sshPublicKey) != 0 {
-		started := make(chan bool)
+		console := &gokey.Console{
+			Stack:         stack,
+			Interface:     1,
+			Address:       IP,
+			Port:          22,
+			AuthorizedKey: sshPublicKey,
+			PrivateKey:    sshPrivateKey,
+			Card:          card,
+			Token:         token,
+			Started:       make(chan bool),
+		}
 
 		// start SSH server for management console
-		err := gokey.StartSSHServer(stack, IP, sshPublicKey, sshPrivateKey, card, started)
+		err := console.Start()
 
 		if err != nil {
 			log.Printf("SSH server initialization error: %v", err)
 		}
 
 		// wait for ssh server to start before responding to USB requests
-		<-started
+		<-console.Started
 	}
 
 	hostAddress, err := net.ParseMAC(hostMAC)

@@ -123,13 +123,13 @@ func (card *Interface) Init() (err error) {
 	}
 
 	if err != nil {
-		return fmt.Errorf("key decryption failed, %v", err)
+		return fmt.Errorf("OpenPGP key decryption failed, %v", err)
 	}
 
 	card.Key, err = decodeArmoredKey([]byte(card.ArmoredKey))
 
 	if err != nil {
-		return fmt.Errorf("key decoding failed, %v", err)
+		return fmt.Errorf("OpenPGP key decoding failed, %v", err)
 	}
 
 	card.Sig, card.Dec, card.Aut = decodeSubkeys(card.Key)

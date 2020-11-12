@@ -33,24 +33,27 @@ func init() {
 }
 
 func main() {
+	card := &icc.Interface{}
+	token := &u2f.Token{}
+
 	log.Println(gokey.Banner)
 
 	device := &imxusb.Device{}
 	usb.ConfigureDevice(device)
 
-	// Initialize an OpenPGP card with the bundled key information (defined
-	// in `keys.go` and generated at compilation time).
-	card := &icc.Interface{
-		SNVS:       SNVS,
-		ArmoredKey: pgpSecretKey,
-		Name:       NAME,
-		Language:   LANGUAGE,
-		Sex:        SEX,
-		URL:        URL,
-		Debug:      false,
-	}
-
 	if len(pgpSecretKey) != 0 {
+		// Initialize an OpenPGP card with the bundled key information (defined
+		// in `keys.go` and generated at compilation time).
+		card = &icc.Interface{
+			SNVS:       SNVS,
+			ArmoredKey: pgpSecretKey,
+			Name:       NAME,
+			Language:   LANGUAGE,
+			Sex:        SEX,
+			URL:        URL,
+			Debug:      false,
+		}
+
 		if initAtBoot {
 			err := card.Init()
 
@@ -73,23 +76,26 @@ func main() {
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
-		err := u2f.Configure(device, u2fPublicKey, u2fPrivateKey, SNVS)
+		token.PublicKey = u2fPublicKey
+		token.PrivateKey = u2fPrivateKey
+
+		err := u2f.Configure(device, token, SNVS)
 
 		if err != nil {
 			log.Printf("U2F configuration error: %v", err)
 		}
 
 		if initAtBoot {
-			err = u2f.Init(false)
-		}
+			err = token.Init()
 
-		if err != nil {
-			log.Printf("U2F initialization error: %v", err)
+			if err != nil {
+				log.Printf("U2F initialization error: %v", err)
+			}
 		}
 	}
 
 	if len(sshPublicKey) != 0 {
-		startNetworking(device, card)
+		startNetworking(device, card, token)
 	}
 
 	imxusb.USB1.Init()
