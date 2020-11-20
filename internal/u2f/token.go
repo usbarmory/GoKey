@@ -99,7 +99,7 @@ func (token *Token) Init() (err error) {
 	}
 
 	counter := &Counter{}
-	cnt, err := counter.Init(token.Presence)
+	err = counter.Init(token.Presence)
 
 	if err != nil {
 		return
@@ -134,7 +134,8 @@ func (token *Token) Init() (err error) {
 	token.counter = counter
 	token.initialized = true
 
-	log.Printf("U2F token initialized, managed:%v counter:%d", (token.Presence != nil), cnt)
+	log.Printf("U2F token initialized")
+	log.Print(token.Status())
 
 	return
 }
