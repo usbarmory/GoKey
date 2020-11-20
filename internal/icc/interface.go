@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/f-secure-foundry/GoKey/internal/snvs"
 
@@ -282,11 +283,18 @@ func (card *Interface) Command(capdu *apdu.CAPDU) (rapdu *apdu.RAPDU, err error)
 func (card *Interface) Status() string {
 	var status bytes.Buffer
 
+	status.WriteString("---------------------------------------------------- OpenPGP smartcard ----\n")
+	status.WriteString(fmt.Sprintf("Initialized ............: %v\n", card.initialized))
 	status.WriteString(fmt.Sprintf("Secure storage .........: %v\n", card.SNVS))
+	status.WriteString(fmt.Sprintf("Serial number ..........: %X\n", card.Serial))
+	status.WriteString(fmt.Sprintf("Digital signature count.: %v\n", card.digitalSignatureCounter))
 	status.WriteString("Secret key .............: ")
 
+	r := regexp.MustCompile(`([[:xdigit:]]{4})`)
+
 	if k := card.Key; k != nil {
-		status.WriteString(fmt.Sprintf("% X\n", k.PrimaryKey.Fingerprint))
+		fp := fmt.Sprintf("%X\n", k.PrimaryKey.Fingerprint)
+		status.WriteString(r.ReplaceAllString(fp, "$1 "))
 	} else {
 		status.WriteString("missing\n")
 	}
@@ -297,7 +305,8 @@ func (card *Interface) Status() string {
 		status.WriteString(desc[i])
 
 		if sk != nil {
-			status.WriteString(fmt.Sprintf("% X\n", sk.PublicKey.Fingerprint))
+			fp := fmt.Sprintf("%X\n", sk.PublicKey.Fingerprint)
+			status.WriteString(r.ReplaceAllString(fp, "$1 "))
 
 			if pk := sk.PrivateKey; pk != nil {
 				status.WriteString(fmt.Sprintf("               encrypted: %v\n", pk.Encrypted))

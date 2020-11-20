@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	hostMAC   = "1a:55:89:a2:69:42"
-	deviceMAC = "1a:55:89:a2:69:41"
 	IP        = "10.0.0.10"
+	deviceMAC = "1a:55:89:a2:69:41"
+	hostMAC   = "1a:55:89:a2:69:42"
 )
 
 func init() {
@@ -52,15 +52,13 @@ func main() {
 	if len(pgpSecretKey) != 0 {
 		// Initialize an OpenPGP card with the bundled key information (defined
 		// in `keys.go` and generated at compilation time).
-		card = &icc.Interface{
-			SNVS:       SNVS,
-			ArmoredKey: pgpSecretKey,
-			Name:       NAME,
-			Language:   LANGUAGE,
-			Sex:        SEX,
-			URL:        URL,
-			Debug:      false,
-		}
+		card.SNVS = SNVS
+		card.ArmoredKey = pgpSecretKey
+		card.Name = NAME
+		card.Language = LANGUAGE
+		card.Sex = SEX
+		card.URL = URL
+		card.Debug = false
 
 		if initAtBoot {
 			err := card.Init()
@@ -84,10 +82,11 @@ func main() {
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
+		token.SNVS = SNVS
 		token.PublicKey = u2fPublicKey
 		token.PrivateKey = u2fPrivateKey
 
-		err := u2f.Configure(device, token, SNVS)
+		err := u2f.Configure(device, token)
 
 		if err != nil {
 			log.Printf("U2F configuration error: %v", err)

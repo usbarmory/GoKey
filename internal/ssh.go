@@ -22,6 +22,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/f-secure-foundry/GoKey/internal/icc"
 	"github.com/f-secure-foundry/GoKey/internal/snvs"
@@ -43,9 +44,9 @@ const help = `
   exit, quit                    # close session
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
+  status                        # display smartcard/token status
 
   init                          # initialize OpenPGP smartcard
-  status                        # display smartcard status
   lock   (all|sig|dec)          # key lock
   unlock (all|sig|dec)          # key unlock, prompts decryption passphrase
 
@@ -81,7 +82,7 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 	var pws []byte
 
 	if !c.Card.Initialized() {
-		return "card not initialized, forgot to issue 'init' first?"
+		return "card not initialized, issue 'init' first"
 	}
 
 	if arg == "sig" || arg == "all" {
@@ -142,7 +143,9 @@ func (c *Console) handleCommand(cmd string) (err error) {
 		c.Token.Presence = nil
 		err = c.Token.Init()
 	case "p":
-		if c.Token.Presence == nil {
+		if !c.Token.Initialized() {
+			res = "token not initialized, issue 'u2f' first"
+		} else if c.Token.Presence == nil {
 			res = "U2F presence not required"
 		} else {
 			select {
@@ -158,7 +161,7 @@ func (c *Console) handleCommand(cmd string) (err error) {
 	case "reboot":
 		reboot()
 	case "status":
-		res = c.Card.Status()
+		res = strings.Join([]string{c.Card.Status(), c.Token.Status()}, "")
 	default:
 		m := lockCommandPattern.FindStringSubmatch(cmd)
 

@@ -423,9 +423,9 @@ U2F user presence and perform additional management functions.
   exit, quit                    # close session
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
+  status                        # display smartcard/token status
 
   init                          # initialize OpenPGP smartcard
-  status                        # display smarcard status
   lock   (all|sig|dec)          # OpenPGP key(s) lock
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
 
