@@ -16,7 +16,7 @@ In combination with the [TamaGo framework](https://github.com/f-secure-foundry/t
 GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-**WARNING**: OpenPGP and SSH management currently work only on Linux hosts.
+> :warning: OpenPGP and SSH management currently work only on Linux hosts.
 
 ![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
 
@@ -223,6 +223,9 @@ variables must be set or passed to the make command:
 OpenPGP
 -------
 
+> :warning: OpenPGP smartcard functionality has been tested only on Linux
+> hosts.
+
 * `PGP_SECRET_KEY`: OpenPGP secret keys in ASCII armor format, bundled
   in the output firmware. If empty OpenPGP smartcard support is disabled.
 
@@ -256,8 +259,8 @@ example preparation is the following:
 gpg --armor --export-options export-minimal,export-clean --export-secret-key ID
 ```
 
-*IMPORTANT*: Please note that only RSA, ECDSA, ECDH keys are supported. Any
-other key (such as ElGamal, Ed25519) will not work.
+> :warning: Please note that only RSA, ECDSA, ECDH keys are supported. Any
+> other key (such as ElGamal, Ed25519) will not work.
 
 U2F keys
 --------
