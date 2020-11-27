@@ -7,7 +7,7 @@ andrea.barisani@f-secure.com | andrea@inversepath.com
 Introduction
 ============
 
-The GoKey application implements an USB smartcard in pure Go with support for:
+The GoKey application implements a USB smartcard in pure Go with support for:
 
   * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
   * [FIDO U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
