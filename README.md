@@ -413,7 +413,7 @@ The SSH server private key is passed at compilation time with the
 `SSH_PRIVATE_KEY` environment variable. If empty the SSH server key is randomly
 generated at each boot.
 
-The server responds on address 10.0.0.10, with standard port 22, and can be use
+The server responds on address 10.0.0.10, with standard port 22, and can be
 used to securely message passphrase verification, in alternative to smartcard
 clients which issue unencrypted VERIFY commands with PIN/passphrases, signal
 U2F user presence and perform additional management functions.
