@@ -159,7 +159,7 @@ func (c *Console) handleCommand(cmd string) (err error) {
 		_, _ = rand.Read(buf)
 		res = string(c.term.Escape.Cyan) + fmt.Sprintf("%x", buf) + string(c.term.Escape.Reset)
 	case "reboot":
-		reboot()
+		imx6.Reboot()
 	case "status":
 		res = strings.Join([]string{c.Card.Status(), c.Token.Status()}, "")
 	default:
@@ -357,7 +357,7 @@ func (c *Console) startSSHServer() {
 	}
 }
 
-// StartSSHServer configures and start the management SSH server.
+// Start configures and start the management SSH server.
 func (c *Console) Start() (err error) {
 	if c.Card.SNVS && len(c.PrivateKey) != 0 {
 		c.PrivateKey, err = snvs.Decrypt(c.PrivateKey, []byte(DiversifierSSH))
