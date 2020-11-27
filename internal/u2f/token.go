@@ -24,6 +24,7 @@ import (
 	"github.com/f-secure-foundry/GoKey/internal/snvs"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/f-secure-foundry/tamago/soc/imx6/dcp"
 	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
 
 	"github.com/gsora/fidati"
@@ -107,8 +108,8 @@ func (token *Token) Init() (err error) {
 
 	var mk []byte
 
-	if token.SNVS || imx6.DCP.SNVS() {
-		mk, err = imx6.DCP.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
+	if token.SNVS || imx6.SNVS() {
+		mk, err = dcp.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
 
 		if err != nil {
 			return

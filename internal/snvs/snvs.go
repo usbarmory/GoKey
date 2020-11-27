@@ -18,6 +18,7 @@ import (
 	"errors"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/f-secure-foundry/tamago/soc/imx6/dcp"
 )
 
 func init() {
@@ -31,8 +32,8 @@ func init() {
 	//
 	// This is leveraged to create the AES256 DO used by PSO:DEC and
 	// PSO:ENC and to allow encrypted bundling of OpenPGP secret keys.
-	if imx6.DCP.SNVS() {
-		imx6.DCP.Init()
+	if imx6.SNVS() {
+		dcp.Init()
 	}
 }
 
@@ -77,7 +78,7 @@ func Decrypt(input []byte, diversifier []byte) (output []byte, err error) {
 	// derivation, therefore we use the empty allocated IV before it being
 	// filled.
 	iv := make([]byte, aes.BlockSize)
-	key, err := imx6.DCP.DeriveKey(diversifier, iv, -1)
+	key, err := dcp.DeriveKey(diversifier, iv, -1)
 
 	if err != nil {
 		return
