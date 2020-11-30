@@ -18,9 +18,8 @@ import (
 )
 
 func init() {
-	Banner = fmt.Sprintf("GoKey • %s/%s (%s) • %s %s",
+	Banner = fmt.Sprintf("GoKey • %s/%s (%s) • %s %s • %s",
 		runtime.GOOS, runtime.GOARCH, runtime.Version(),
-		Revision, Build)
-
-	Banner += fmt.Sprintf(" • %s", imx6.Model())
+		Revision, Build,
+		imx6.Model())
 }
