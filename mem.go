@@ -12,8 +12,6 @@ package main
 
 import (
 	_ "unsafe"
-
-	"github.com/f-secure-foundry/tamago/dma"
 )
 
 // Override usbarmory pkg ramSize and `mem` allocation, as having 3 USB
