@@ -105,6 +105,8 @@ func main() {
 		configureNetworking(device, card, token)
 	}
 
+	dma.Init(dmaStart, dmaSize)
+
 	imxusb.USB1.Init()
 	imxusb.USB1.DeviceMode()
 	imxusb.USB1.Reset()

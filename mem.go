@@ -25,7 +25,3 @@ var dmaStart uint32 = 0xa0000000 - 0x100000
 
 // 1MB
 var dmaSize = 0x100000
-
-func init() {
-	dma.Init(dmaStart, dmaSize)
-}
