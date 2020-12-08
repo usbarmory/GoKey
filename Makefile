@@ -74,7 +74,7 @@ clean:
 	@rm -fr $(APP).bin $(APP).imx $(APP)-signed.imx $(APP).csf $(APP).dcd
 
 gokey_vpcd: check_bundled_keys
-	cd $(CURDIR) && ${TAMAGO} generate
+	cd $(CURDIR) && ${TAMAGO} generate && \
 	go build -tags vpcd -o $(CURDIR)/gokey_vpcd || (rm -f $(CURDIR)/tmp.go && exit 1)
 	rm -f $(CURDIR)/tmp.go
 
