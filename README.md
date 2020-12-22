@@ -52,7 +52,7 @@ On units which are *not* secure booted (not recommended):
 * The SSH and U2F private keys are bundled without hardware encryption, and
   therefore readable from the firmware image.
 
-* The U2F master key is derived from the ATECC608A security element random S/N
+* The U2F master key is derived from the ATECC608B security element random S/N
   and the SoC unique ID, both are readable from a stolen device without secure
   boot in place.
 
@@ -281,7 +281,7 @@ The attestation key material can be created using the
 [gen-cert](https://github.com/gsora/fidati/tree/master/cmd/gen-cert) tool from
 the [fidati](https://github.com/gsora/fidati) library.
 
-The ATECC608A security element, present on all USB armory Mk II models, is used
+The ATECC608B security element, present on all USB armory Mk II models, is used
 as hardware backed monotonic counter for U2F purposes. The counter runs out at
 2097151, which is considered a range sufficient for its intended purpose.
 

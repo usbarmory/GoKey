@@ -16,7 +16,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/f-secure-foundry/armoryctl/atecc608a"
+	"github.com/f-secure-foundry/armoryctl/atecc608"
 	"github.com/f-secure-foundry/armoryctl/led"
 )
 
@@ -40,13 +40,13 @@ type Counter struct {
 // assumed.
 func (c *Counter) Init(presence chan bool) (err error) {
 	c.presence = presence
-	 _, err = atecc608a.SelfTest()
+	 _, err = atecc608.SelfTest()
 	return
 }
 
 // Info gathers the ATECC608A random S/N and model.
 func (c *Counter) Info() (info string, err error) {
-	return atecc608a.Info()
+	return atecc608.Info()
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
@@ -96,7 +96,7 @@ func (c *Counter) UserPresence() (present bool) {
 }
 
 func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
-	res, err := atecc608a.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil, true)
+	res, err := atecc608.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil, true)
 
 	if err != nil {
 		return
