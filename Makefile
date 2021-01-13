@@ -9,7 +9,7 @@
 BUILD_USER = $(shell whoami)
 BUILD_HOST = $(shell hostname)
 BUILD_DATE = $(shell /bin/date -u "+%Y-%m-%d %H:%M:%S")
-BUILD_TAGS = "linkramsize"
+BUILD_TAGS = "linkramsize,linkprintk"
 BUILD = ${BUILD_USER}@${BUILD_HOST} on ${BUILD_DATE}
 REV = $(shell git rev-parse --short HEAD 2> /dev/null)
 PKG = "github.com/f-secure-foundry/GoKey"
