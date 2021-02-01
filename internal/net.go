@@ -29,12 +29,12 @@ const DiversifierSSH = "GoKeySNVSOpenSSH"
 
 func configureNetworkStack(addr tcpip.Address, nic tcpip.NICID, hwaddr string) (s *stack.Stack, link *channel.Endpoint) {
 	s = stack.New(stack.Options{
-		NetworkProtocols: []stack.NetworkProtocol{
-			ipv4.NewProtocol(),
-			arp.NewProtocol()},
-		TransportProtocols: []stack.TransportProtocol{
-			tcp.NewProtocol(),
-			icmp.NewProtocol4()},
+		NetworkProtocols: []stack.NetworkProtocolFactory{
+			ipv4.NewProtocol,
+			arp.NewProtocol},
+		TransportProtocols: []stack.TransportProtocolFactory{
+			tcp.NewProtocol,
+			icmp.NewProtocol4},
 	})
 
 	linkAddr, err := tcpip.ParseMACAddress(hwaddr)
@@ -47,10 +47,6 @@ func configureNetworkStack(addr tcpip.Address, nic tcpip.NICID, hwaddr string) (
 	linkEP := stack.LinkEndpoint(link)
 
 	if err := s.CreateNIC(nic, linkEP); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := s.AddAddress(nic, arp.ProtocolNumber, arp.ProtocolAddress); err != nil {
 		log.Fatal(err)
 	}
 
