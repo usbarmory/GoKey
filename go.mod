@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/f-secure-foundry/armoryctl v0.0.0-20210203111727-1d302300d6e9
+	github.com/f-secure-foundry/crucible v0.0.0-20210315084109-6d5c7d388821 // indirect
 	github.com/f-secure-foundry/tamago v0.0.0-20210217103808-875e533027e3
 	github.com/gsora/fidati v0.0.0-20210204160210-1bb65432acad
 	github.com/hsanjuan/go-nfctype4 v0.0.1
