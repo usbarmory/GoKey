@@ -159,7 +159,7 @@ func (c *Console) handleCommand(cmd string) (err error) {
 		_, _ = rand.Read(buf)
 		res = string(c.term.Escape.Cyan) + fmt.Sprintf("%x", buf) + string(c.term.Escape.Reset)
 	case "reboot":
-		imx6.Reboot()
+		imx6.Reset()
 	case "status":
 		res = strings.Join([]string{c.Card.Status(), c.Token.Status()}, "")
 	default:
