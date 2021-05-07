@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/albenik/go-serial/v2 v2.3.0 // indirect
 	github.com/f-secure-foundry/armoryctl v0.0.0-20210312183309-adf17b7e1b15
+	github.com/f-secure-foundry/crucible v0.0.0-20210503082702-01e44ec14e7a // indirect
 	github.com/f-secure-foundry/tamago v0.0.0-20210507073204-a2e021e0e2f6
 	github.com/google/btree v1.0.1 // indirect
 	github.com/gsora/fidati v0.0.0-20210204160210-1bb65432acad
