@@ -32,11 +32,6 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
-
-	"gvisor.dev/gvisor/pkg/tcpip"
-	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
-	"gvisor.dev/gvisor/pkg/tcpip/network/ipv4"
-	"gvisor.dev/gvisor/pkg/tcpip/stack"
 )
 
 const help = `
@@ -57,11 +52,6 @@ const help = `
 
 // Console represents the management SSH server instance.
 type Console struct {
-	Stack     *stack.Stack
-	Interface tcpip.NICID
-	Address   string
-	Port      uint16
-
 	AuthorizedKey []byte
 	PrivateKey    []byte
 
@@ -70,7 +60,8 @@ type Console struct {
 	// U2F token instance
 	Token *u2f.Token
 
-	Started chan bool
+	Started  chan bool
+	Listener net.Listener
 
 	term *terminal.Terminal
 }
@@ -282,7 +273,7 @@ func (c *Console) handleChannels(chans <-chan ssh.NewChannel) {
 	}
 }
 
-func (c *Console) startSSHServer() {
+func (c *Console) start() {
 	var key interface{}
 	var err error
 
@@ -290,14 +281,6 @@ func (c *Console) startSSHServer() {
 
 	if err != nil {
 		log.Fatal("invalid authorized key: ", err)
-	}
-
-	addr := tcpip.Address(net.ParseIP(c.Address)).To4()
-	fullAddr := tcpip.FullAddress{Addr: addr, Port: c.Port, NIC: c.Interface}
-	listener, err := gonet.ListenTCP(c.Stack, fullAddr, ipv4.ProtocolNumber)
-
-	if err != nil {
-		log.Fatal("listener error: ", err)
 	}
 
 	srv := &ssh.ServerConfig{
@@ -329,14 +312,14 @@ func (c *Console) startSSHServer() {
 		log.Fatal("key conversion error: ", err)
 	}
 
-	log.Printf("starting ssh server (%s) at %s:%d", ssh.FingerprintSHA256(signer.PublicKey()), addr.String(), c.Port)
+	log.Printf("starting ssh server (%s)", ssh.FingerprintSHA256(signer.PublicKey()))
 
 	srv.AddHostKey(signer)
 
 	c.Started <- true
 
 	for {
-		conn, err := listener.Accept()
+		conn, err := c.Listener.Accept()
 
 		if err != nil {
 			log.Printf("error accepting connection, %v", err)
@@ -368,7 +351,7 @@ func (c *Console) Start() (err error) {
 	}
 
 	go func() {
-		c.startSSHServer()
+		c.start()
 	}()
 
 	return
