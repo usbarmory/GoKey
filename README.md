@@ -16,7 +16,7 @@ In combination with the [TamaGo framework](https://github.com/f-secure-foundry/t
 GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-> :warning: OpenPGP and SSH management currently work only on Linux hosts.
+> :warning: SSH management only works on Linux hosts.
 
 ![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
 
@@ -209,6 +209,9 @@ variables must be set or passed to the make command:
   This option can only be used when compiling on a [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
   [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
+> :warning: SSH management only works on Linux hosts, therefore on Windows or
+> macOS `SNVS` can be set but not to "ssh".
+
 * `SSH_PUBLIC_KEY`: public key for SSH client authentication by the network
   management interface (see _Management_). If empty the SSH interface is
   disabled.
@@ -222,9 +225,6 @@ variables must be set or passed to the make command:
 
 OpenPGP
 -------
-
-> :warning: OpenPGP smartcard functionality has been tested only on Linux
-> hosts.
 
 * `PGP_SECRET_KEY`: OpenPGP secret keys in ASCII armor format, bundled
   in the output firmware. If empty OpenPGP smartcard support is disabled.
@@ -331,6 +331,12 @@ make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret
 
 OpenPGP host configuration
 ==========================
+
+macOS
+-----
+
+The GoKey USB smartcard works out of the box on modern macOS installations with
+[GPG Suite](https://gpgtools.org/).
 
 CCID driver
 -----------
