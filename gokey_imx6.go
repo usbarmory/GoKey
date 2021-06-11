@@ -41,65 +41,73 @@ func init() {
 	}
 }
 
+func initCard(device *imxusb.Device, card *icc.Interface) {
+	// Initialize an OpenPGP card with the bundled key information (defined
+	// in `keys.go` and generated at compilation time).
+	card.SNVS = SNVS
+	card.ArmoredKey = pgpSecretKey
+	card.Name = NAME
+	card.Language = LANGUAGE
+	card.Sex = SEX
+	card.URL = URL
+	card.Debug = false
+
+	if initAtBoot {
+		err := card.Init()
+
+		if err != nil {
+			log.Printf("OpenPGP ICC initialization error: %v", err)
+		}
+	}
+
+	// initialize CCID interface
+	reader := &ccid.Interface{
+		ICC: card,
+	}
+
+	// set card serial number to 2nd half of NXP Unique ID
+	uid := imx6.UniqueID()
+	copy(card.Serial[0:4], uid[4:8])
+
+	// configure Smart Card over USB endpoints (CCID protocol)
+	usb.ConfigureCCID(device, reader)
+}
+
+func initToken(device *imxusb.Device, token *u2f.Token) {
+	token.SNVS = SNVS
+	token.PublicKey = u2fPublicKey
+	token.PrivateKey = u2fPrivateKey
+
+	err := u2f.Configure(device, token)
+
+	if err != nil {
+		log.Printf("U2F configuration error: %v", err)
+	}
+
+	if initAtBoot {
+		err = token.Init()
+
+		if err != nil {
+			log.Printf("U2F initialization error: %v", err)
+		}
+	}
+}
+
 func main() {
+	device := &imxusb.Device{}
 	card := &icc.Interface{}
 	token := &u2f.Token{}
 
 	log.Println(gokey.Banner)
 
-	device := &imxusb.Device{}
 	usb.ConfigureDevice(device)
 
 	if len(pgpSecretKey) != 0 {
-		// Initialize an OpenPGP card with the bundled key information (defined
-		// in `keys.go` and generated at compilation time).
-		card.SNVS = SNVS
-		card.ArmoredKey = pgpSecretKey
-		card.Name = NAME
-		card.Language = LANGUAGE
-		card.Sex = SEX
-		card.URL = URL
-		card.Debug = false
-
-		if initAtBoot {
-			err := card.Init()
-
-			if err != nil {
-				log.Printf("OpenPGP ICC initialization error: %v", err)
-			}
-		}
-
-		// initialize CCID interface
-		reader := &ccid.Interface{
-			ICC: card,
-		}
-
-		// set card serial number to 2nd half of NXP Unique ID
-		uid := imx6.UniqueID()
-		copy(card.Serial[0:4], uid[4:8])
-
-		// configure Smart Card over USB endpoints (CCID protocol)
-		usb.ConfigureCCID(device, reader)
+		initCard(device, card)
 	}
 
 	if len(u2fPublicKey) != 0 && len(u2fPrivateKey) != 0 {
-		token.SNVS = SNVS
-		token.PublicKey = u2fPublicKey
-		token.PrivateKey = u2fPrivateKey
-
-		err := u2f.Configure(device, token)
-
-		if err != nil {
-			log.Printf("U2F configuration error: %v", err)
-		}
-
-		if initAtBoot {
-			err = token.Init()
-
-			if err != nil {
-				log.Printf("U2F initialization error: %v", err)
-			}
-		}
+		initToken(device, token)
 	}
 
 	if len(sshPublicKey) != 0 {
