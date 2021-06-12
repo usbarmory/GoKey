@@ -408,6 +408,10 @@ For non-interactive execution modify U-Boot configuration accordingly.
 Operation
 =========
 
+GoKey can be conveniently accessed from either the USB armory Type-C plug (e.g.
+USB armory directly connected to a Type-C host port) or receptacle (e.g. USB
+armory connected with a Type-C to Type-A cable).
+
 Management interface
 --------------------
 

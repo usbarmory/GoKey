@@ -24,7 +24,7 @@ import (
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
 
-	_ "github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
+	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 
 	"github.com/f-secure-foundry/imx-usbnet"
 )
@@ -38,6 +38,10 @@ const (
 func init() {
 	if err := imx6.SetARMFreq(900); err != nil {
 		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
+	}
+
+	if err := usbarmory.EnableReceptacleController(); err != nil {
+		panic(fmt.Sprintf("WARNING: error enabling receptacle: %v\n", err))
 	}
 }
 
@@ -94,7 +98,9 @@ func initToken(device *imxusb.Device, token *u2f.Token) {
 }
 
 func main() {
+	port := imxusb.USB1
 	device := &imxusb.Device{}
+
 	card := &icc.Interface{}
 	token := &u2f.Token{}
 
@@ -116,16 +122,20 @@ func main() {
 
 	dma.Init(dmaStart, dmaSize)
 
-	imxusb.USB1.Init()
-	imxusb.USB1.DeviceMode()
-	imxusb.USB1.Reset()
+	if mode, _ := usbarmory.ReceptacleMode(); mode == usbarmory.TYPE_SINK {
+		port = imxusb.USB2
+	}
+
+	port.Init()
+	port.DeviceMode()
+	port.Reset()
 
 	if err := imx6.SetARMFreq(198); err != nil {
 		log.Fatalf("WARNING: error setting ARM frequency: %v\n", err)
 	}
 
 	// never returns
-	imxusb.USB1.Start(device)
+	port.Start(device)
 }
 
 func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.Token) {
