@@ -20,7 +20,6 @@ import (
 	"github.com/f-secure-foundry/GoKey/internal/u2f"
 	"github.com/f-secure-foundry/GoKey/internal/usb"
 
-	"github.com/f-secure-foundry/tamago/dma"
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
 
