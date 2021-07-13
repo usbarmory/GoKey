@@ -120,8 +120,6 @@ func main() {
 		configureNetworking(device, card, token)
 	}
 
-	dma.Init(dmaStart, dmaSize)
-
 	if mode, _ := usbarmory.ReceptacleMode(); mode == usbarmory.TYPE_SINK {
 		port = imxusb.USB2
 	}
