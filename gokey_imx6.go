@@ -13,6 +13,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/ccid"
@@ -97,6 +98,9 @@ func initToken(device *imxusb.Device, token *u2f.Token) {
 }
 
 func main() {
+	// grace time for receptacle USB port controller activation
+	portTimer := time.NewTimer(250 * time.Millisecond)
+
 	port := imxusb.USB1
 	device := &imxusb.Device{}
 
@@ -119,6 +123,7 @@ func main() {
 		configureNetworking(device, card, token)
 	}
 
+	<-portTimer.C
 	if mode, _ := usbarmory.ReceptacleMode(); mode == usbarmory.TYPE_SINK {
 		port = imxusb.USB2
 	}
