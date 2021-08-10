@@ -72,10 +72,6 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 	var err error
 	var pws []byte
 
-	if !c.Card.Initialized() {
-		return "card not initialized, issue 'init' first"
-	}
-
 	if arg == "sig" || arg == "all" {
 		pws = append(pws, icc.PW1_CDS)
 	}
@@ -90,6 +86,10 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 
 	switch op {
 	case "lock":
+		if !c.Card.Initialized() {
+			return "card not initialized"
+		}
+
 		for _, pw := range pws {
 			if _, err := c.Card.Verify(icc.PW_LOCK, pw, nil); err != nil {
 				return err.Error()
