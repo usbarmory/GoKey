@@ -104,8 +104,16 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 			break
 		}
 
+		if !c.Card.Initialized() {
+			if err = c.Card.Init(); err != nil {
+				break
+			}
+		}
+
 		for _, pw := range pws {
-			_, err = c.Card.Verify(icc.PW_VERIFY, pw, []byte(passphrase))
+			if _, err = c.Card.Verify(icc.PW_VERIFY, pw, []byte(passphrase)); err != nil {
+				break
+			}
 		}
 	}
 
