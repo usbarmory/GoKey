@@ -202,8 +202,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/evanphx/json-patch v4.2.0+incompatible/go.mod h1:50XU6AFN0ol/bzJsmQLiYLvXMP4fmwYFNcr97nuDLSk=
 github.com/evanphx/json-patch v4.9.0+incompatible/go.mod h1:50XU6AFN0ol/bzJsmQLiYLvXMP4fmwYFNcr97nuDLSk=
-github.com/f-secure-foundry/armoryctl v0.0.0-20210816175103-da3321b9d39b h1:RKpoY8In2uzMkMk5U4eRbv3uFq0K4VaqdwZ872YEas4=
-github.com/f-secure-foundry/armoryctl v0.0.0-20210816175103-da3321b9d39b/go.mod h1:yG4Z5Cm5K3BO3Rr3UkGj3JjVE/+ImQDqLzGogUvHcaY=
+github.com/f-secure-foundry/armoryctl v0.0.0-20210818140503-9fb3d9a3514b h1:4dgTFUww0o6JTK2XHPoKiGZq/lMvrewNzC+AyDjbHYw=
+github.com/f-secure-foundry/armoryctl v0.0.0-20210818140503-9fb3d9a3514b/go.mod h1:yG4Z5Cm5K3BO3Rr3UkGj3JjVE/+ImQDqLzGogUvHcaY=
 github.com/f-secure-foundry/crucible v0.0.0-20210730121542-ac44e572b63a h1:O1vSVUaEE87KdYzucWcAvHQRk2mmbeV2w1o+mozqrMI=
 github.com/f-secure-foundry/crucible v0.0.0-20210730121542-ac44e572b63a/go.mod h1:lKwj0vB9le2qIIiq3mKqiIcTlgrp8f3l1mD9ScgAzTc=
 github.com/f-secure-foundry/imx-usbnet v0.0.0-20210610130924-29c5704a98b4 h1:aO9KQtoDnOC05+OA8CvCo84kpM736iVTxjLvZ/WXF/4=
@@ -211,8 +211,9 @@ github.com/f-secure-foundry/imx-usbnet v0.0.0-20210610130924-29c5704a98b4/go.mod
 github.com/f-secure-foundry/tamago v0.0.0-20210120185021-8387bb5064a1/go.mod h1:+xmhdYxGfaNhWUZ/F1mbwFu38H73slg/k/oPjOL7tc8=
 github.com/f-secure-foundry/tamago v0.0.0-20210518071534-ddf03422d158/go.mod h1:Zs5U/3bxiFFQzq23F7KkmS8Gz1jTGH141hbcdFHCk8E=
 github.com/f-secure-foundry/tamago v0.0.0-20210607142218-878b4c69ff4e/go.mod h1:Zs5U/3bxiFFQzq23F7KkmS8Gz1jTGH141hbcdFHCk8E=
-github.com/f-secure-foundry/tamago v0.0.0-20210809073203-902df26b3914 h1:HNg268ai/FcJaro513t1q1ihmhXmhUgRUpMlcb5Gbgw=
 github.com/f-secure-foundry/tamago v0.0.0-20210809073203-902df26b3914/go.mod h1:Zs5U/3bxiFFQzq23F7KkmS8Gz1jTGH141hbcdFHCk8E=
+github.com/f-secure-foundry/tamago v0.0.0-20210817103852-f03ed080cf2c h1:DHrNDodmBvqNdFabg+v8g9hInY1ciekKlvZqPpTzf04=
+github.com/f-secure-foundry/tamago v0.0.0-20210817103852-f03ed080cf2c/go.mod h1:Zs5U/3bxiFFQzq23F7KkmS8Gz1jTGH141hbcdFHCk8E=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/form3tech-oss/jwt-go v3.2.2+incompatible/go.mod h1:pbq4aXjuKjdthFRnoDwaVPLA+WlJuPGy+QneDUgJi2k=
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
@@ -766,8 +767,9 @@ golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20210314195730-07df6a141424/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210608053332-aa57babbf139/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.0.0-20210816074244-15123e1e1f71 h1:ikCpsnYR+Ew0vu99XlDp55lGgDJdIMx3f4a18jfse/s=
 golang.org/x/sys v0.0.0-20210816074244-15123e1e1f71/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2 h1:c8PlLMqBbOHoqtjteWm5/kbe6rNY2pbRfbIMVnepueo=
+golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 h1:v+OssWQX+hTHEmOBgwxdZxK4zHq3yOs8F9J7mk0PY8E=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
