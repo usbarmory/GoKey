@@ -98,16 +98,14 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 	case "unlock":
 		var passphrase string
 
-		passphrase, err = c.term.ReadPassword("Passphrase: ")
-
-		if err != nil {
-			break
-		}
-
 		if !c.Card.Initialized() {
 			if err = c.Card.Init(); err != nil {
 				break
 			}
+		}
+
+		if passphrase, err = c.term.ReadPassword("\nPassphrase: "); err != nil {
+			break
 		}
 
 		for _, pw := range pws {
