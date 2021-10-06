@@ -21,7 +21,7 @@ var mux sync.Mutex
 
 func wake() {
 	mux.Lock()
-	mux.Unlock()
+	defer mux.Unlock()
 
 	if cnt == 0 {
 		_ = imx6.SetARMFreq(imx6.FreqMax)
@@ -32,7 +32,7 @@ func wake() {
 
 func idle() {
 	mux.Lock()
-	mux.Unlock()
+	defer mux.Unlock()
 
 	cnt -= 1
 
