@@ -111,6 +111,10 @@ func main() {
 
 	usb.ConfigureDevice(device)
 
+	if SNVS && !imx6.SNVS() {
+		log.Fatalf("SNVS not available")
+	}
+
 	if len(pgpSecretKey) != 0 {
 		initCard(device, card)
 	}
