@@ -12,26 +12,47 @@ package u2f
 
 import (
 	"encoding/binary"
+	"errors"
 	"log"
 	"runtime"
 	"time"
+
+	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
 
 	"github.com/f-secure-foundry/armoryctl/atecc608"
 	"github.com/f-secure-foundry/armoryctl/led"
 )
 
 const (
-	counterCmd = 0x24
-	read       = 0
-	increment  = 1
+	cntATECC = iota
+	cntEMMC
+)
+
+const (
+	read      = 0
+	increment = 1
+
 	// Counter KeyID, #1 is used as it is never attached to any key.
-	keyID = 0x01
+	keyID      = 0x01
+	counterCmd = 0x24
+
+	// When no HSM is present/supported (rev. γ) the counter value is saved
+	// on the internal eMMC.
+	//
+	// The value is placed right before the Program Image offset (0x400) in
+	// an area reserved for NXP optional Secondary Image Table
+	// (0x200-0x400) but not used by the table itself.
+	counterLBA    = 1
+	counterOffset = 512 - 4
+
 	// user presence timeout in seconds
 	timeout = 10
 )
 
 // Counter represents an ATECC608A based monotonic counter instance.
 type Counter struct {
+	kind     int
+	uid      []byte
 	presence chan bool
 }
 
@@ -39,19 +60,77 @@ type Counter struct {
 // receive user presence notifications, if nil user presence is automatically
 // assumed.
 func (c *Counter) Init(presence chan bool) (err error) {
+	switch usbarmory.Model() {
+	case "UA-MKII-β": // ATECC608A
+		var info string
+
+		if info, err = atecc608.Info(); err != nil {
+			return
+		}
+
+		c.uid = []byte(info)
+		c.kind = cntATECC
+	case "UA-MKII-γ": // NXP SE050 present but not supported
+		if err = usbarmory.MMC.Detect(); err != nil {
+			return
+		}
+
+		cid := usbarmory.MMC.Info().CID
+		c.uid = cid[:]
+		c.kind = cntEMMC
+	default:
+		errors.New("could not detect hardware model")
+	}
+
 	c.presence = presence
-	 _, err = atecc608.SelfTest()
+
 	return
 }
 
-// Info gathers the ATECC608A random S/N and model.
-func (c *Counter) Info() (info string, err error) {
-	return atecc608.Info()
+// Serial returns the unique identifier for the hardware implementing the
+// counter.
+func (c *Counter) Serial() []byte {
+	return c.uid
+}
+
+func (c *Counter) counterCmd(mode byte) (cnt uint32, err error) {
+	switch c.kind {
+	case cntATECC:
+		res, err := atecc608.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil, true)
+
+		if err != nil {
+			return 0, err
+		}
+
+		return binary.LittleEndian.Uint32(res), nil
+	case cntEMMC:
+		card := usbarmory.MMC
+		buf := make([]byte, card.Info().BlockSize)
+
+		if err = card.ReadBlocks(counterLBA, buf); err != nil {
+			return
+		}
+
+		cnt = binary.LittleEndian.Uint32(buf[counterOffset:])
+
+		if mode == read {
+			return
+		}
+
+		cnt += 1
+		binary.LittleEndian.PutUint32(buf[counterOffset:], cnt)
+
+		if err = card.WriteBlocks(counterLBA, buf); err != nil {
+			return
+		}
+	}
+
+	return
 }
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
 func (c *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error) {
-	cnt, err = c.cmd(increment)
+	cnt, err = c.counterCmd(increment)
 
 	if err != nil {
 		log.Printf("U2F increment failed, %v", err)
@@ -65,7 +144,7 @@ func (c *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error
 
 // Read reads the ATECC608A monotonic counter in slot <1> (not attached to any key).
 func (c *Counter) Read() (cnt uint32, err error) {
-	return c.cmd(read)
+	return c.counterCmd(read)
 }
 
 // UserPresence verifies the user presence.
@@ -93,16 +172,6 @@ func (c *Counter) UserPresence() (present bool) {
 	}
 
 	return
-}
-
-func (c *Counter) cmd(mode byte) (cnt uint32, err error) {
-	res, err := atecc608.ExecuteCmd(counterCmd, [1]byte{mode}, [2]byte{keyID, 0x00}, nil, true)
-
-	if err != nil {
-		return
-	}
-
-	return binary.LittleEndian.Uint32(res), nil
 }
 
 func blink(done chan bool) {

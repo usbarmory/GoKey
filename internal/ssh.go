@@ -39,11 +39,11 @@ const help = `
   exit, quit                    # close session
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
+  status                        # display smartcard/token status
 
   init                          # initialize OpenPGP smartcard
   lock   (all|sig|dec)          # OpenPGP key(s) lock
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
-  status                        # display smartcard/token status
 
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test

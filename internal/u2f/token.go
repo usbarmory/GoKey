@@ -108,7 +108,7 @@ func (token *Token) Init() (err error) {
 
 	var mk []byte
 
-	if token.SNVS || imx6.SNVS() {
+	if token.SNVS {
 		mk, err = dcp.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
 
 		if err != nil {
@@ -116,18 +116,12 @@ func (token *Token) Init() (err error) {
 		}
 	} else {
 		// On non-secure booted units we derive the master key from the
-		// ATECC608A security element random S/N and the SoC unique ID.
+		// counter hardware serial number and the SoC unique ID.
 		//
 		// This provides a non-predictable master key which must
 		// however be assumed compromised if a device is stolen/lost.
 		uid := imx6.UniqueID()
-		sn, err := counter.Info()
-
-		if err != nil {
-			return err
-		}
-
-		mk = pbkdf2.Key([]byte(sn), uid[:], 4096, 16, sha256.New)
+		mk = pbkdf2.Key(counter.Serial(), uid[:], 4096, 16, sha256.New)
 	}
 
 	token.keyring.MasterKey = mk
@@ -157,12 +151,16 @@ func (token *Token) Status() string {
 	status.WriteString(fmt.Sprintf("Secure storage .........: %v\n", token.SNVS))
 	status.WriteString(fmt.Sprintf("User presence test .....: %v\n", token.Presence != nil))
 
-	val, err := token.counter.Read()
+	if token.initialized {
+		val, err := token.counter.Read()
 
-	if err != nil {
-		s = err.Error()
+		if err != nil {
+			s = err.Error()
+		} else {
+			s = fmt.Sprintf("%d", val)
+		}
 	} else {
-		s = fmt.Sprintf("%d", val)
+		s = "N/A"
 	}
 
 	status.WriteString(fmt.Sprintf("Counter ................: %v\n", s))

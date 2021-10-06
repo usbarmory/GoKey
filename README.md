@@ -16,7 +16,7 @@ In combination with the [TamaGo framework](https://github.com/f-secure-foundry/t
 GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-> :warning: SSH management only works on Linux hosts.
+> :warning: the SSH management console only works on Linux or macOS hosts.
 
 ![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
 
@@ -52,9 +52,9 @@ On units which are *not* secure booted (not recommended):
 * The SSH and U2F private keys are bundled without hardware encryption, and
   therefore readable from the firmware image.
 
-* The U2F master key is derived from the ATECC608B security element random S/N
-  and the SoC unique ID, both are readable from a stolen device without secure
-  boot in place.
+* The U2F master key is derived from unique hardware serial numbers and
+  the SoC unique ID, both are readable from a stolen device without secure boot
+  in place.
 
 * PSO:DEC (in AES mode) and PSO:ENC are not available.
 
@@ -89,7 +89,7 @@ These are security features, not bugs:
   standard. Rather the user can issue the key passphrase over SSH for improved
   security (see _Management_).
 
-* To prevent plaintext transmission of the PIN/passhprase, the VERIFY command
+* To prevent plaintext transmission of the PIN/passphrase, the VERIFY command
   will take any PIN (>=6 characters) if the relevant OpenPGP key has been
   already unlocked over SSH (see _Management_).
 
@@ -209,8 +209,8 @@ variables must be set or passed to the make command:
   This option can only be used when compiling on a [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
   [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
 
-> :warning: SSH management only works on Linux hosts, therefore on Windows or
-> macOS `SNVS` can be set but not to "ssh".
+> :warning: the SSH management console only works on Linux or macOS hosts, it
+> must be disabled for Windows hosts.
 
 * `SSH_PUBLIC_KEY`: public key for SSH client authentication by the network
   management interface (see _Management_). If empty the SSH interface is
@@ -281,9 +281,12 @@ The attestation key material can be created using the
 [gen-cert](https://github.com/gsora/fidati/tree/master/cmd/gen-cert) tool from
 the [fidati](https://github.com/gsora/fidati) library.
 
-The ATECC608B security element, present on all USB armory Mk II models, is used
-as hardware backed monotonic counter for U2F purposes. The counter runs out at
+On USB armory Mk II rev. β models the ATECC608B security element is used as
+hardware backed monotonic counter for U2F purposes. The counter runs out at
 2097151, which is considered a range sufficient for its intended purpose.
+
+On USB armory Mk II rev. γ models a 32-bit monotonic counter is saved on the
+internal eMMC in an unused reserved sector.
 
 The U2F library performs peer-specific key derivation using a master secret
 ([U2F Key Wrapping](https://www.yubico.com/blog/yubicos-u2f-key-wrapping)),
@@ -292,7 +295,7 @@ device specific value.
 
 When the management interface is disabled, FIDO U2F user presence is
 automatically acknowledged, otherwise it can be configured at initialization
-throught the management interface (see _Management_).
+through the management interface (see _Management_).
 
 Building the bare metal executable
 ----------------------------------
@@ -338,16 +341,16 @@ macOS
 The GoKey USB smartcard works out of the box on modern macOS installations with
 [GPG Suite](https://gpgtools.org/).
 
-CCID driver
------------
+Linux
+-----
 
 The GoKey USB smartcard has been tested with [libccid](https://ccid.apdu.fr/),
 used by [OpenSC](https://github.com/OpenSC/OpenSC/wiki) on most Linux
 distributions.
 
-While libccid [now supports](https://ccid.apdu.fr/ccid/shouldwork.html#0x12090x2702)
-the advertised vendor and product IDs, chances are that your installed version is
-older than this change, if so apply the following instructions.
+The libccid library [now supports](https://ccid.apdu.fr/ccid/shouldwork.html#0x12090x2702) GoKey vendor
+and product IDs, if your installed version is older than this change apply the
+following instructions.
 
 To enable detection an entry must be added in `libccid_Info.plist` (typically
 located in `/etc`):
@@ -370,17 +373,21 @@ located in `/etc`):
 <string>USB armory Mk II</string>
 ```
 
-OpenSC
-------
-
 The GoKey USB smartcard, once the CCID driver entries are added as in the
 previous section, can then be used as any other smartcard via OpenSC on Linux.
 
 You can refer to [Arch Linux smartcards documentation](https://wiki.archlinux.org/index.php/Smartcards)
 for configuration documentation.
 
-Operation on other operating systems should be possible but has not been tested
-yet.
+Windows
+-------
+
+Windows does not support Ethernet over USB devices implemented with CDC-ECM,
+therefore the SSH management console must be disabled (e.g. `SNVS` can be non
+empty but not to `ssh`, see _Compiling_)
+
+Smartcard operation has not been tested but should be possible with software
+that uses up-to-date smartcard drivers.
 
 Executing
 =========
@@ -437,18 +444,18 @@ U2F user presence and perform additional management functions.
   exit, quit                    # close session
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
+  status                        # display smartcard/token status
 
   init                          # initialize OpenPGP smartcard
   lock   (all|sig|dec)          # OpenPGP key(s) lock
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
-  status                        # display smartcard/token status
 
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
 ```
 
-Note that to prevent plaintext transmission of the PIN/passhprase, the VERIFY
+Note that to prevent plaintext transmission of the PIN/passphrase, the VERIFY
 command requested by any OpenPGP host client will take any PIN (>= 6
 characters) if the relevant OpenPGP key has been already unlocked over SSH.
 
