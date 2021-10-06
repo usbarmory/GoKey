@@ -8,7 +8,7 @@
 
 // +build tamago,arm
 
-package gokey
+package usb
 
 import (
 	"bytes"
@@ -62,6 +62,7 @@ type Console struct {
 
 	Started  chan bool
 	Listener net.Listener
+	Banner   string
 
 	term *terminal.Terminal
 }
@@ -104,7 +105,7 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 			}
 		}
 
-		if passphrase, err = c.term.ReadPassword("\nPassphrase: "); err != nil {
+		if passphrase, err = c.term.ReadPassword("Passphrase: "); err != nil {
 			break
 		}
 
@@ -193,13 +194,13 @@ func (c *Console) handleChannel(newChannel ssh.NewChannel) {
 	go func() {
 		defer conn.Close()
 
-		imx6.SetARMFreq(900)
-		defer imx6.SetARMFreq(198)
+		wake()
+		defer idle()
 
 		log.SetOutput(io.MultiWriter(os.Stdout, c.term))
 		defer log.SetOutput(os.Stdout)
 
-		fmt.Fprintf(c.term, "%s\n", Banner)
+		fmt.Fprintf(c.term, "%s\n", c.Banner)
 		fmt.Fprintf(c.term, "%s\n", string(c.term.Escape.Cyan)+help+string(c.term.Escape.Reset))
 
 		for {

@@ -38,9 +38,9 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/icc"
 	"github.com/f-secure-foundry/GoKey/internal/u2f"
+	"github.com/f-secure-foundry/GoKey/internal/usb"
 
 	"golang.org/x/sys/unix"
 )
@@ -99,7 +99,7 @@ func main() {
 
 	if sshPrivateKeyPath := os.Getenv("SSH_PRIVATE_KEY"); sshPrivateKeyPath != "" {
 		if SNVS {
-			sshPrivateKey, err = encrypt(sshPrivateKeyPath, gokey.DiversifierSSH)
+			sshPrivateKey, err = encrypt(sshPrivateKeyPath, usb.DiversifierSSH)
 		} else {
 			sshPrivateKey, err = ioutil.ReadFile(sshPrivateKeyPath)
 		}

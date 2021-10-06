@@ -8,18 +8,35 @@
 
 // +build tamago,arm
 
-package gokey
+package usb
 
 import (
-	"fmt"
-	"runtime"
+	"sync"
 
 	"github.com/f-secure-foundry/tamago/soc/imx6"
 )
 
-func init() {
-	Banner = fmt.Sprintf("GoKey • %s/%s (%s) • %s %s • %s",
-		runtime.GOOS, runtime.GOARCH, runtime.Version(),
-		Revision, Build,
-		imx6.Model())
+var cnt int
+var mux sync.Mutex
+
+func wake() {
+	mux.Lock()
+	mux.Unlock()
+
+	if cnt == 0 {
+		_ = imx6.SetARMFreq(imx6.FreqMax)
+	}
+
+	cnt += 1
+}
+
+func idle() {
+	mux.Lock()
+	mux.Unlock()
+
+	cnt -= 1
+
+	if cnt == 0 {
+		_ = imx6.SetARMFreq(imx6.FreqLow)
+	}
 }

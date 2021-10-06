@@ -13,9 +13,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"runtime"
 	"time"
 
-	"github.com/f-secure-foundry/GoKey/internal"
 	"github.com/f-secure-foundry/GoKey/internal/ccid"
 	"github.com/f-secure-foundry/GoKey/internal/icc"
 	"github.com/f-secure-foundry/GoKey/internal/u2f"
@@ -35,8 +36,12 @@ const (
 	hostMAC   = "1a:55:89:a2:69:42"
 )
 
+// initialized at compile time (see Makefile)
+var Build string
+var Revision string
+
 func init() {
-	if err := imx6.SetARMFreq(900); err != nil {
+	if err := imx6.SetARMFreq(imx6.FreqMax); err != nil {
 		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
 	}
 
@@ -107,7 +112,8 @@ func main() {
 	card := &icc.Interface{}
 	token := &u2f.Token{}
 
-	log.Println(gokey.Banner)
+	log.SetFlags(0)
+	log.SetOutput(os.Stdout)
 
 	usb.ConfigureDevice(device)
 
@@ -136,7 +142,7 @@ func main() {
 	port.DeviceMode()
 	port.Reset()
 
-	if err := imx6.SetARMFreq(198); err != nil {
+	if err := imx6.SetARMFreq(imx6.FreqLow); err != nil {
 		log.Fatalf("WARNING: error setting ARM frequency: %v\n", err)
 	}
 
@@ -159,13 +165,17 @@ func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.
 		log.Fatalf("could not initialize SSH listener, %v", err)
 	}
 
-	console := &gokey.Console{
+	banner := fmt.Sprintf("GoKey • %s/%s (%s) • %s %s",
+		runtime.GOOS, runtime.GOARCH, runtime.Version(), Revision, Build)
+
+	console := &usb.Console{
 		AuthorizedKey: sshPublicKey,
 		PrivateKey:    sshPrivateKey,
 		Card:          card,
 		Token:         token,
 		Started:       make(chan bool),
 		Listener:      listener,
+		Banner:        banner,
 	}
 
 	// start SSH server for management console

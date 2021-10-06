@@ -6,20 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
-package gokey
+package usb
 
-import (
-	"log"
-	"os"
-)
-
-// initialized at compile time (see Makefile)
-var Build string
-var Revision string
-
-var Banner string
-
-func init() {
-	log.SetFlags(0)
-	log.SetOutput(os.Stdout)
-}
+// Diversifier for hardware key derivation (SSH private key wrapping).
+const DiversifierSSH = "GoKeySNVSOpenSSH"
