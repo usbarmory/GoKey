@@ -349,7 +349,7 @@ func (c *Console) start() {
 
 // Start configures and start the management SSH server.
 func (c *Console) Start() (err error) {
-	if c.Card.SNVS && len(c.PrivateKey) != 0 {
+	if (c.Card.SNVS || c.Token.SNVS) && len(c.PrivateKey) != 0 {
 		c.PrivateKey, err = snvs.Decrypt(c.PrivateKey, []byte(DiversifierSSH))
 
 		if err != nil {
