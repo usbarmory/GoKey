@@ -23,9 +23,9 @@ GoKey is meant to be executed on ARM bare metal on hardware such as the
 Security model
 --------------
 
-When running [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
-NXP i.MX6ULL, the built-in Data Co-Processor (DCP) is used to provide device
-specific hardware encryption.
+When running on [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
+NXP i.MX6ULL devices, the built-in Data Co-Processor (DCP) is used to provide
+device specific hardware encryption.
 
 A device specific random 256-bit OTPMK key is fused in each NXP i.MX6ULL SoC at
 manufacturing time, this key is unreadable and can only be used by the DCP for
