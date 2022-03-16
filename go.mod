@@ -1,11 +1,11 @@
-module github.com/f-secure-foundry/GoKey
+module github.com/usbarmory/GoKey
 
 go 1.17
 
 require (
-	github.com/f-secure-foundry/armoryctl v0.0.0-20210818140503-9fb3d9a3514b
-	github.com/f-secure-foundry/imx-usbnet v0.0.0-20211005152612-ec70eaf9b56c
-	github.com/f-secure-foundry/tamago v0.0.0-20211105083740-8f4eb8811c15
+	github.com/usbarmory/armoryctl v0.0.0-20210818140503-9fb3d9a3514b
+	github.com/usbarmory/imx-usbnet v0.0.0-20211005152612-ec70eaf9b56c
+	github.com/usbarmory/tamago v0.0.0-20211105083740-8f4eb8811c15
 	github.com/gsora/fidati v0.0.0-20211110154029-7046b6c49140
 	github.com/hsanjuan/go-nfctype4 v0.0.1
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
@@ -15,7 +15,7 @@ require (
 require (
 	github.com/albenik/go-serial/v2 v2.3.0 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
-	github.com/f-secure-foundry/crucible v0.0.0-20211102131435-642824867724 // indirect
+	github.com/usbarmory/crucible v0.0.0-20211102131435-642824867724 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	go.mozilla.org/pkcs7 v0.0.0-20200128120323-432b2356ecb1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
