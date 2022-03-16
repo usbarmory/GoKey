@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -13,7 +13,7 @@ package usb
 import (
 	"sync"
 
-	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/usbarmory/tamago/soc/imx6"
 )
 
 var cnt int

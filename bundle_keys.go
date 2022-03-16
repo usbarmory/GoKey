@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -13,7 +13,7 @@
 //
 // To use such feature the GoKey firmware must be compiled on the same hardware
 // it will then be executed on, setting the `SNVS` environment variable. The
-// `mxs-dcp` module (https://github.com/f-secure-foundry/mxs-dcp) must be
+// `mxs-dcp` module (https://github.com/usbarmory/mxs-dcp) must be
 // loaded.
 //
 // IMPORTANT: the unique OTPMK internal key is available only when Secure Boot
@@ -38,9 +38,9 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/f-secure-foundry/GoKey/internal/icc"
-	"github.com/f-secure-foundry/GoKey/internal/u2f"
-	"github.com/f-secure-foundry/GoKey/internal/usb"
+	"github.com/usbarmory/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/u2f"
+	"github.com/usbarmory/GoKey/internal/usb"
 
 	"golang.org/x/sys/unix"
 )

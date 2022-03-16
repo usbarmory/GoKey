@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -11,7 +11,7 @@
 package icc
 
 import (
-	"github.com/f-secure-foundry/armoryctl/led"
+	"github.com/usbarmory/armoryctl/led"
 )
 
 // LED turns on/off an LED by name.

@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -20,7 +20,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/icc"
 )
 
 var server string

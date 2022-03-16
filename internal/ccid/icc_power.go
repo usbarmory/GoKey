@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -9,7 +9,7 @@
 package ccid
 
 import (
-	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/icc"
 )
 
 // IccPowerOn implements p26, 6.1.1 PC_to_RDR_IccPowerOn, CCID Rev1.1.

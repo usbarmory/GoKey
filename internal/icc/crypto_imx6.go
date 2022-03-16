@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -14,7 +14,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 
-	"github.com/f-secure-foundry/tamago/soc/imx6/dcp"
+	"github.com/usbarmory/tamago/soc/imx6/dcp"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
 )

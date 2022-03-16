@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -24,11 +24,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/f-secure-foundry/GoKey/internal/icc"
-	"github.com/f-secure-foundry/GoKey/internal/snvs"
-	"github.com/f-secure-foundry/GoKey/internal/u2f"
+	"github.com/usbarmory/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/snvs"
+	"github.com/usbarmory/GoKey/internal/u2f"
 
-	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/usbarmory/tamago/soc/imx6"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"

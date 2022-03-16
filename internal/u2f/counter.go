@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -17,10 +17,10 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
+	"github.com/usbarmory/tamago/board/f-secure/usbarmory/mark-two"
 
-	"github.com/f-secure-foundry/armoryctl/atecc608"
-	"github.com/f-secure-foundry/armoryctl/led"
+	"github.com/usbarmory/armoryctl/atecc608"
+	"github.com/usbarmory/armoryctl/led"
 )
 
 const (

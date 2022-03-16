@@ -12,18 +12,18 @@ The GoKey application implements a USB smartcard in pure Go with support for:
   * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
   * [FIDO U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
 
-In combination with the [TamaGo framework](https://github.com/f-secure-foundry/tamago)
+In combination with the [TamaGo framework](https://github.com/usbarmory/tamago)
 GoKey is meant to be executed on ARM bare metal on hardware such as the
-[USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
+[USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki).
 
 > :warning: the SSH management console only works on Linux or macOS hosts.
 
-![GoKey demo](https://github.com/f-secure-foundry/GoKey/wiki/media/gokey-usage.gif)
+![GoKey demo](https://github.com/usbarmory/GoKey/wiki/media/gokey-usage.gif)
 
 Security model
 --------------
 
-When running on [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
+When running on [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
 NXP i.MX6ULL devices, the built-in Data Co-Processor (DCP) is used to provide
 device specific hardware encryption.
 
@@ -65,11 +65,11 @@ leverage on SNVS features (see _Compiling_).
 
 On a secure booted unit the GoKey firmware, bundled with private keys encrypted
 with the device unique key, can be built by compiling on the device itself with
-the [mxs-dcp kernel module](https://github.com/f-secure-foundry/mxs-dcp)
+the [mxs-dcp kernel module](https://github.com/usbarmory/mxs-dcp)
 loaded.
 
-The module is included in all [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki)
-standard [Debian base image releases](https://github.com/f-secure-foundry/usbarmory-debian-base_image).
+The module is included in all [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki)
+standard [Debian base image releases](https://github.com/usbarmory/usbarmory-debian-base_image).
 
 Deviations from OpenPGP standard support
 ----------------------------------------
@@ -126,7 +126,7 @@ opportunity for an attacker in possession of a stolen card to try and extract
 key material.
 
 The GoKey firmware, when running on the
-[USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki),
+[USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki),
 employs a different security model as all data at rest is either authenticated,
 by secure boot, or encrypted. The private OpenPGP keys are actually encrypted
 twice, the first layer for the benefit of the hardware so that only
@@ -147,8 +147,8 @@ stolen device gives no opportunity for an attacker to extract private key
 material unless the user private SSH key (or secure boot process) as well as
 OpenPGP key passphrases are compromised, when all security features are used.
 
-Last but not least, thanks to the [TamaGo framework](https://github.com/f-secure-foundry/tamago),
-GoKey on the [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki)
+Last but not least, thanks to the [TamaGo framework](https://github.com/usbarmory/tamago),
+GoKey on the [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki)
 employs a runtime environment written in pure high-level, memory safe, Go code
 and without the dependency of an OS, or any other C based dependency. This
 dramatically reduces the attack surface while increasing implementation
@@ -182,7 +182,7 @@ The next sections detail the compilation, configuration, execution and
 operation for bare metal, virtualized and simulated environments.
 
 A simplified tutorial for secure booted USB armory Mk II boards is available in
-the [project wiki](https://github.com/f-secure-foundry/GoKey/wiki).
+the [project wiki](https://github.com/usbarmory/GoKey/wiki).
 
 Compiling
 =========
@@ -191,7 +191,7 @@ Unless otherwise stated, all commands shown are relative to this repository
 directory:
 
 ```
-git clone https://github.com/f-secure-foundry/GoKey && cd GoKey
+git clone https://github.com/usbarmory/GoKey && cd GoKey
 ```
 
 As a pre-requisite for all compilation targets, the following environment
@@ -206,8 +206,8 @@ variables must be set or passed to the make command:
   resilience against physical hardware attacks as the SNVS decryption process
   cannot happen automatically on a stolen devices.
 
-  This option can only be used when compiling on a [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
-  [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki).
+  This option can only be used when compiling on a [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
+  [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki).
 
 > :warning: the SSH management console only works on Linux or macOS hosts, it
 > must be disabled for Windows hosts.
@@ -300,11 +300,11 @@ through the management interface (see _Management_).
 Building the bare metal executable
 ----------------------------------
 
-Build the [TamaGo compiler](https://github.com/f-secure-foundry/tamago-go)
-(or use the [latest binary release](https://github.com/f-secure-foundry/tamago-go/releases/latest)):
+Build the [TamaGo compiler](https://github.com/usbarmory/tamago-go)
+(or use the [latest binary release](https://github.com/usbarmory/tamago-go/releases/latest)):
 
 ```
-wget https://github.com/f-secure-foundry/tamago-go/archive/refs/tags/latest.zip
+wget https://github.com/usbarmory/tamago-go/archive/refs/tags/latest.zip
 unzip latest.zip
 cd tamago-go-latest/src && ./all.bash
 cd ../bin && export TAMAGO=`pwd`/go
@@ -315,7 +315,7 @@ Please note that if performed on the USB armory Mk II, due to this
 temporary [swap space](http://raspberrypimaker.com/adding-swap-to-the-raspberrypi/)
 to be disabled and removed after this step is completed (to prevent eMMC wear),
 alternatively you can cross compile from another host or use the
-[latest binary release](https://github.com/f-secure-foundry/tamago-go/releases/latest)).
+[latest binary release](https://github.com/usbarmory/tamago-go/releases/latest)).
 
 Build the `gokey.imx` application executable with the desired variables:
 
@@ -323,7 +323,7 @@ Build the `gokey.imx` application executable with the desired variables:
 make imx CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path>
 ```
 
-For signed images to be executed on [secure booted](https://github.com/f-secure-foundry/usbarmory/wiki/Secure-boot-(Mk-II))
+For signed images to be executed on [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
 USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
 (SNVS), the `imx_signed` target should be used with the relevant `HAB_KEYS`
 set:
@@ -395,7 +395,7 @@ Executing
 USB armory Mk II: imx image
 ---------------------------
 
-Follow [these instructions](https://github.com/f-secure-foundry/usbarmory/wiki/Boot-Modes-(Mk-II)#flashing-bootable-images-on-externalinternal-media)
+Follow [these instructions](https://github.com/usbarmory/usbarmory/wiki/Boot-Modes-(Mk-II)#flashing-bootable-images-on-externalinternal-media)
 using the built `gokey.imx` or `gokey_signed.imx` image.
 
 USB armory Mk II: existing bootloader
@@ -424,7 +424,7 @@ Management interface
 
 When running on bare metal the GoKey firmware exposes, on top of the USB CCID
 smartcard and/or U2F token interfaces, an SSH server started on
-[Ethernet over USB](https://github.com/f-secure-foundry/usbarmory/wiki/Host-communication).
+[Ethernet over USB](https://github.com/usbarmory/usbarmory/wiki/Host-communication).
 
 The SSH server authenticates the user using the public key passed at
 compilation time with the `SSH_PUBLIC_KEY` environment variable. Any username
@@ -492,7 +492,7 @@ at each request.
 LED status
 ----------
 
-On the [USB armory Mk II](https://github.com/f-secure-foundry/usbarmory/wiki)
+On the [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki)
 the LEDs are used as follows:
 
 | LED           | On                                               | Off                                    |
@@ -558,7 +558,7 @@ gpg-connect-agent "SCD RANDOM 256" /bye | perl -pe 'chomp;s/^D\s//;s/%(0[AD]|25)
 License
 =======
 
-GoKey | https://github.com/f-secure-foundry/GoKey  
+GoKey | https://github.com/usbarmory/GoKey  
 Copyright (c) F-Secure Corporation
 
 This program is free software: you can redistribute it and/or modify it under

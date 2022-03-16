@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -21,11 +21,11 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
-	"github.com/f-secure-foundry/GoKey/internal/snvs"
+	"github.com/usbarmory/GoKey/internal/snvs"
 
-	"github.com/f-secure-foundry/tamago/soc/imx6"
-	"github.com/f-secure-foundry/tamago/soc/imx6/dcp"
-	"github.com/f-secure-foundry/tamago/soc/imx6/usb"
+	"github.com/usbarmory/tamago/soc/imx6"
+	"github.com/usbarmory/tamago/soc/imx6/dcp"
+	"github.com/usbarmory/tamago/soc/imx6/usb"
 
 	"github.com/gsora/fidati"
 	"github.com/gsora/fidati/attestation"

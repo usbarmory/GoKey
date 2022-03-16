@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -9,7 +9,7 @@
 package ccid
 
 import (
-	"github.com/f-secure-foundry/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/icc"
 )
 
 // GetParameters implements p31, 6.1.5 PC_to_RDR_GetParameters, CCID Rev1.1.

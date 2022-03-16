@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -13,7 +13,7 @@ package main
 import (
 	_ "unsafe"
 
-	"github.com/f-secure-foundry/tamago/soc/imx6"
+	"github.com/usbarmory/tamago/soc/imx6"
 )
 
 // The USB armory Mk II serial console is exposed through a debug accessory

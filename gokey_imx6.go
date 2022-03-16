@@ -1,4 +1,4 @@
-// https://github.com/f-secure-foundry/GoKey
+// https://github.com/usbarmory/GoKey
 //
 // Copyright (c) F-Secure Corporation
 // https://foundry.f-secure.com
@@ -17,17 +17,17 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/f-secure-foundry/GoKey/internal/ccid"
-	"github.com/f-secure-foundry/GoKey/internal/icc"
-	"github.com/f-secure-foundry/GoKey/internal/u2f"
-	"github.com/f-secure-foundry/GoKey/internal/usb"
+	"github.com/usbarmory/GoKey/internal/ccid"
+	"github.com/usbarmory/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/u2f"
+	"github.com/usbarmory/GoKey/internal/usb"
 
-	"github.com/f-secure-foundry/tamago/soc/imx6"
-	imxusb "github.com/f-secure-foundry/tamago/soc/imx6/usb"
+	"github.com/usbarmory/tamago/soc/imx6"
+	imxusb "github.com/usbarmory/tamago/soc/imx6/usb"
 
-	"github.com/f-secure-foundry/tamago/board/f-secure/usbarmory/mark-two"
+	"github.com/usbarmory/tamago/board/f-secure/usbarmory/mark-two"
 
-	"github.com/f-secure-foundry/imx-usbnet"
+	"github.com/usbarmory/imx-usbnet"
 )
 
 const (
