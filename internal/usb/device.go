@@ -1,7 +1,7 @@
 // https://github.com/usbarmory/GoKey
 //
-// Copyright (c) F-Secure Corporation
-// https://foundry.f-secure.com
+// Copyright (c) WithSecure Corporation
+// https://foundry.withsecure.com
 //
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
@@ -38,7 +38,7 @@ func ConfigureDevice(device *usb.Device) {
 
 	device.Descriptor.Device = 0x0001
 
-	iManufacturer, _ := device.AddString(`F-Secure Foundry`)
+	iManufacturer, _ := device.AddString(`WithSecure Foundry`)
 	device.Descriptor.Manufacturer = iManufacturer
 
 	iProduct, _ := device.AddString(`Composite Ethernet ECM / OpenPGP Smart Card Device`)
