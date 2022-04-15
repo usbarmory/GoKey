@@ -39,6 +39,10 @@ following operations:
   encrypted form. This ensures that bundled keys are authenticated, confidential
   and only decrypted on a specific unit.
 
+  The SSH private key can be uniquely and deterministically generated for each
+  hardware unit, rather than being bundled in the firmware, if not passed at
+  compilation time.
+
 * Creation of the AES256 Data Object used by PSO:DEC (in AES mode) and PSO:ENC,
   this entails that AES encryption/decryption operations can only be executed
   on a specific unit.
@@ -51,6 +55,9 @@ On units which are *not* secure booted (not recommended):
 
 * The SSH and U2F private keys are bundled without hardware encryption, and
   therefore readable from the firmware image.
+
+  The SSH private key is randomly generated at each boot if not passed at
+  compilation time.
 
 * The U2F master key is derived from unique hardware serial numbers and
   the SoC unique ID, both are readable from a stolen device without secure boot
@@ -77,17 +84,17 @@ Deviations from OpenPGP standard support
 These are security features, not bugs:
 
 * PW3 is not implemented and card personalization is managed outside OpenPGP
-  specifications, to reduce the attack surface (see _Management_).
+  specifications to reduce the attack surface (see _Management_).
 
 * The VERIFY command user PIN (PW1) is the passphrase of the relevant imported
   key for the requested operation (the PSO:ENC operation does not use any
   OpenPGP key, however the decryption subkey passphrase is still used for
   cardholder authentication).
 
-* The optional key derived format (KDF), to avoid the transmission and internal
-  storage of passwords in plain format, is not supported according to the
-  standard. Rather the user can issue the key passphrase over SSH for improved
-  security (see _Management_).
+* The optional key derived format (KDF) is not supported to avoid the
+  transmission and internal storage of passwords in plain format, rather the
+  user can issue the key passphrase over SSH for improved security
+  (see _Management_).
 
 * To prevent plaintext transmission of the PIN/passphrase, the VERIFY command
   will take any PIN (>=6 characters) if the relevant OpenPGP key has been
@@ -217,11 +224,15 @@ variables must be set or passed to the make command:
   disabled.
 
 * `SSH_PRIVATE_KEY`: private key for SSH client authentication of the
-  management interface SSH server (see _Management_). If empty the SSH server
-  key is randomly generated at each boot. The key must not have a passphrase.
+  management interface SSH server (see _Management_). The key must not have a
+  passphrase. When SNVS is set the key is encrypted, before being bundled, for a
+  specific hardware unit.
 
-  When SNVS is set the key is encrypted, before being bundled, for a specific
-  hardware unit.
+  On secure booted units, if left empty, the SSH server key is uniquely and
+  deterministically generated for each hardware unit.
+
+  On units which are not secure booted, if left empty, the SSH server key is
+  randomly generated at each boot.
 
 OpenPGP
 -------
@@ -430,9 +441,9 @@ The SSH server authenticates the user using the public key passed at
 compilation time with the `SSH_PUBLIC_KEY` environment variable. Any username
 can be passed when connecting. If empty the SSH interface is disabled.
 
-The SSH server private key is passed at compilation time with the
-`SSH_PRIVATE_KEY` environment variable. If empty the SSH server key is randomly
-generated at each boot.
+A private key for the SSH server can be optionally passed at compilation time
+with the `SSH_PRIVATE_KEY` environment variable, on secure booted units it can
+also be deterministically generated at each boot (see _Compiling_).
 
 The server responds on address 10.0.0.10, with standard port 22, and can be
 used to securely message passphrase verification, in alternative to smartcard

@@ -52,12 +52,20 @@ const help = `
 
 // Console represents the management SSH server instance.
 type Console struct {
+	// AuthorizedKey is the public key for SSH client authentication, it
+	// can be bundled at compile time.
 	AuthorizedKey []byte
-	PrivateKey    []byte
 
-	// OpenPGP smartcard instance
+	// PrivateKey is the private key for the management SSH server, it can
+	// be bundled at compile time (encrypted if secure boot is present).
+	//
+	// If left empty it is generated at Start() either randomly (w/o secure
+	// boot) or uniquely for each device (w/ secure boot).
+	PrivateKey []byte
+
+	// Card is the OpenPGP smartcard instance.
 	Card *icc.Interface
-	// U2F token instance
+	// Token is the U2F token instance.
 	Token *u2f.Token
 
 	Started  chan bool
@@ -280,10 +288,7 @@ func (c *Console) handleChannels(chans <-chan ssh.NewChannel) {
 	}
 }
 
-func (c *Console) start() {
-	var key interface{}
-	var err error
-
+func (c *Console) start(key interface{}) {
 	pubKey, _, _, _, err := ssh.ParseAuthorizedKey(c.AuthorizedKey)
 
 	if err != nil {
@@ -303,26 +308,15 @@ func (c *Console) start() {
 		},
 	}
 
-	if len(c.PrivateKey) != 0 {
-		key, err = ssh.ParseRawPrivateKey(c.PrivateKey)
-	} else {
-		key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	}
-
-	if err != nil {
-		log.Fatal("private key error: ", err)
-	}
-
 	signer, err := ssh.NewSignerFromKey(key)
 
 	if err != nil {
 		log.Fatal("key conversion error: ", err)
 	}
 
-	log.Printf("starting ssh server (%s)", ssh.FingerprintSHA256(signer.PublicKey()))
-
 	srv.AddHostKey(signer)
 
+	log.Printf("starting ssh server (%s)", ssh.FingerprintSHA256(signer.PublicKey()))
 	c.Started <- true
 
 	for {
@@ -347,18 +341,28 @@ func (c *Console) start() {
 	}
 }
 
-// Start configures and start the management SSH server.
+// Start configures and starts the management SSH server.
 func (c *Console) Start() (err error) {
-	if (c.Card.SNVS || c.Token.SNVS) && len(c.PrivateKey) != 0 {
-		c.PrivateKey, err = snvs.Decrypt(c.PrivateKey, []byte(DiversifierSSH))
+	var key interface{}
 
-		if err != nil {
-			return fmt.Errorf("SSH key decryption failed, %v", err)
+	if len(c.PrivateKey) != 0 {
+		if c.Card.SNVS || c.Token.SNVS {
+			c.PrivateKey, _ = snvs.Decrypt(c.PrivateKey, []byte(DiversifierSSH))
 		}
+
+		key, err = ssh.ParseRawPrivateKey(c.PrivateKey)
+	} else if c.Card.SNVS || c.Token.SNVS {
+		key, err = snvs.DeviceKey()
+	} else {
+		key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	}
+
+	if err != nil {
+		log.Fatal("private key error: ", err)
 	}
 
 	go func() {
-		c.start()
+		c.start(key)
 	}()
 
 	return

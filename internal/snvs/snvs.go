@@ -13,13 +13,19 @@ package snvs
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/hmac"
 	"crypto/sha256"
 	"errors"
 
+	"golang.org/x/crypto/hkdf"
+
 	"github.com/usbarmory/tamago/soc/imx6"
 	"github.com/usbarmory/tamago/soc/imx6/dcp"
 )
+
+const diversifierDev = "GoKeySNVSDeviceK"
 
 func init() {
 	// When running natively on i.MX6, and under secure boot, the built-in
@@ -35,6 +41,22 @@ func init() {
 	if imx6.SNVS() {
 		dcp.Init()
 	}
+}
+
+// DeviceKey derives a device key, uniquely and deterministically generated for
+// this SoC for attestation purposes.
+func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
+	iv := make([]byte, aes.BlockSize)
+	key, err := dcp.DeriveKey([]byte(diversifierDev), iv, -1)
+
+	if err != nil {
+		return
+	}
+
+	salt := imx6.UniqueID()
+	r := hkdf.New(sha256.New, key, salt[:], nil)
+
+	return ecdsa.GenerateKey(elliptic.P256(), r)
 }
 
 func decryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) {
