@@ -12,7 +12,7 @@ import (
 	"log"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
-	"github.com/keybase/go-crypto/openpgp"
+	"github.com/ProtonMail/go-crypto/openpgp"
 )
 
 const (

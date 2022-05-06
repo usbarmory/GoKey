@@ -16,14 +16,14 @@ import (
 	"crypto/ecdsa"
 	"crypto/hmac"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha256"
 	"log"
 	"math"
 	"math/big"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
-	"github.com/keybase/go-crypto/openpgp/ecdh"
-	"github.com/keybase/go-crypto/rsa"
+	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
 )
 
 const (
@@ -175,7 +175,9 @@ func (card *Interface) Decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 		X.SetBytes(pubKey[1 : expectedSize+1])
 		Y.SetBytes(pubKey[1+expectedSize:])
 
-		plaintext = privKey.DecryptShared(X, Y)
+		Sx, _ := privKey.Curve.ScalarMult(X, Y, privKey.X.Bytes())
+		plaintext = Sx.Bytes()
+
 		// pad to match expected size
 		plaintext = append(make([]byte, expectedSize-len(plaintext)), plaintext...)
 	default:

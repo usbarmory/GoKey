@@ -19,8 +19,8 @@ import (
 	"github.com/usbarmory/GoKey/internal/snvs"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
-	"github.com/keybase/go-crypto/openpgp"
-	"github.com/keybase/go-crypto/openpgp/packet"
+	"github.com/ProtonMail/go-crypto/openpgp"
+	"github.com/ProtonMail/go-crypto/openpgp/packet"
 )
 
 // Diversifier for hardware key derivation (OpenPGP key wrapping).
@@ -173,7 +173,7 @@ func (card *Interface) Restore(subkey *openpgp.Subkey) *packet.PrivateKey {
 	}
 
 	for _, privateKey := range []packet.PrivateKey{card.sig, card.dec, card.aut} {
-		if privateKey.Fingerprint == subkey.PrivateKey.Fingerprint {
+		if bytes.Equal(privateKey.Fingerprint, subkey.PrivateKey.Fingerprint) {
 			return &privateKey
 		}
 	}

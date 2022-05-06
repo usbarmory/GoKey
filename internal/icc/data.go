@@ -12,14 +12,14 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/rsa"
 	"encoding/binary"
 	"fmt"
 	"log"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
-	"github.com/keybase/go-crypto/openpgp"
-	"github.com/keybase/go-crypto/openpgp/ecdh"
-	"github.com/keybase/go-crypto/rsa"
+	"github.com/ProtonMail/go-crypto/openpgp"
+	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
 )
 
 const (
