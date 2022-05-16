@@ -15,7 +15,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-	"time"
 
 	"github.com/usbarmory/GoKey/internal/ccid"
 	"github.com/usbarmory/GoKey/internal/icc"
@@ -43,10 +42,6 @@ var Revision string
 func init() {
 	if err := imx6.SetARMFreq(imx6.FreqMax); err != nil {
 		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
-	}
-
-	if err := usbarmory.EnableReceptacleController(); err != nil {
-		panic(fmt.Sprintf("WARNING: error enabling receptacle: %v\n", err))
 	}
 }
 
@@ -103,12 +98,7 @@ func initToken(device *imxusb.Device, token *u2f.Token) {
 }
 
 func main() {
-	// grace time for receptacle USB port controller activation
-	portTimer := time.NewTimer(250 * time.Millisecond)
-
-	port := imxusb.USB1
 	device := &imxusb.Device{}
-
 	card := &icc.Interface{}
 	token := &u2f.Token{}
 
@@ -133,8 +123,12 @@ func main() {
 		configureNetworking(device, card, token)
 	}
 
-	<-portTimer.C
-	if mode, _ := usbarmory.ReceptacleMode(); mode == usbarmory.TYPE_SINK {
+	// The plug is checked, rather than the receptacle, as a workaround for:
+	// https://github.com/usbarmory/usbarmory/wiki/Errata-(Mk-II)#errata-type-c-plugreceptacle-reset-plug-resolved-receptacle-workaround
+	mode, _ := usbarmory.PlugMode()
+	port := imxusb.USB1
+
+	if mode == usbarmory.STATE_NOT_ATTACHED {
 		port = imxusb.USB2
 	}
 

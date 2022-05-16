@@ -8,7 +8,7 @@ require (
 	github.com/hsanjuan/go-nfctype4 v0.0.1
 	github.com/usbarmory/armoryctl v0.0.0-20220328083751-62fe0926e881
 	github.com/usbarmory/imx-usbnet v0.0.0-20220328084004-5f4066985548
-	github.com/usbarmory/tamago v0.0.0-20220415071706-04f117ebf144
+	github.com/usbarmory/tamago v0.0.0-20220516082844-581e1df8735c
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 )
 
