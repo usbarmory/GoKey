@@ -6,9 +6,9 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20220407094043-a94812496cf5
 	github.com/gsora/fidati v0.0.0-20220316135216-dc4d6b52b68f
 	github.com/hsanjuan/go-nfctype4 v0.0.1
-	github.com/usbarmory/armoryctl v0.0.0-20220328083751-62fe0926e881
+	github.com/usbarmory/armoryctl v0.0.0-20220523114640-af192a2a9c7c
 	github.com/usbarmory/imx-usbnet v0.0.0-20220328084004-5f4066985548
-	github.com/usbarmory/tamago v0.0.0-20220516082844-581e1df8735c
+	github.com/usbarmory/tamago v0.0.0-20220523113853-2cf301ace971
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 )
 

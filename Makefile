@@ -49,7 +49,7 @@ check_hab_keys:
 dcd:
 	echo $(GOMODCACHE)
 	echo $(TAMAGO_PKG)
-	cp -f $(GOMODCACHE)/$(TAMAGO_PKG)/board/f-secure/usbarmory/mark-two/imximage.cfg $(APP).dcd
+	cp -f $(GOMODCACHE)/$(TAMAGO_PKG)/board/usbarmory/mk2/imximage.cfg $(APP).dcd
 
 check_bundled_keys:
 	@if { [ "${PGP_SECRET_KEY}" == "" ] || [ ! -f "${PGP_SECRET_KEY}" ]; } && { [ "${U2F_PRIVATE_KEY}" == "" ] || [ ! -f "${U2F_PRIVATE_KEY}" ]; } then \
