@@ -126,10 +126,10 @@ func main() {
 	// The plug is checked, rather than the receptacle, as a workaround for:
 	// https://github.com/usbarmory/usbarmory/wiki/Errata-(Mk-II)#errata-type-c-plugreceptacle-reset-plug-resolved-receptacle-workaround
 	mode, _ := usbarmory.PlugMode()
-	port := imxusb.USB1
+	port := usbarmory.USB1
 
 	if mode == usbarmory.STATE_NOT_ATTACHED {
-		port = imxusb.USB2
+		port = usbarmory.USB2
 	}
 
 	port.Init()

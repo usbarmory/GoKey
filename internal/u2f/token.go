@@ -24,7 +24,7 @@ import (
 	"github.com/usbarmory/GoKey/internal/snvs"
 
 	"github.com/usbarmory/tamago/soc/imx6"
-	"github.com/usbarmory/tamago/soc/imx6/dcp"
+	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
 	"github.com/usbarmory/tamago/soc/imx6/usb"
 
 	"github.com/gsora/fidati"
@@ -109,7 +109,7 @@ func (token *Token) Init() (err error) {
 	var mk []byte
 
 	if token.SNVS {
-		mk, err = dcp.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
+		mk, err = imx6ul.DCP.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
 
 		if err != nil {
 			return

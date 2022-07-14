@@ -13,7 +13,7 @@ package main
 import (
 	_ "unsafe"
 
-	"github.com/usbarmory/tamago/soc/imx6"
+	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
 )
 
 // The USB armory Mk II serial console is exposed through a debug accessory
@@ -37,7 +37,7 @@ import (
 
 func init() {
 	// disable console
-	imx6.UART2.Disable()
+	imx6ul.UART2.Disable()
 }
 
 //go:linkname printk runtime.printk 

@@ -22,7 +22,7 @@ import (
 	"golang.org/x/crypto/hkdf"
 
 	"github.com/usbarmory/tamago/soc/imx6"
-	"github.com/usbarmory/tamago/soc/imx6/dcp"
+	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
 )
 
 const diversifierDev = "GoKeySNVSDeviceK"
@@ -39,7 +39,7 @@ func init() {
 	// This is leveraged to create the AES256 DO used by PSO:DEC and
 	// PSO:ENC and to allow encrypted bundling of OpenPGP secret keys.
 	if imx6.SNVS() {
-		dcp.Init()
+		imx6ul.DCP.Init()
 	}
 }
 
@@ -47,7 +47,7 @@ func init() {
 // this SoC for attestation purposes.
 func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
 	iv := make([]byte, aes.BlockSize)
-	key, err := dcp.DeriveKey([]byte(diversifierDev), iv, -1)
+	key, err := imx6ul.DCP.DeriveKey([]byte(diversifierDev), iv, -1)
 
 	if err != nil {
 		return
@@ -100,7 +100,7 @@ func Decrypt(input []byte, diversifier []byte) (output []byte, err error) {
 	// derivation, therefore we use the empty allocated IV before it being
 	// filled.
 	iv := make([]byte, aes.BlockSize)
-	key, err := dcp.DeriveKey(diversifier, iv, -1)
+	key, err := imx6ul.DCP.DeriveKey(diversifier, iv, -1)
 
 	if err != nil {
 		return

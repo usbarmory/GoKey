@@ -14,7 +14,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 
-	"github.com/usbarmory/tamago/soc/imx6/dcp"
+	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
 )
@@ -29,7 +29,7 @@ func decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 
 func aesCBC(data []byte, decrypt bool) (rapdu *apdu.RAPDU, err error) {
 	iv := make([]byte, aes.BlockSize)
-	key, err := dcp.DeriveKey(RID, iv, -1)
+	key, err := imx6ul.DCP.DeriveKey(RID, iv, -1)
 
 	if err != nil {
 		return CommandNotAllowed(), nil
