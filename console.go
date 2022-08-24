@@ -13,7 +13,7 @@ package main
 import (
 	_ "unsafe"
 
-	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
+	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 )
 
 // The USB armory Mk II serial console is exposed through a debug accessory

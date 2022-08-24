@@ -28,7 +28,7 @@ import (
 	"github.com/usbarmory/GoKey/internal/snvs"
 	"github.com/usbarmory/GoKey/internal/u2f"
 
-	"github.com/usbarmory/tamago/soc/imx6"
+	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -165,7 +165,7 @@ func (c *Console) handleCommand(cmd string) (err error) {
 		_, _ = rand.Read(buf)
 		res = string(c.term.Escape.Cyan) + fmt.Sprintf("%x", buf) + string(c.term.Escape.Reset)
 	case "reboot":
-		imx6.Reset()
+		imx6ul.Reset()
 	case "status":
 		res = strings.Join([]string{c.Card.Status(), c.Token.Status()}, "")
 	default:

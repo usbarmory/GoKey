@@ -21,8 +21,8 @@ import (
 	"github.com/usbarmory/GoKey/internal/u2f"
 	"github.com/usbarmory/GoKey/internal/usb"
 
-	"github.com/usbarmory/tamago/soc/imx6"
-	imxusb "github.com/usbarmory/tamago/soc/imx6/usb"
+	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
+	imxusb "github.com/usbarmory/tamago/soc/nxp/usb"
 
 	usbarmory "github.com/usbarmory/tamago/board/usbarmory/mk2"
 
@@ -40,7 +40,7 @@ var Build string
 var Revision string
 
 func init() {
-	if err := imx6.SetARMFreq(imx6.FreqMax); err != nil {
+	if err := imx6ul.SetARMFreq(imx6ul.FreqMax); err != nil {
 		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
 	}
 }
@@ -70,7 +70,7 @@ func initCard(device *imxusb.Device, card *icc.Interface) {
 	}
 
 	// set card serial number to 2nd half of NXP Unique ID
-	uid := imx6.UniqueID()
+	uid := imx6ul.UniqueID()
 	copy(card.Serial[0:4], uid[4:8])
 
 	// configure Smart Card over USB endpoints (CCID protocol)
@@ -107,7 +107,7 @@ func main() {
 
 	usb.ConfigureDevice(device)
 
-	if SNVS && !imx6.SNVS() {
+	if SNVS && !imx6ul.SNVS.Available() {
 		log.Fatalf("SNVS not available")
 	}
 
@@ -136,7 +136,7 @@ func main() {
 	port.DeviceMode()
 	port.Reset()
 
-	if err := imx6.SetARMFreq(imx6.FreqLow); err != nil {
+	if err := imx6ul.SetARMFreq(imx6ul.FreqLow); err != nil {
 		log.Fatalf("WARNING: error setting ARM frequency: %v\n", err)
 	}
 

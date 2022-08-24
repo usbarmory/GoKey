@@ -23,9 +23,8 @@ import (
 
 	"github.com/usbarmory/GoKey/internal/snvs"
 
-	"github.com/usbarmory/tamago/soc/imx6"
-	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
-	"github.com/usbarmory/tamago/soc/imx6/usb"
+	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
+	"github.com/usbarmory/tamago/soc/nxp/usb"
 
 	"github.com/gsora/fidati"
 	"github.com/gsora/fidati/attestation"
@@ -120,7 +119,7 @@ func (token *Token) Init() (err error) {
 		//
 		// This provides a non-predictable master key which must
 		// however be assumed compromised if a device is stolen/lost.
-		uid := imx6.UniqueID()
+		uid := imx6ul.UniqueID()
 		mk = pbkdf2.Key(counter.Serial(), uid[:], 4096, 16, sha256.New)
 	}
 

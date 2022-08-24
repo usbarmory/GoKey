@@ -21,8 +21,7 @@ import (
 
 	"golang.org/x/crypto/hkdf"
 
-	"github.com/usbarmory/tamago/soc/imx6"
-	"github.com/usbarmory/tamago/soc/imx6/imx6ul"
+	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 )
 
 const diversifierDev = "GoKeySNVSDeviceK"
@@ -38,7 +37,7 @@ func init() {
 	//
 	// This is leveraged to create the AES256 DO used by PSO:DEC and
 	// PSO:ENC and to allow encrypted bundling of OpenPGP secret keys.
-	if imx6.SNVS() {
+	if imx6ul.SNVS.Available() {
 		imx6ul.DCP.Init()
 	}
 }
@@ -53,7 +52,7 @@ func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
 		return
 	}
 
-	salt := imx6.UniqueID()
+	salt := imx6ul.UniqueID()
 	r := hkdf.New(sha256.New, key, salt[:], nil)
 
 	return ecdsa.GenerateKey(elliptic.P256(), r)

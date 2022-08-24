@@ -13,7 +13,7 @@ package usb
 import (
 	"github.com/usbarmory/GoKey/internal/ccid"
 
-	"github.com/usbarmory/tamago/soc/imx6/usb"
+	"github.com/usbarmory/tamago/soc/nxp/usb"
 )
 
 var queue = make(chan []byte)

@@ -13,17 +13,15 @@ import (
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/ecdsa"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"log"
-	"math"
-	"math/big"
 
 	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
+	"github.com/ProtonMail/go-crypto/openpgp/ecdsa"
 )
 
 const (
@@ -33,7 +31,9 @@ const (
 )
 
 func padToKeySize(pub ecdsa.PublicKey, b []byte) []byte {
-	k := (pub.Curve.Params().BitSize + 7) / 8
+	// RFC 4880 - OpenPGP Message Format:
+	// The size of an MPI is ((MPI.length + 7) / 8) + 2 octets.
+	k := ((pub.X.BitLen() + 7) / 8) + 2
 	if len(b) >= k {
 		return b
 	}
@@ -156,9 +156,6 @@ func (card *Interface) Decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 
 		plaintext, err = privKey.Decrypt(rand.Reader, data, nil)
 	case *ecdh.PrivateKey:
-		X := big.NewInt(0)
-		Y := big.NewInt(0)
-
 		if data[0] != DO_CIPHER {
 			log.Printf("invalid private key for PSO:DEC")
 			return CardKeyNotSupported(), nil
@@ -166,19 +163,13 @@ func (card *Interface) Decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 
 		// p66, 7.2.11 PSO: DECIPHER, OpenPGP application Version 3.4
 		pubKey := v(v(v(data, DO_CIPHER), DO_PUB_KEY), DO_EXT_PUB_KEY)
-		expectedSize := int(math.Ceil(float64(privKey.Params().BitSize) / 8))
+		expectedSize := (len(pubKey) - 1) / 2
 
 		if len(pubKey) < 1 || pubKey[0] != 0x04 || expectedSize*2 != len(pubKey)-1 {
 			return WrongData(), nil
 		}
 
-		X.SetBytes(pubKey[1 : expectedSize+1])
-		Y.SetBytes(pubKey[1+expectedSize:])
-
-		Sx, _ := privKey.Curve.ScalarMult(X, Y, privKey.X.Bytes())
-		plaintext = Sx.Bytes()
-
-		// pad to match expected size
+		plaintext, err = privKey.GetCurve().Decaps(pubKey, privKey.D)
 		plaintext = append(make([]byte, expectedSize-len(plaintext)), plaintext...)
 	default:
 		log.Printf("invalid private key for PSO:DEC")

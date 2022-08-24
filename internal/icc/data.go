@@ -10,8 +10,6 @@ package icc
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rsa"
 	"encoding/binary"
 	"fmt"
@@ -20,6 +18,7 @@ import (
 	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
+	"github.com/ProtonMail/go-crypto/openpgp/ecdsa"
 )
 
 const (
@@ -254,11 +253,11 @@ func (card *Interface) AlgorithmAttributes(subkey *openpgp.Subkey) (data []byte)
 		binary.BigEndian.PutUint16(data[3:], uint16(RSA_EXPONENT_SIZE))
 	case *ecdsa.PublicKey:
 		data = []byte{byte(subkey.PublicKey.PubKeyAlgo)}
-		data = append(data, getOID(pubKey.Params().Name)...)
+		data = append(data, getOID(pubKey.GetCurve().GetCurveName())...)
 		data = append(data, IMPORT_FORMAT_STANDARD)
 	case *ecdh.PublicKey:
 		data = []byte{byte(subkey.PublicKey.PubKeyAlgo)}
-		data = append(data, getOID(pubKey.Params().Name)...)
+		data = append(data, getOID(pubKey.GetCurve().GetCurveName())...)
 		data = append(data, IMPORT_FORMAT_STANDARD)
 	default:
 		log.Printf("unexpected public key type in DO_ALGORITHM_ATTRIBUTES %T", pubKey)
@@ -512,10 +511,10 @@ func (card *Interface) GenerateAsymmetricKeyPair(params uint16, crt []byte) (rap
 		data.Write(tlv(DO_RSA_MOD, mod))
 		data.Write(tlv(DO_RSA_EXP, exp))
 	case *ecdsa.PublicKey:
-		pp := elliptic.Marshal(pubKey, pubKey.X, pubKey.Y)
+		pp := pubKey.MarshalPoint()
 		data.Write(tlv(DO_EXT_PUB_KEY, pp))
 	case *ecdh.PublicKey:
-		pp := elliptic.Marshal(pubKey, pubKey.X, pubKey.Y)
+		pp := pubKey.MarshalPoint()
 		data.Write(tlv(DO_EXT_PUB_KEY, pp))
 	default:
 		err = fmt.Errorf("unexpected public key type in GENERATE %T", pubKey)
