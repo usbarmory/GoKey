@@ -20,8 +20,8 @@ import (
 // endpoints (CDC, ICC, U2F) requires more than what the iRAM can handle.
 
 //go:linkname ramSize runtime.ramSize
-var ramSize uint32 = 0x10000000 - 0x100000 // 256MB - 1MB
-var dmaStart uint32 = 0xa0000000 - 0x100000
+var ramSize uint = 0x10000000 - 0x100000 // 256MB - 1MB
+var dmaStart uint = 0xa0000000 - 0x100000
 
 // 1MB
 var dmaSize = 0x100000
