@@ -20,6 +20,7 @@ import (
 	"errors"
 
 	"golang.org/x/crypto/hkdf"
+	"filippo.io/keygen"
 
 	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 )
@@ -55,7 +56,7 @@ func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
 	salt := imx6ul.UniqueID()
 	r := hkdf.New(sha256.New, key, salt[:], nil)
 
-	return ecdsa.GenerateKey(elliptic.P256(), r)
+	return keygen.ECDSALegacy(elliptic.P256(), r)
 }
 
 func decryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) {
