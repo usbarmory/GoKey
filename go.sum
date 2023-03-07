@@ -35,11 +35,15 @@ github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMT
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/usbarmory/armoryctl v0.0.0-20230227101926-57044a2c34cf h1:RQwexbdIIS4espJNsPfWQY7WMZ+KuZlzMcfM+O4pHww=
 github.com/usbarmory/armoryctl v0.0.0-20230227101926-57044a2c34cf/go.mod h1:wvi4iudNnS0mUApHq0+JtITq8kfcqm+6Q/46BcuJdoA=
+github.com/usbarmory/crucible v0.0.0-20230117112356-5e0805300e15 h1:voT5yzHVfit3dd225+v1BRIM0SgwYS6PK7kxpKvfLLs=
+github.com/usbarmory/crucible v0.0.0-20230117112356-5e0805300e15/go.mod h1:8CtxsBNuSD2E0f23kH74XcHlenwMnn/RmTQ1wn4Lwtw=
 github.com/usbarmory/imx-usbnet v0.0.0-20230119085031-3e0bbf3997fc h1:gTPeHZJR5UapT4XiB4iOaZB6HQkstTsuvc9qIYzgXWo=
 github.com/usbarmory/imx-usbnet v0.0.0-20230119085031-3e0bbf3997fc/go.mod h1:YXyzKJjNHITXD27EPRheWXPXD+WHRVQSNiT8ihrj8j0=
 github.com/usbarmory/tamago v0.0.0-20220823080407-04f05cf2a5a3/go.mod h1:Lok79mjbJnhoBGqhX5cCUsZtSemsQF5FNZW+2R1dRr8=
 github.com/usbarmory/tamago v0.0.0-20230216100355-bfbcb0fc8611 h1:RtdFX9DSGnLVsdoMyEi5ybE9cK4qmJxvUcFYpXFCaXY=
 github.com/usbarmory/tamago v0.0.0-20230216100355-bfbcb0fc8611/go.mod h1:0TRKk2QXwB24gVi0TgQrvu1yGyiiLDCIBE87UMAmZHE=
+go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 h1:CCriYyAfq1Br1aIYettdHZTy8mBTIPo7We18TuO/bak=
+go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352/go.mod h1:SNgMg+EgDFwmvSmLRTNKC5fegJjB7v23qTQ0XLGUNHk=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/atomic v1.9.0 h1:ECmE8Bn/WFTYwEW/bpKD3M8VtR/zQVbavAoalC1PYyE=
 go.uber.org/atomic v1.9.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
