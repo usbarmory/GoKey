@@ -16,16 +16,9 @@ import (
 	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 )
 
-// The USB armory Mk II serial console is exposed through a debug accessory
-// which requires an I2C command to the receptacle port controller to be
-// accessed. While such an explicit initialization is required, a malicious
-// party could inject I2C commands externally, by tampering with the board bus
-// and therefore forcibly enabling serial logging.
-//
 // GoKey does not log any sensitive information to the serial console, however
 // it is desirable to silence any potential stack trace or runtime errors to
-// avoid unwanted information leaks. To this end the following steps are
-// required to disable the serial console securely.
+// avoid unwanted information leaks.
 //
 // The TamaGo board support for the USB armory Mk II enables the serial console
 // (UART2) at runtime initialization, which therefore invokes imx6.UART2.Init()
@@ -42,5 +35,5 @@ func init() {
 
 //go:linkname printk runtime.printk 
 func printk(c byte) {
-	// ensure that any serial output is supressed before UART2 disabling 
+	// ensure that any serial output is supressed before UART2 disabling
 }
