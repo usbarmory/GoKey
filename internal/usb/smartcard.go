@@ -56,7 +56,7 @@ func ConfigureCCID(device *usb.Device, ccidInterface *ccid.Interface) {
 	iface := &usb.InterfaceDescriptor{}
 	iface.SetDefaults()
 	iface.NumEndpoints = 2
-	iface.InterfaceClass = 0xb
+	iface.InterfaceClass = usb.SMARTCARD_DEVICE_CLASS
 
 	iInterface, _ := device.AddString(`Smart Card Control`)
 	iface.Interface = iInterface

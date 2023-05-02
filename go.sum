@@ -42,6 +42,8 @@ github.com/usbarmory/imx-usbnet v0.0.0-20230119085031-3e0bbf3997fc/go.mod h1:YXy
 github.com/usbarmory/tamago v0.0.0-20220823080407-04f05cf2a5a3/go.mod h1:Lok79mjbJnhoBGqhX5cCUsZtSemsQF5FNZW+2R1dRr8=
 github.com/usbarmory/tamago v0.0.0-20230216100355-bfbcb0fc8611 h1:RtdFX9DSGnLVsdoMyEi5ybE9cK4qmJxvUcFYpXFCaXY=
 github.com/usbarmory/tamago v0.0.0-20230216100355-bfbcb0fc8611/go.mod h1:0TRKk2QXwB24gVi0TgQrvu1yGyiiLDCIBE87UMAmZHE=
+github.com/usbarmory/tamago v0.0.0-20230502075139-4ff8fc5a5c87 h1:3CIffQudEirE0ATMBBTuweD13QRRF5Kb4YnFy9k2q6Q=
+github.com/usbarmory/tamago v0.0.0-20230502075139-4ff8fc5a5c87/go.mod h1:uCPXcPo8SZulhZPz8irfVqzwVlPZ45w7CTJxkfxueGA=
 go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 h1:CCriYyAfq1Br1aIYettdHZTy8mBTIPo7We18TuO/bak=
 go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352/go.mod h1:SNgMg+EgDFwmvSmLRTNKC5fegJjB7v23qTQ0XLGUNHk=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
