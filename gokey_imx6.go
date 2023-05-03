@@ -69,10 +69,6 @@ func initCard(device *imxusb.Device, card *icc.Interface) {
 		ICC: card,
 	}
 
-	// set card serial number to 2nd half of NXP Unique ID
-	uid := imx6ul.UniqueID()
-	copy(card.Serial[0:4], uid[4:8])
-
 	// configure Smart Card over USB endpoints (CCID protocol)
 	usb.ConfigureCCID(device, reader)
 }
@@ -105,7 +101,11 @@ func main() {
 	log.SetFlags(0)
 	log.SetOutput(os.Stdout)
 
-	usb.ConfigureDevice(device)
+	// set card serial number to 2nd half of NXP Unique ID
+	uid := imx6ul.UniqueID()
+	copy(card.Serial[0:4], uid[4:8])
+
+	usb.ConfigureDevice(device, fmt.Sprintf("%X", card.Serial))
 
 	if SNVS && !imx6ul.SNVS.Available() {
 		log.Fatalf("SNVS not available")

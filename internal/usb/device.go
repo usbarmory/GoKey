@@ -18,7 +18,7 @@ const configurationIndex = 0
 const maxPacketSize = 512
 
 // ConfigureDevice configures a basic composite USB device.
-func ConfigureDevice(device *usb.Device) {
+func ConfigureDevice(device *usb.Device, serial string) {
 	// Supported Language Code Zero: English
 	device.SetLanguageCodes([]uint16{0x0409})
 
@@ -44,7 +44,7 @@ func ConfigureDevice(device *usb.Device) {
 	iProduct, _ := device.AddString(`Composite Ethernet ECM / OpenPGP Smart Card Device`)
 	device.Descriptor.Product = iProduct
 
-	iSerial, _ := device.AddString(`0.1`)
+	iSerial, _ := device.AddString(serial)
 	device.Descriptor.SerialNumber = iSerial
 
 	conf := &usb.ConfigurationDescriptor{}
