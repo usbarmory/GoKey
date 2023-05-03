@@ -38,8 +38,13 @@ func (cmd *GetParameters) Handle(_ []byte, _ *icc.Interface) ([]byte, error) {
 		MessageType: PARAMETERS,
 		Slot:        cmd.Slot,
 		Seq:         cmd.Seq,
-		Status:      FAILED,
+		Status:      ICC_PRESENT_AND_ACTIVE,
+		ProtocolNum: 0x01, // indicate use of T=1
 	}
+
+	return Serialize(res)
+}
+
 
 	return Serialize(res)
 }
