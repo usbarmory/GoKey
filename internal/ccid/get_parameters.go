@@ -44,7 +44,3 @@ func (cmd *GetParameters) Handle(_ []byte, _ *icc.Interface) ([]byte, error) {
 
 	return Serialize(res)
 }
-
-
-	return Serialize(res)
-}
