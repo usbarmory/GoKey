@@ -32,7 +32,7 @@ type Parameters struct {
 	ProtocolNum uint8
 }
 
-// Handle get/reset/set parameters requests (Command Not Supported).
+// Handle get/reset/set parameters requests.
 func (cmd *GetParameters) Handle(_ []byte, _ *icc.Interface) ([]byte, error) {
 	res := &Parameters{
 		MessageType: PARAMETERS,

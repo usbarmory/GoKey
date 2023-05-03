@@ -73,6 +73,32 @@ func ConfigureCCID(device *usb.Device, ccidInterface *ccid.Interface) {
 
 	ccid := &usb.CCIDDescriptor{}
 	ccid.SetDefaults()
+	// all voltages
+	ccid.VoltageSupport = 0x7
+	// T=0, T=1
+	ccid.Protocols = 0x3
+	// 4 MHz
+	ccid.DefaultClock = 4000
+	// 5 MHz
+	ccid.MaximumClock = 5000
+	ccid.DataRate = 9600
+	// maximum@5MHz according to ISO7816-3
+	ccid.MaxDataRate = 625000
+	ccid.MaxIFSD = 0xfe
+	// Auto configuration based on ATR
+	// Auto activation on insert
+	// Auto voltage selection
+	// Auto clock change
+	// Auto baud rate change
+	// Auto parameter negotiation made by CCID
+	// Short and extended APDU level exchange
+	ccid.Features = 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x40000
+	ccid.MaxCCIDMessageLength = usb.DTD_PAGES * usb.DTD_PAGE_SIZE
+	ccid.MaxIFSD = ccid.MaxCCIDMessageLength
+	// echo
+	ccid.ClassGetResponse = 0xff
+	ccid.ClassEnvelope = 0xff
+	ccid.MaxCCIDBusySlots = 1
 
 	iface.ClassDescriptors = append(iface.ClassDescriptors, ccid.Bytes())
 
