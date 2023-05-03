@@ -8,7 +8,7 @@ require (
 	github.com/gsora/fidati v0.0.0-20220824075547-eeb0a5f7d6c3
 	github.com/hsanjuan/go-nfctype4 v0.0.2
 	github.com/usbarmory/armoryctl v0.0.0-20230227101926-57044a2c34cf
-	github.com/usbarmory/imx-usbnet v0.0.0-20230119085031-3e0bbf3997fc
+	github.com/usbarmory/imx-usbnet v0.0.0-20230503192114-c54f43365f06
 	github.com/usbarmory/tamago v0.0.0-20230503102217-505703acd505
 	golang.org/x/crypto v0.7.0
 )

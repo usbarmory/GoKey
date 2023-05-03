@@ -61,16 +61,6 @@ func ConfigureCCID(device *usb.Device, ccidInterface *ccid.Interface) {
 	iInterface, _ := device.AddString(`Smart Card Control`)
 	iface.Interface = iInterface
 
-	// Set IAD to be inserted before first interface, to support multiple
-	// functions in this same configuration.
-	iface.IAD = &usb.InterfaceAssociationDescriptor{}
-	iface.IAD.SetDefaults()
-	iface.IAD.InterfaceCount = 1
-	iface.IAD.FunctionClass = iface.InterfaceClass
-
-	iFunction, _ := device.AddString(`CCID`)
-	iface.IAD.Function = iFunction
-
 	ccid := &usb.CCIDDescriptor{}
 	ccid.SetDefaults()
 	// all voltages
