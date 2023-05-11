@@ -16,11 +16,9 @@ require (
 require (
 	filippo.io/bigmod v0.0.1 // indirect
 	github.com/albenik/go-serial/v2 v2.5.1 // indirect
-	github.com/cloudflare/circl v1.1.0 // indirect
+	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
-	github.com/usbarmory/crucible v0.0.0-20230117112356-5e0805300e15 // indirect
-	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
