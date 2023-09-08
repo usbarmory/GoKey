@@ -154,7 +154,7 @@ func (card *Interface) Decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 			return CardKeyNotSupported(), nil
 		}
 
-		plaintext, err = privKey.Decrypt(rand.Reader, data, nil)
+		plaintext, err = privKey.Decrypt(rand.Reader, data[1:], nil)
 	case *ecdh.PrivateKey:
 		if data[0] != DO_CIPHER {
 			log.Printf("invalid private key for PSO:DEC")
