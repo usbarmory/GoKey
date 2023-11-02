@@ -215,7 +215,7 @@ func (card *Interface) CardholderRelatedData() []byte {
 	data.Write(tlv(DO_LANGUAGE, []byte(card.Language)))
 	data.Write(tlv(DO_SEX, []byte(card.Sex)))
 
-	return data.Bytes()
+	return tlv(DO_CARDHOLDER_RELATED_DATA, data.Bytes())
 }
 
 // DiscretionaryData builds and returns Data Object 0x73.
@@ -389,7 +389,8 @@ func (card *Interface) DigitalSignatureCounter() []byte {
 
 // SecuritySupportTemplate builds and returns Data Object 0x7A.
 func (card *Interface) SecuritySupportTemplate() []byte {
-	return tlv(DO_DIGITAL_SIGNATURE_COUNTER, card.DigitalSignatureCounter())
+	data := tlv(DO_DIGITAL_SIGNATURE_COUNTER, card.DigitalSignatureCounter())
+	return tlv(DO_SECURITY_SUPPORT_TEMPLATE, data)
 }
 
 // ApplicationRelatedData implements
@@ -402,7 +403,7 @@ func (card *Interface) ApplicationRelatedData() []byte {
 	data.Write(tlv(DO_EXTENDED_LENGTH_INFORMATION, EXTENDED_LENGTH))
 	data.Write(tlv(DO_DISCRETIONARY_DATA_OBJECTS, card.DiscretionaryData()))
 
-	return data.Bytes()
+	return tlv(DO_APPLICATION_RELATED_DATA, data.Bytes())
 }
 
 // GetData implements
