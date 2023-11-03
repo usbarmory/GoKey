@@ -180,9 +180,9 @@ func init() {
 	// p14, 4.1.3.1 Extended length information, OpenPGP application Version 3.4
 	EXTENDED_LENGTH = []byte{
 		// Maximum number of bytes in a command APDU
-		0xff, 0xff,
+		0x02, 0x02, 0x0b, 0xfe,
 		// Maximum number of bytes in a response APDU
-		0xff, 0xff,
+		0x02, 0x02, 0x0b, 0xfe,
 	}
 }
 
