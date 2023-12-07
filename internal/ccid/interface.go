@@ -68,9 +68,7 @@ func (ccid *Interface) Rx(buf []byte) (res []byte, err error) {
 		return nil, fmt.Errorf("invalid CCID command, unsupported: %x", buf)
 	}
 
-	err = binary.Read(bytes.NewBuffer(buf), binary.LittleEndian, cmd)
-
-	if err != nil {
+	if err = binary.Read(bytes.NewBuffer(buf), binary.LittleEndian, cmd); err != nil {
 		return
 	}
 

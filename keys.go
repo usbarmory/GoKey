@@ -11,16 +11,20 @@ package main
 //go:generate go run bundle_keys.go
 
 // OpenPGP
-var SNVS bool
-var initAtBoot bool
-var sshPublicKey []byte
-var sshPrivateKey []byte
-var pgpSecretKey []byte
-var URL string
-var NAME string
-var LANGUAGE string
-var SEX string
+var (
+	SNVS          bool
+	initAtBoot    bool
+	sshPublicKey  []byte
+	sshPrivateKey []byte
+	pgpSecretKey  []byte
+	URL           string
+	NAME          string
+	LANGUAGE      string
+	SEX           string
+)
 
 // U2F
-var u2fPublicKey []byte
-var u2fPrivateKey []byte
+var (
+	u2fPublicKey  []byte
+	u2fPrivateKey []byte
+)

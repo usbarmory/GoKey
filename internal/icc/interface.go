@@ -18,9 +18,9 @@ import (
 
 	"github.com/usbarmory/GoKey/internal/snvs"
 
-	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/ProtonMail/go-crypto/openpgp/packet"
+	"github.com/hsanjuan/go-nfctype4/apdu"
 )
 
 // Diversifier for hardware key derivation (OpenPGP key wrapping).

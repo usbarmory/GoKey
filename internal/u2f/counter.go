@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package u2f
@@ -60,8 +61,10 @@ type Counter struct {
 // receive user presence notifications, if nil user presence is automatically
 // assumed.
 func (c *Counter) Init(presence chan bool) (err error) {
-	switch usbarmory.Model() {
-	case "UA-MKII-β": // ATECC608A
+	boardModel, _ := usbarmory.Model()
+
+	switch boardModel {
+	case usbarmory.BETA: // ATECC608A
 		var info string
 
 		if info, err = atecc608.Info(); err != nil {
@@ -70,7 +73,7 @@ func (c *Counter) Init(presence chan bool) (err error) {
 
 		c.uid = []byte(info)
 		c.kind = cntATECC
-	case "UA-MKII-γ": // NXP SE050 present but not supported
+	case usbarmory.GAMMA, usbarmory.LAN: // NXP SE050 present but not supported
 		if err = usbarmory.MMC.Detect(); err != nil {
 			return
 		}
@@ -130,14 +133,11 @@ func (c *Counter) counterCmd(mode byte) (cnt uint32, err error) {
 
 // Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
 func (c *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error) {
-	cnt, err = c.counterCmd(increment)
-
-	if err != nil {
+	if cnt, err = c.counterCmd(increment); err != nil {
 		log.Printf("U2F increment failed, %v", err)
-		return
+	} else {
+		log.Printf("U2F increment, counter:%d", cnt)
 	}
-
-	log.Printf("U2F increment, counter:%d", cnt)
 
 	return
 }

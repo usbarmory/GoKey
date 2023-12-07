@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package usb
@@ -34,9 +35,6 @@ func CCIDTx(_ []byte, lastErr error) (in []byte, err error) {
 // CCIDRx implements the endpoint 1 OUT function, used to receive APDU
 // requests from host to device.
 func CCIDRx(out []byte, lastErr error) (_ []byte, err error) {
-	wake()
-	defer idle()
-
 	in, err := CCID.Rx(out)
 
 	if err != nil {

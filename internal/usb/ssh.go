@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package usb
@@ -201,9 +202,6 @@ func (c *Console) handleChannel(newChannel ssh.NewChannel) {
 
 	go func() {
 		defer conn.Close()
-
-		wake()
-		defer idle()
 
 		log.SetOutput(io.MultiWriter(os.Stdout, c.term))
 		defer log.SetOutput(os.Stdout)

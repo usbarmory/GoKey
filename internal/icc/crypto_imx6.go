@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package icc
@@ -28,6 +29,10 @@ func decipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 }
 
 func aesCBC(data []byte, decrypt bool) (rapdu *apdu.RAPDU, err error) {
+	if !imx6ul.SNVS.Available() {
+		return CommandNotAllowed(), nil
+	}
+
 	iv := make([]byte, aes.BlockSize)
 	key, err := imx6ul.DCP.DeriveKey(RID, iv, -1)
 

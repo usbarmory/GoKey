@@ -19,9 +19,9 @@ import (
 	"crypto/sha256"
 	"log"
 
-	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
 	"github.com/ProtonMail/go-crypto/openpgp/ecdsa"
+	"github.com/hsanjuan/go-nfctype4/apdu"
 )
 
 const (
@@ -197,9 +197,7 @@ func (card *Interface) Encipher(data []byte) (rapdu *apdu.RAPDU, err error) {
 		return SecurityConditionNotSatisfied(), nil
 	}
 
-	rapdu, err = encipher(data)
-
-	if err == nil {
+	if rapdu, err = encipher(data); err == nil {
 		log.Printf("PSO:ENC successful")
 	}
 

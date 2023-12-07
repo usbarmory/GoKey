@@ -11,8 +11,8 @@ package icc
 import (
 	"log"
 
-	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/ProtonMail/go-crypto/openpgp"
+	"github.com/hsanjuan/go-nfctype4/apdu"
 )
 
 const (

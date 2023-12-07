@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package main
@@ -33,7 +34,7 @@ func init() {
 	imx6ul.UART2.Disable()
 }
 
-//go:linkname printk runtime.printk 
+//go:linkname printk runtime.printk
 func printk(c byte) {
 	// ensure that any serial output is supressed before UART2 disabling
 }

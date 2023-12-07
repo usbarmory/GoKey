@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package u2f
@@ -78,9 +79,7 @@ func Configure(device *usb.Device, token *Token) (err error) {
 		return
 	}
 
-	err = fidati.ConfigureUSB(device.Configurations[0], device, hid)
-
-	if err != nil {
+	if err = fidati.ConfigureUSB(device.Configurations[0], device, hid); err != nil {
 		return
 	}
 
@@ -99,18 +98,15 @@ func (token *Token) Init() (err error) {
 	}
 
 	counter := &Counter{}
-	err = counter.Init(token.Presence)
 
-	if err != nil {
+	if err = counter.Init(token.Presence); err != nil {
 		return
 	}
 
 	var mk []byte
 
 	if token.SNVS {
-		mk, err = imx6ul.DCP.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1)
-
-		if err != nil {
+		if mk, err = imx6ul.DCP.DeriveKey([]byte(DiversifierU2F), make([]byte, 16), -1); err != nil {
 			return
 		}
 	} else {

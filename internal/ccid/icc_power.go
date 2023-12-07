@@ -40,11 +40,9 @@ func (cmd *IccPowerOn) Handle(_ []byte, card *icc.Interface) (buf []byte, err er
 	}
 
 	atr := card.ATR()
-
 	res.Length = uint32(len(atr))
-	buf, err = Serialize(res)
 
-	if err != nil {
+	if buf, err = Serialize(res); err != nil {
 		return
 	}
 

@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package main
@@ -36,13 +37,13 @@ const (
 )
 
 // initialized at compile time (see Makefile)
-var Build string
-var Revision string
+var (
+	Build    string
+	Revision string
+)
 
 func init() {
-	if err := imx6ul.SetARMFreq(imx6ul.FreqMax); err != nil {
-		panic(fmt.Sprintf("WARNING: error setting ARM frequency: %v\n", err))
-	}
+	imx6ul.SetARMFreq(imx6ul.FreqMax)
 }
 
 func initCard(device *imxusb.Device, card *icc.Interface) {
@@ -57,9 +58,7 @@ func initCard(device *imxusb.Device, card *icc.Interface) {
 	card.Debug = false
 
 	if initAtBoot {
-		err := card.Init()
-
-		if err != nil {
+		if err := card.Init(); err != nil {
 			log.Printf("OpenPGP ICC initialization error: %v", err)
 		}
 	}
@@ -78,16 +77,12 @@ func initToken(device *imxusb.Device, token *u2f.Token) {
 	token.PublicKey = u2fPublicKey
 	token.PrivateKey = u2fPrivateKey
 
-	err := u2f.Configure(device, token)
-
-	if err != nil {
+	if err := u2f.Configure(device, token); err != nil {
 		log.Printf("U2F configuration error: %v", err)
 	}
 
 	if initAtBoot {
-		err = token.Init()
-
-		if err != nil {
+		if err := token.Init(); err != nil {
 			log.Printf("U2F initialization error: %v", err)
 		}
 	}
@@ -133,15 +128,10 @@ func main() {
 	}
 
 	port.Init()
+	port.Device = device
 	port.DeviceMode()
-	port.Reset()
 
-	if err := imx6ul.SetARMFreq(imx6ul.FreqLow); err != nil {
-		log.Fatalf("WARNING: error setting ARM frequency: %v\n", err)
-	}
-
-	// never returns
-	port.Start(device)
+	usb.StartInterruptHandler(port)
 }
 
 func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.Token) {
@@ -173,9 +163,7 @@ func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.
 	}
 
 	// start SSH server for management console
-	err = console.Start()
-
-	if err != nil {
+	if err = console.Start(); err != nil {
 		log.Printf("SSH server initialization error: %v", err)
 	}
 

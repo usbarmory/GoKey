@@ -21,6 +21,7 @@
 // each SoC, is used. The secure operation of the DCP and SNVS, in production
 // deployments, should always be paired with Secure Boot activation.
 
+//go:build linux && ignore
 // +build linux,ignore
 
 package main

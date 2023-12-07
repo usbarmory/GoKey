@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build vpcd
 // +build vpcd
 
 package main
@@ -59,9 +60,7 @@ func main() {
 		Debug:      true,
 	}
 
-	err := card.Init()
-
-	if err != nil {
+	if err := card.Init(); err != nil {
 		log.Printf("initialization error: %v", err)
 	}
 
@@ -84,9 +83,8 @@ func handle(conn net.Conn, card *icc.Interface) {
 
 	for {
 		length := make([]byte, 2)
-		_, err := conn.Read(length)
 
-		if err != nil {
+		if _, err := conn.Read(length); err != nil {
 			log.Printf("cannot read, %v", err)
 			return
 		}
@@ -97,9 +95,7 @@ func handle(conn net.Conn, card *icc.Interface) {
 			log.Fatalf("cannot handle request, %v", err)
 		}
 
-		_, err = conn.Write(res)
-
-		if err != nil {
+		if _, err = conn.Write(res); err != nil {
 			log.Printf("cannot send response, %v", err)
 			return
 		}
@@ -135,11 +131,9 @@ func handleVPCDRequest(conn net.Conn, length []byte, card *icc.Interface) (res [
 			res = card.ATR()
 		}
 	} else {
-		res, err = card.RawCommand(req[0:])
-	}
-
-	if err != nil {
-		return
+		if res, err = card.RawCommand(req[0:]); err != nil {
+			return
+		}
 	}
 
 	length = make([]byte, 2)

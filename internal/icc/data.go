@@ -15,10 +15,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hsanjuan/go-nfctype4/apdu"
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
 	"github.com/ProtonMail/go-crypto/openpgp/ecdsa"
+	"github.com/hsanjuan/go-nfctype4/apdu"
 )
 
 const (
@@ -78,13 +78,15 @@ const (
 	PW3_MAX_LENGTH = 127
 )
 
-var ATR []byte
-var HISTORICAL_BYTES []byte
-var EXTENDED_CAPABILITIES []byte
-var EXTENDED_LENGTH []byte
+var (
+	ATR                   []byte
+	HISTORICAL_BYTES      []byte
+	EXTENDED_CAPABILITIES []byte
+	EXTENDED_LENGTH       []byte
 
-// p15, 4.2.1 Application Identifier (AID), OpenPGP application Version 3.4
-var RID = []byte{0xd2, 0x76, 0x00, 0x01, 0x24, 0x01}
+	// p15, 4.2.1 Application Identifier (AID), OpenPGP application Version 3.4
+	RID = []byte{0xd2, 0x76, 0x00, 0x01, 0x24, 0x01}
+)
 
 func init() {
 	var tck byte

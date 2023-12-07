@@ -6,6 +6,7 @@
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
 
+//go:build tamago && arm
 // +build tamago,arm
 
 package snvs
@@ -19,15 +20,20 @@ import (
 	"crypto/sha256"
 	"errors"
 
-	"golang.org/x/crypto/hkdf"
 	"filippo.io/keygen"
+	"golang.org/x/crypto/hkdf"
 
 	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
+	"github.com/usbarmory/tamago/soc/nxp/snvs"
 )
 
 const diversifierDev = "GoKeySNVSDeviceK"
 
 func init() {
+	if !imx6ul.SNVS.Available() {
+		return
+	}
+
 	// When running natively on i.MX6, and under secure boot, the built-in
 	// Data Co-Processor (DCP) is used for AES key derivation.
 	//
@@ -38,9 +44,17 @@ func init() {
 	//
 	// This is leveraged to create the AES256 DO used by PSO:DEC and
 	// PSO:ENC and to allow encrypted bundling of OpenPGP secret keys.
-	if imx6ul.SNVS.Available() {
-		imx6ul.DCP.Init()
-	}
+	imx6ul.DCP.Init()
+
+	imx6ul.SNVS.SetPolicy(
+		snvs.SecurityPolicy{
+			Clock:             true,
+			Temperature:       true,
+			Voltage:           true,
+			SecurityViolation: true,
+			HardFail:          true,
+		},
+	)
 }
 
 // DeviceKey derives a device key, uniquely and deterministically generated for
