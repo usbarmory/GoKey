@@ -36,9 +36,6 @@ func StartInterruptHandler(port *usb.USB) {
 	for {
 		arm.WaitInterrupt()
 
-		imx6ul.SetARMFreq(imx6ul.FreqMax)
-		defer imx6ul.SetARMFreq(imx6ul.FreqLow)
-
 		irq, end := imx6ul.GIC.GetInterrupt(true)
 
 		if end != nil {
