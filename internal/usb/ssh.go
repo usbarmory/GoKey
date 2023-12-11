@@ -320,6 +320,8 @@ func (c *Console) start(key interface{}) {
 	for {
 		conn, err := c.Listener.Accept()
 
+		c.Card.Wake()
+
 		if err != nil {
 			log.Printf("error accepting connection, %v", err)
 			continue

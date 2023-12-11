@@ -53,6 +53,10 @@ func (ccid *Interface) Rx(buf []byte) (res []byte, err error) {
 		return nil, errors.New("invalid CCID command, too short")
 	}
 
+	if buf[0] != GET_SLOT_STATUS {
+		ccid.ICC.Wake()
+	}
+
 	switch buf[0] {
 	case ICC_POWER_ON:
 		cmd = &IccPowerOn{}

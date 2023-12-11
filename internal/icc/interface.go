@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sync"
 
 	"github.com/usbarmory/GoKey/internal/snvs"
 
@@ -58,6 +59,8 @@ const (
 
 // Interface implements an OpenPGP card instance.
 type Interface struct {
+	sync.Mutex
+
 	// Unique serial number
 	Serial [4]byte
 	// p30, 4.4.3.3 Name, OpenPGP application Version 3.4
@@ -106,6 +109,7 @@ type Interface struct {
 	// internal state flags
 	selected    bool
 	initialized bool
+	awake       bool
 }
 
 // Init initializes the OpenPGP card instance, using passed amored secret key
