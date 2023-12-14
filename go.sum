@@ -44,6 +44,8 @@ github.com/usbarmory/tamago v0.0.0-20231016071039-36729d8ffc65 h1:N4td1q/gxe6ZxH
 github.com/usbarmory/tamago v0.0.0-20231016071039-36729d8ffc65/go.mod h1:uCPXcPo8SZulhZPz8irfVqzwVlPZ45w7CTJxkfxueGA=
 github.com/usbarmory/tamago v0.0.0-20231207104918-4ca5544b6e10 h1:EOEwjxUMvsmimCngAtwYAcrWEiDprTuaUORy/v/EnX8=
 github.com/usbarmory/tamago v0.0.0-20231207104918-4ca5544b6e10/go.mod h1:uCPXcPo8SZulhZPz8irfVqzwVlPZ45w7CTJxkfxueGA=
+github.com/usbarmory/tamago v0.0.0-20231213101626-43fc8af0637b h1:CvICR6nwvGBUzadA44f2J24avR/WhL1WAGwbQo/zG7I=
+github.com/usbarmory/tamago v0.0.0-20231213101626-43fc8af0637b/go.mod h1:uCPXcPo8SZulhZPz8irfVqzwVlPZ45w7CTJxkfxueGA=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352 h1:CCriYyAfq1Br1aIYettdHZTy8mBTIPo7We18TuO/bak=
 go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352/go.mod h1:SNgMg+EgDFwmvSmLRTNKC5fegJjB7v23qTQ0XLGUNHk=
