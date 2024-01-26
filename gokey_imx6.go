@@ -135,9 +135,9 @@ func main() {
 }
 
 func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.Token) {
-	gonet, err := usbnet.Add(device, deviceIP, deviceMAC, hostMAC, 1)
+	gonet := usbnet.Interface{}
 
-	if err != nil {
+	if err := gonet.Add(device, deviceIP, deviceMAC, hostMAC); err != nil {
 		log.Fatalf("could not initialize USB networking, %v", err)
 	}
 
