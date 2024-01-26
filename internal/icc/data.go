@@ -275,7 +275,7 @@ func (card *Interface) PWStatusBytes() []byte {
 	// PW1 only valid for one PSO:CDS command
 	status.WriteByte(PW1_CDS_MULTI)
 	// max. length of PW1 (user), UTF-8 or derived password
-	status.WriteByte((PW1_MAX_LENGTH<<1)&0b11111110 | 0b0)
+	status.WriteByte((PW1_MAX_LENGTH << 1) & 0b11111110)
 	// max. length of Resetting Code (RC) for PW1
 	status.WriteByte(RC_MAX_LENGTH)
 	// max. length of PW3 (admin)
