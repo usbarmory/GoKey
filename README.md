@@ -11,6 +11,7 @@ The GoKey application implements a USB smartcard in pure Go with support for:
 
   * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
   * [FIDO U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
+  * [PKCS#11 over RPC](https://github.com/google/go-p11-kit)
 
 In combination with the [TamaGo framework](https://github.com/usbarmory/tamago)
 GoKey is meant to be executed on ARM bare metal on hardware such as the
@@ -461,6 +462,9 @@ U2F user presence and perform additional management functions.
   lock   (all|sig|dec)          # OpenPGP key(s) lock
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
 
+  rpc                           # PKCS#11 RPC socket
+                                # use with 'ssh -L p11kit.sock:127.0.0.1:22'
+
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
@@ -499,6 +503,55 @@ the `p` command (not required if `u2f !test` is used for initialization).
 
 When the SSH interface is disabled user presence is automatically acknowledged
 at each request.
+
+PKCS#11 token
+-------------
+
+When the SSH interface is enabled (see _Management_) a GoKey protected
+ECDSA/RSA key can be exposed through
+[PKCS#11 over RPC](https://github.com/google/go-p11-kit) through an
+[SSH forwarded Unix socket](https://p11-glue.github.io/p11-glue/p11-kit/manual/remoting.html).
+
+A direct SSH TCP forward to a Unix socket exposes GoKey PKCS#11 over RPC
+interface:
+
+```
+$ ssh -N -L p11kit.sock:127.0.0.1:22 10.0.0.10
+```
+
+This allows use of such key through PKCS#11 API clients, the following example
+illustrates integration with OpenSSL.
+
+```
+$ export P11_KIT_SERVER_ADDRESS=unix:path=p11kit.sock
+$ pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-slots
+
+Available slots:
+Slot 0 (0x1): example-slot
+  token label        : GoKey
+  token manufacturer : WithSecure Foundry
+  token model        : USB armory Mk II
+  token flags        : token initialized, readonly
+  hardware version   : 2.0
+  firmware version   : 0.1
+  serial num         : C148261A
+  pin min/max        : 0/0
+
+$ pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-objects
+
+Using slot 0 with a present token (0x1)
+Certificate Object; type = X.509 cert
+  subject:    DN:
+  serial:     75A3F93B15D62D15
+  ID:         010275a3f93b15d62d15
+Private Key Object; RSA
+  Usage:      decrypt, sign
+  Access:     sensitive, always sensitive, never extractable
+Public Key Object; RSA 2048 bits
+  ID:         010275a3f93b15d62d15
+  Usage:      encrypt, verify
+  Access:     none
+```
 
 LED status
 ----------
@@ -554,6 +607,10 @@ Launch the built `gokey_vpcd` executable:
 ```
 ./gokey_vpcd -c 127.0.0.1:35963
 ```
+
+The same executable can also be used to test the _PKCS#11 token_ interface, a
+relevant `P11_KIT_SERVER_ADDRESS` variable is returned upon execution of
+`gokey_vpcd`.
 
 Send manual commands to GnuPG smart-card daemon (SCD)
 -----------------------------------------------------

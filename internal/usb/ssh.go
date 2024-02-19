@@ -46,6 +46,9 @@ const help = `
   lock   (all|sig|dec)          # OpenPGP key(s) lock
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
 
+  rpc                           # PKCS#11 RPC socket
+                                # use with 'ssh -L p11kit.sock:127.0.0.1:22'
+
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
@@ -132,7 +135,41 @@ func (c *Console) lockCommand(op string, arg string) (res string) {
 	return
 }
 
-func (c *Console) handleCommand(cmd string) (err error) {
+func (c *Console) handleTerminal(conn ssh.Channel) {
+	log.SetOutput(io.MultiWriter(os.Stdout, c.term))
+	defer log.SetOutput(os.Stdout)
+
+	fmt.Fprintf(c.term, "%s\n", c.Banner)
+	fmt.Fprintf(c.term, "%s\n", string(c.term.Escape.Cyan)+help+string(c.term.Escape.Reset))
+
+	for {
+		cmd, err := c.term.ReadLine()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Printf("readline error: %v", err)
+			continue
+		}
+
+		err = c.handleCommand(conn, cmd)
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Printf("error: %v", err)
+		}
+	}
+
+	log.Printf("closing ssh connection")
+	conn.Close()
+}
+
+func (c *Console) handleCommand(conn ssh.Channel, cmd string) (err error) {
 	var res string
 
 	switch cmd {
@@ -143,6 +180,8 @@ func (c *Console) handleCommand(cmd string) (err error) {
 		res = string(c.term.Escape.Cyan) + help + string(c.term.Escape.Reset)
 	case "init":
 		err = c.Card.Init()
+	case "rpc":
+		return c.Card.ServeRPC(conn)
 	case "u2f":
 		c.Token.Presence = make(chan bool)
 		err = c.Token.Init()
@@ -184,12 +223,20 @@ func (c *Console) handleCommand(cmd string) (err error) {
 	return
 }
 
-func (c *Console) handleChannel(newChannel ssh.NewChannel) {
-	if t := newChannel.ChannelType(); t != "session" {
-		_ = newChannel.Reject(ssh.UnknownChannelType, fmt.Sprintf("unknown channel type: %s", t))
+// handleDirectForward forwards the `rpc` command regardless of the request
+func (c *Console) handleDirectForward(srvConn *ssh.ServerConn, newChannel ssh.NewChannel) {
+	conn, _, err := newChannel.Accept()
+
+	if err != nil {
+		log.Printf("error accepting channel, %v", err)
 		return
 	}
 
+	c.handleCommand(conn, "rpc")
+	conn.Close()
+}
+
+func (c *Console) handleSession(newChannel ssh.NewChannel) {
 	conn, requests, err := newChannel.Accept()
 
 	if err != nil {
@@ -201,50 +248,18 @@ func (c *Console) handleChannel(newChannel ssh.NewChannel) {
 	c.term.SetPrompt(string(c.term.Escape.Red) + "> " + string(c.term.Escape.Reset))
 
 	go func() {
-		defer conn.Close()
-
-		log.SetOutput(io.MultiWriter(os.Stdout, c.term))
-		defer log.SetOutput(os.Stdout)
-
-		fmt.Fprintf(c.term, "%s\n", c.Banner)
-		fmt.Fprintf(c.term, "%s\n", string(c.term.Escape.Cyan)+help+string(c.term.Escape.Reset))
-
-		for {
-			cmd, err := c.term.ReadLine()
-
-			if err == io.EOF {
-				break
-			}
-
-			if err != nil {
-				log.Printf("readline error: %v", err)
-				continue
-			}
-
-			err = c.handleCommand(cmd)
-
-			if err == io.EOF {
-				break
-			}
-
-			if err != nil {
-				log.Printf("error: %v", err)
-			}
-		}
-
-		log.Printf("closing ssh connection")
-	}()
-
-	go func() {
 		for req := range requests {
 			reqSize := len(req.Payload)
 
 			switch req.Type {
+			case "exec":
+				cmd := string(req.Payload[4:])
+				c.handleCommand(conn, cmd)
+				conn.Close()
+				return
 			case "shell":
-				// do not accept payload commands
-				if len(req.Payload) == 0 {
-					_ = req.Reply(true, nil)
-				}
+				go c.handleTerminal(conn)
+				req.Reply(true, nil)
 			case "pty-req":
 				// p10, 6.2.  Requesting a Pseudo-Terminal, RFC4254
 				if reqSize < 4 {
@@ -280,9 +295,20 @@ func (c *Console) handleChannel(newChannel ssh.NewChannel) {
 	}()
 }
 
-func (c *Console) handleChannels(chans <-chan ssh.NewChannel) {
+func (c *Console) handleChannel(srvConn *ssh.ServerConn, newChannel ssh.NewChannel) {
+	switch newChannel.ChannelType() {
+	case "direct-tcpip":
+		c.handleDirectForward(srvConn, newChannel)
+	case "session":
+		c.handleSession(newChannel)
+	default:
+		newChannel.Reject(ssh.UnknownChannelType, fmt.Sprintf("unknown channel type: %s", newChannel.ChannelType()))
+	}
+}
+
+func (c *Console) handleChannels(srvConn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 	for newChannel := range chans {
-		go c.handleChannel(newChannel)
+		go c.handleChannel(srvConn, newChannel)
 	}
 }
 
@@ -327,17 +353,17 @@ func (c *Console) start(key interface{}) {
 			continue
 		}
 
-		sshConn, chans, reqs, err := ssh.NewServerConn(conn, srv)
+		srvConn, chans, reqs, err := ssh.NewServerConn(conn, srv)
 
 		if err != nil {
 			log.Printf("error accepting handshake, %v", err)
 			continue
 		}
 
-		log.Printf("new ssh connection from %s (%s)", sshConn.RemoteAddr(), sshConn.ClientVersion())
+		log.Printf("new ssh connection from %s (%s)", srvConn.RemoteAddr(), srvConn.ClientVersion())
 
 		go ssh.DiscardRequests(reqs)
-		go c.handleChannels(chans)
+		go c.handleChannels(srvConn, chans)
 	}
 }
 

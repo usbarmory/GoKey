@@ -21,6 +21,7 @@ import (
 
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/ProtonMail/go-crypto/openpgp/packet"
+	"github.com/google/go-p11-kit/p11kit"
 	"github.com/hsanjuan/go-nfctype4/apdu"
 )
 
@@ -105,6 +106,9 @@ type Interface struct {
 	errorCounterPW3 uint8
 	// volatile (TODO: make it permanent)
 	digitalSignatureCounter uint32
+
+	// PKCS#11 RPC handler
+	rpc *p11kit.Handler
 
 	// internal state flags
 	selected    bool

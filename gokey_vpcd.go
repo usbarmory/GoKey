@@ -19,6 +19,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/usbarmory/GoKey/internal/icc"
@@ -64,21 +65,65 @@ func main() {
 		log.Printf("initialization error: %v", err)
 	}
 
+	go serveRPC(card)
+
+	// never returns
+	dialVPCD(card)
+}
+
+func serveRPC(card *icc.Interface) {
+	tmp, err := os.MkdirTemp("", "")
+
+	if err != nil {
+		log.Fatalf("error creating temporary directory %v", err)
+	}
+	defer os.RemoveAll(tmp)
+
+	path := filepath.Join(tmp, "p11kit.sock")
+
+	l, err := net.Listen("unix", path)
+
+	if err != nil {
+		log.Fatalf("listening on %s: %v", path, err)
+	}
+	defer l.Close()
+
+	log.Printf("export P11_KIT_SERVER_ADDRESS=unix:path=%s", path)
+
+	for {
+		conn, err := l.Accept()
+
+		if err != nil {
+			log.Printf("cannot accept, %v", err)
+			continue
+		}
+
+		go func() {
+			if err := card.ServeRPC(conn); err != nil {
+				log.Printf("cannot handle request, %v", err)
+			}
+			conn.Close()
+		}()
+	}
+}
+
+func dialVPCD(card *icc.Interface) {
 	for {
 		conn, err := net.Dial("tcp", server)
 
 		if err != nil {
 			log.Printf("retrying (%v)", err)
+			conn.Close()
 
 			time.Sleep(1 * time.Second)
 			continue
 		}
 
-		handle(conn, card)
+		handleVPCDConnection(conn, card)
 	}
 }
 
-func handle(conn net.Conn, card *icc.Interface) {
+func handleVPCDConnection(conn net.Conn, card *icc.Interface) {
 	defer conn.Close()
 
 	for {
