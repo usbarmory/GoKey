@@ -115,6 +115,8 @@ github.com/usbarmory/imx-usbnet v0.0.0-20240119111829-8a5a776bd9e9/go.mod h1:eT+
 github.com/usbarmory/tamago v0.0.0-20220823080407-04f05cf2a5a3/go.mod h1:Lok79mjbJnhoBGqhX5cCUsZtSemsQF5FNZW+2R1dRr8=
 github.com/usbarmory/tamago v0.0.0-20240104082716-7fdd041b36ef h1:/4FEy+WnOsA06twAR0UWFLEBU2KRhYzkh+jmvlsI4f4=
 github.com/usbarmory/tamago v0.0.0-20240104082716-7fdd041b36ef/go.mod h1:uCPXcPo8SZulhZPz8irfVqzwVlPZ45w7CTJxkfxueGA=
+github.com/usbarmory/tamago v0.0.0-20240219125710-656154c7421a h1:0eCBfG5v2hVx6oYEkNY5fpZjPeXFOUxSDacD+JSs2Dk=
+github.com/usbarmory/tamago v0.0.0-20240219125710-656154c7421a/go.mod h1:uCPXcPo8SZulhZPz8irfVqzwVlPZ45w7CTJxkfxueGA=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
 go.opencensus.io v0.24.0/go.mod h1:vNK8G9p7aAivkbmorf4v+7Hgx+Zs0yY+0fOtgBfjQKo=
