@@ -98,7 +98,7 @@ $(APP).imx: $(APP).bin $(APP).dcd
 #### secure boot ####
 
 $(APP)-signed.imx: check_hab_keys $(APP).imx
-	${TAMAGO} install github.com/usbarmory/crucible/cmd/habtool
+	${TAMAGO} install github.com/usbarmory/crucible/cmd/habtool@latest
 	$(shell ${TAMAGO} env GOPATH)/bin/habtool \
 		-A ${HAB_KEYS}/CSF_1_key.pem \
 		-a ${HAB_KEYS}/CSF_1_crt.pem \
