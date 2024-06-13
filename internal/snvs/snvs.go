@@ -46,6 +46,9 @@ func init() {
 	// PSO:ENC and to allow encrypted bundling of OpenPGP secret keys.
 	imx6ul.DCP.Init()
 
+	// Disable ARM debug operations
+	imx6ul.Debug(false)
+
 	imx6ul.SNVS.SetPolicy(
 		snvs.SecurityPolicy{
 			Clock:             true,
