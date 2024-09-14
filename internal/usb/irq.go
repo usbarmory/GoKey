@@ -31,11 +31,7 @@ func StartInterruptHandler(port *usb.USB) {
 	port.EnableInterrupt(usb.IRQ_PCI) // port change detect
 	port.EnableInterrupt(usb.IRQ_UI)  // transfer completion
 
-	arm.RegisterInterruptHandler()
-
-	for {
-		arm.WaitInterrupt()
-
+	isr := func() {
 		irq, end := imx6ul.GIC.GetInterrupt(true)
 
 		if end != nil {
@@ -49,4 +45,6 @@ func StartInterruptHandler(port *usb.USB) {
 			log.Printf("internal error, unexpected IRQ %d", irq)
 		}
 	}
+
+	arm.ServiceInterrupts(isr)
 }
