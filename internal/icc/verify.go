@@ -68,14 +68,15 @@ func (card *Interface) Verify(P1 byte, P2 byte, passphrase []byte) (rapdu *apdu.
 
 	switch P1 {
 	case PW_VERIFY:
-		if len(passphrase) == 0 {
+		switch {
+		case len(passphrase) == 0:
 			// return access status when PW empty
 			if !subkey.PrivateKey.Encrypted {
 				rapdu = CommandCompleted(nil)
 			} else {
 				rapdu = VerifyFail(card.errorCounterPW1)
 			}
-		} else if !subkey.PrivateKey.Encrypted {
+		case !subkey.PrivateKey.Encrypted:
 			// To support the out-of-band `unlock` management
 			// command over SSH we deviate from specifications.
 			//
@@ -85,15 +86,15 @@ func (card *Interface) Verify(P1 byte, P2 byte, passphrase []byte) (rapdu *apdu.
 			// This prevents plaintext transmission of the passphrase
 			// (which can be a dummy if already unlocked).
 			msg = "already unlocked"
-		} else if card.errorCounterPW1 == 0 {
+		case card.errorCounterPW1 == 0:
 			// for now this counter is volatile across reboots
 			msg = "error counter blocked, cannot unlock"
 			rapdu = VerifyFail(card.errorCounterPW1)
-		} else if subkey.PrivateKey.Decrypt(passphrase) == nil {
+		case subkey.PrivateKey.Decrypt(passphrase) == nil:
 			// correct verification sets resets counter to default value
 			card.errorCounterPW1 = DEFAULT_PW1_ERROR_COUNTER
 			msg = "unlocked"
-		} else {
+		default:
 			// The standard is not clear on the specific conditions
 			// that decrese the counter as "incorrect usage" is
 			// mentioned. This implementation only cares to prevent
