@@ -76,7 +76,7 @@ func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
 	return keygen.ECDSALegacy(elliptic.P256(), r)
 }
 
-func decryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) {
+func decryptCTR(key []byte, iv []byte, input []byte) (output []byte, err error) {
 	block, err := aes.NewCipher(key)
 
 	if err != nil {
@@ -97,7 +97,7 @@ func decryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) 
 		return nil, errors.New("invalid HMAC")
 	}
 
-	stream := cipher.NewOFB(block, iv)
+	stream := cipher.NewCTR(block, iv)
 	output = make([]byte, len(input)-mac.Size())
 
 	stream.XORKeyStream(output, input[0:len(input)-mac.Size()])
@@ -105,7 +105,7 @@ func decryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) 
 	return
 }
 
-// DecryptOFB performs symmetric AES decryption using AES-256-OFB. The
+// Decrypt performs symmetric AES decryption using AES-256-CTR. The
 // ciphertext format is expected to have the initialization vector prepended
 // and an HMAC for authentication appended: `iv (16 bytes) || ciphertext ||
 // hmac (32 bytes)`.
@@ -128,7 +128,7 @@ func Decrypt(input []byte, diversifier []byte) (output []byte, err error) {
 	}
 
 	iv = input[0:aes.BlockSize]
-	output, err = decryptOFB(key, iv, input[aes.BlockSize:])
+	output, err = decryptCTR(key, iv, input[aes.BlockSize:])
 
 	return
 }

@@ -215,7 +215,7 @@ func encrypt(path string, diversifier string) (output []byte, err error) {
 		return
 	}
 
-	output, err = icc.EncryptOFB(key, iv, input)
+	output, err = icc.Encrypt(key, iv, input)
 
 	return
 }

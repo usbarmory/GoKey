@@ -217,11 +217,11 @@ func (card *Interface) GetChallenge(n int) (rapdu *apdu.RAPDU, err error) {
 	return CommandCompleted(buf), nil
 }
 
-// EncryptOFB performs symmetric AES encryption using AES-256-OFB. The
+// Encrypt performs symmetric AES encryption using AES-256-CTR. The
 // initialization vector is prepended to the encrypted file, the HMAC for
 // authentication is appended: `iv (16 bytes) || ciphertext || hmac (32
 // bytes)`.
-func EncryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) {
+func Encrypt(key []byte, iv []byte, input []byte) (output []byte, err error) {
 	block, err := aes.NewCipher(key)
 
 	if err != nil {
@@ -233,7 +233,7 @@ func EncryptOFB(key []byte, iv []byte, input []byte) (output []byte, err error) 
 	mac := hmac.New(sha256.New, key)
 	mac.Write(iv)
 
-	stream := cipher.NewOFB(block, iv)
+	stream := cipher.NewCTR(block, iv)
 	output = append(output, make([]byte, len(input))...)
 
 	stream.XORKeyStream(output[len(iv):], input)
