@@ -44,10 +44,9 @@ func decodeSubkeys(entity *openpgp.Entity) (sig *openpgp.Subkey, dec *openpgp.Su
 			dec = &entity.Subkeys[i]
 		}
 
-		// https://github.com/golang/go/issues/25983
-		//if subkey.Sig.FlagAuthenticate {
-		//	aut = &subkey
-		//}
+		if subkey.Sig.FlagAuthenticate {
+			aut = &subkey
+		}
 	}
 
 	return
