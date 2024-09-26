@@ -12,11 +12,8 @@ import (
 	"bytes"
 	"crypto"
 	"crypto/aes"
-	"crypto/cipher"
-	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
 	"log"
 
 	"github.com/ProtonMail/go-crypto/openpgp/ecdh"
@@ -215,33 +212,6 @@ func (card *Interface) GetChallenge(n int) (rapdu *apdu.RAPDU, err error) {
 	}
 
 	return CommandCompleted(buf), nil
-}
-
-// Encrypt performs symmetric AES encryption using AES-256-CTR. The
-// initialization vector is prepended to the encrypted file, the HMAC for
-// authentication is appended: `iv (16 bytes) || ciphertext || hmac (32
-// bytes)`.
-func Encrypt(key []byte, iv []byte, input []byte) (output []byte, err error) {
-	block, err := aes.NewCipher(key)
-
-	if err != nil {
-		return
-	}
-
-	output = iv
-
-	mac := hmac.New(sha256.New, key)
-	mac.Write(iv)
-
-	stream := cipher.NewCTR(block, iv)
-	output = append(output, make([]byte, len(input))...)
-
-	stream.XORKeyStream(output[len(iv):], input)
-	mac.Write(output[len(iv):])
-
-	output = append(output, mac.Sum(nil)...)
-
-	return
 }
 
 // Pad implements PKCS7 compliant padding for symmetric AES operation.

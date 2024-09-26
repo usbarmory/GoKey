@@ -7,7 +7,6 @@
 // that can be found in the LICENSE file.
 
 //go:build tamago && arm
-// +build tamago,arm
 
 package main
 
@@ -17,6 +16,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/usbarmory/GoKey/internal/age"
 	"github.com/usbarmory/GoKey/internal/ccid"
 	"github.com/usbarmory/GoKey/internal/icc"
 	"github.com/usbarmory/GoKey/internal/u2f"
@@ -160,6 +160,14 @@ func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.
 		Started:       make(chan bool),
 		Listener:      listener,
 		Banner:        banner,
+	}
+
+	console.Plugin = &age.Plugin{
+		SNVS: SNVS,
+	}
+
+	if err = console.Plugin.Init(); err != nil {
+		log.Printf("age plugin initialization error: %v", err)
 	}
 
 	// start SSH server for management console

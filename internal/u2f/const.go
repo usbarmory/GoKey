@@ -8,5 +8,5 @@
 
 package u2f
 
-// Diversifier for hardware key derivation (SSH private key wrapping).
+// Diversifier for hardware key derivation (U2F private key wrapping).
 const DiversifierU2F = "GoKeySNVSU2F    "

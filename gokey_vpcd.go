@@ -7,7 +7,6 @@
 // that can be found in the LICENSE file.
 
 //go:build vpcd
-// +build vpcd
 
 package main
 

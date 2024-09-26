@@ -22,7 +22,6 @@
 // deployments, should always be paired with Secure Boot activation.
 
 //go:build linux && ignore
-// +build linux,ignore
 
 package main
 
@@ -40,6 +39,7 @@ import (
 	"unsafe"
 
 	"github.com/usbarmory/GoKey/internal/icc"
+	"github.com/usbarmory/GoKey/internal/snvs"
 	"github.com/usbarmory/GoKey/internal/u2f"
 	"github.com/usbarmory/GoKey/internal/usb"
 
@@ -215,7 +215,7 @@ func encrypt(path string, diversifier string) (output []byte, err error) {
 		return
 	}
 
-	output, err = icc.Encrypt(key, iv, input)
+	output, err = snvs.Encrypt(input, key, iv)
 
 	return
 }

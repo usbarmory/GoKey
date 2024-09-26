@@ -25,7 +25,7 @@ import (
 	"github.com/hsanjuan/go-nfctype4/apdu"
 )
 
-// Diversifier for hardware key derivation (OpenPGP key wrapping).
+// Diversifier for hardware key derivation (OpenPGP secret key wrapping).
 const DiversifierPGP = "GoKeySNVSOpenPGP"
 
 const (

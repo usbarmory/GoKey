@@ -7,7 +7,6 @@
 // that can be found in the LICENSE file.
 
 //go:build tamago && arm
-// +build tamago,arm
 
 package usb
 
@@ -17,6 +16,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -25,6 +25,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/usbarmory/GoKey/internal/age"
 	"github.com/usbarmory/GoKey/internal/icc"
 	"github.com/usbarmory/GoKey/internal/snvs"
 	"github.com/usbarmory/GoKey/internal/u2f"
@@ -49,6 +50,8 @@ const help = `
   rpc                           # PKCS#11 RPC socket
                                 # use with 'ssh -L p11kit.sock:127.0.0.1:22'
 
+  age-plugin (gen|identity-v1)  # handle age plugin state machine
+
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
@@ -71,6 +74,8 @@ type Console struct {
 	Card *icc.Interface
 	// Token is the U2F token instance.
 	Token *u2f.Token
+	// PLugin is the age plugin instance.
+	Plugin *age.Plugin
 
 	Started  chan bool
 	Listener net.Listener
@@ -80,6 +85,7 @@ type Console struct {
 }
 
 var lockCommandPattern = regexp.MustCompile(`(lock|unlock) (all|sig|dec)`)
+var pageCommandPattern = regexp.MustCompile(`age-plugin (.*)`)
 
 func (c *Console) lockCommand(op string, arg string) (res string) {
 	var err error
@@ -209,12 +215,16 @@ func (c *Console) handleCommand(conn ssh.Channel, cmd string) (err error) {
 	case "status":
 		res = strings.Join([]string{c.Card.Status(), c.Token.Status()}, "")
 	default:
-		m := lockCommandPattern.FindStringSubmatch(cmd)
-
-		if len(m) == 3 {
+		if m := pageCommandPattern.FindStringSubmatch(cmd); len(m) == 2 {
+			if !c.Plugin.Initialized() {
+				res = "plugin not initialized"
+			} else {
+				res = c.Plugin.Handle(conn, m[1])
+			}
+		} else if m := lockCommandPattern.FindStringSubmatch(cmd); len(m) == 3 {
 			res = c.lockCommand(m[1], m[2])
 		} else {
-			res = "unknown command, type `help`"
+			return errors.New("unknown command, type `help`")
 		}
 	}
 

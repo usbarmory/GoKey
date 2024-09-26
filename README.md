@@ -11,6 +11,7 @@ The GoKey application implements a USB smartcard in pure Go with support for:
 
   * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
   * [FIDO U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
+  * [age plugin](https://github.com/FiloSottile/age)
   * [PKCS#11 over RPC](https://github.com/google/go-p11-kit)
 
 In combination with the [TamaGo framework](https://github.com/usbarmory/tamago)
@@ -47,6 +48,9 @@ following operations:
 * Creation of the AES256 Data Object used by PSO:DEC (in AES mode) and PSO:ENC,
   this entails that AES encryption/decryption operations can only be executed
   on a specific unit.
+
+* Generation and unwrapping of [age](https://github.com/FiloSottile/age)
+  identities, AES encypted/decrypted with an OTPMK derived key.
 
 On units which are *not* secure booted (not recommended):
 
@@ -431,8 +435,8 @@ GoKey can be conveniently accessed from either the USB armory Type-C plug (e.g.
 USB armory directly connected to a Type-C host port) or receptacle (e.g. USB
 armory connected with a Type-C to Type-A cable).
 
-Management interface
---------------------
+Management
+----------
 
 When running on bare metal the GoKey firmware exposes, on top of the USB CCID
 smartcard and/or U2F token interfaces, an SSH server started on
@@ -464,6 +468,8 @@ U2F user presence and perform additional management functions.
 
   rpc                           # PKCS#11 RPC socket
                                 # use with 'ssh -L p11kit.sock:127.0.0.1:22'
+
+  age-plugin (gen|identity-v1)  # handle age plugin state machine
 
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
@@ -503,6 +509,58 @@ the `p` command (not required if `u2f !test` is used for initialization).
 
 When the SSH interface is disabled user presence is automatically acknowledged
 at each request.
+
+age plugin
+----------
+
+The [age plugin](https://github.com/FiloSottile/age) functionality is available
+only on secure booted units (e.g. `SNVS` set to non empty value when
+_Compiling_).
+
+An age key pair can be generated through the _Management_ interface with the
+`age gen` command:
+
+```
+ssh 10.0.0.1 age-plugin gen
+
+# public key: age1u7q3elfae7wawlneek660ayqd8270u6c35mdt246rmq79z8k5p2qqwxry6
+AGE-PLUGIN-GOKEY-1EPZFX6TNDUCF55FQLU83VW820GZGKMU2QSZ577SCH8CLKXGHXS7JZLPRY8...
+```
+
+The generated recipient and identity file can now be used with an age plugin
+that relays the `identity-v1` command, over SSH, to the GoKey _Management_
+interface.
+
+The following example shell wrapper can be used by an age client if present in
+the `PATH`:
+
+```shell
+#!/bin/sh
+
+OPTS=$(getopt -n age-plugin-gokey --options p: --longoptions 'age-plugin:' -- $@)
+
+eval set -- "$OPTS"
+
+while (($#)); do
+	case $1 in
+		-p|--age-plugin)	sm=$2; shift;;
+		--)			shift; break;;
+		*)			echo "invalid argument";;
+	esac
+	shift
+done
+
+ssh 10.0.0.1 age-plugin $sm
+```
+
+Once the plugin wrapper is present in the `PATH`, the GoKey generated identity
+can be used as follows while the GoKey device is reachable via its _Management_
+interface:
+
+```
+age -a -R gokey.recipient -o secret.txt.age -e secret.txt
+age -i gokey.identity -d secret.txt.age
+```
 
 PKCS#11 token
 -------------

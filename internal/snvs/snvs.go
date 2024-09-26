@@ -7,16 +7,13 @@
 // that can be found in the LICENSE file.
 
 //go:build tamago && arm
-// +build tamago,arm
 
 package snvs
 
 import (
 	"crypto/aes"
-	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/hmac"
 	"crypto/sha256"
 	"errors"
 
@@ -76,33 +73,28 @@ func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
 	return keygen.ECDSALegacy(elliptic.P256(), r)
 }
 
-func decryptCTR(key []byte, iv []byte, input []byte) (output []byte, err error) {
-	block, err := aes.NewCipher(key)
+// Encrypt performs symmetric AES encryption using AES-256-CTR. The
+// initialization vector is prepended to the encrypted file, the HMAC for
+// authentication is appended: `iv (16 bytes) || ciphertext || hmac (32
+// bytes)`.
+//
+// The key is derived, with a diversifier, from the SNVS device-specific OTPMK
+// secret.
+func Encrypt(input []byte, diversifier []byte, iv []byte) (output []byte, err error) {
+	// It is advised to use only deterministic input data for key
+	// derivation.
+	kdfIV := make([]byte, aes.BlockSize)
+	key, err := imx6ul.DCP.DeriveKey(diversifier, kdfIV, -1)
 
 	if err != nil {
 		return
 	}
 
-	mac := hmac.New(sha256.New, key)
-	mac.Write(iv)
-
-	if len(input) < mac.Size() {
-		return nil, errors.New("invalid length for decrypt")
+	if len(input) < aes.BlockSize {
+		return nil, errors.New("invalid length")
 	}
 
-	inputMac := input[len(input)-mac.Size():]
-	mac.Write(input[0 : len(input)-mac.Size()])
-
-	if !hmac.Equal(inputMac, mac.Sum(nil)) {
-		return nil, errors.New("invalid HMAC")
-	}
-
-	stream := cipher.NewCTR(block, iv)
-	output = make([]byte, len(input)-mac.Size())
-
-	stream.XORKeyStream(output, input[0:len(input)-mac.Size()])
-
-	return
+	return encryptCTR(key, iv, input)
 }
 
 // Decrypt performs symmetric AES decryption using AES-256-CTR. The
@@ -124,11 +116,10 @@ func Decrypt(input []byte, diversifier []byte) (output []byte, err error) {
 	}
 
 	if len(input) < aes.BlockSize {
-		return nil, errors.New("invalid length for decrypt")
+		return nil, errors.New("invalid length")
 	}
 
 	iv = input[0:aes.BlockSize]
-	output, err = decryptCTR(key, iv, input[aes.BlockSize:])
 
-	return
+	return decryptCTR(key, iv, input[aes.BlockSize:])
 }
