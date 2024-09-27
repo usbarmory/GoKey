@@ -210,8 +210,8 @@ As a pre-requisite for all compilation targets, the following environment
 variables must be set or passed to the make command:
 
 * `SNVS`: when set to a non empty value, use hardware encryption for OpenPGP,
-  SSH and U2F private keys wrapping, see the _Security Model_ section for more
-  information.
+  SSH, U2F and age private keys wrapping, see the _Security Model_ section for
+  more information.
 
   If set to "ssh", OpenPGP and U2F key decryption, rather than executed at
   boot, must be initialized by the user over SSH (see _Management_). This improve
@@ -492,10 +492,7 @@ can test its operation with the following commands:
 
 * OpenPGP tool key information: `openpgp-tool -K`
 
-* GnuPG card status: `gpg --card-status`
-
-When checking card status note that a `>` after key information tags indicate
-that the key is stored on a smartcard.
+* GnuPG card status: `gpg --card-status` (`>` shows keys stored on a smartcard)
 
 U2F token
 ---------
