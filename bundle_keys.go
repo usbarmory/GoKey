@@ -31,7 +31,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -87,7 +86,7 @@ func main() {
 	}
 
 	if sshPublicKeyPath := os.Getenv("SSH_PUBLIC_KEY"); sshPublicKeyPath != "" {
-		sshPublicKey, err = ioutil.ReadFile(sshPublicKeyPath)
+		sshPublicKey, err = os.ReadFile(sshPublicKeyPath)
 
 		if err != nil {
 			log.Fatal(err)
@@ -102,7 +101,7 @@ func main() {
 		if SNVS {
 			sshPrivateKey, err = encrypt(sshPrivateKeyPath, usb.DiversifierSSH)
 		} else {
-			sshPrivateKey, err = ioutil.ReadFile(sshPrivateKeyPath)
+			sshPrivateKey, err = os.ReadFile(sshPrivateKeyPath)
 		}
 
 		if err != nil {
@@ -114,7 +113,7 @@ func main() {
 		if SNVS {
 			pgpSecretKey, err = encrypt(pgpSecretKeyPath, icc.DiversifierPGP)
 		} else {
-			pgpSecretKey, err = ioutil.ReadFile(pgpSecretKeyPath)
+			pgpSecretKey, err = os.ReadFile(pgpSecretKeyPath)
 		}
 
 		if err != nil {
@@ -123,7 +122,7 @@ func main() {
 	}
 
 	if u2fPublicKeyPath := os.Getenv("U2F_PUBLIC_KEY"); u2fPublicKeyPath != "" {
-		u2fPublicKey, err = ioutil.ReadFile(u2fPublicKeyPath)
+		u2fPublicKey, err = os.ReadFile(u2fPublicKeyPath)
 
 		if err != nil {
 			log.Fatal(err)
@@ -134,7 +133,7 @@ func main() {
 		if SNVS {
 			u2fPrivateKey, err = encrypt(u2fPrivateKeyPath, u2f.DiversifierU2F)
 		} else {
-			u2fPrivateKey, err = ioutil.ReadFile(u2fPrivateKeyPath)
+			u2fPrivateKey, err = os.ReadFile(u2fPrivateKeyPath)
 		}
 
 		if err != nil {
@@ -194,7 +193,7 @@ func init() {
 }
 
 func encrypt(path string, diversifier string) (output []byte, err error) {
-	input, err := ioutil.ReadFile(path)
+	input, err := os.ReadFile(path)
 
 	if err != nil {
 		return
