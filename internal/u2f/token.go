@@ -140,10 +140,10 @@ func (token *Token) Status() string {
 	var status bytes.Buffer
 	var s string
 
-	status.WriteString("------------------------------------------------------------ U2F token ----\n")
-	status.WriteString(fmt.Sprintf("Initialized ............: %v\n", token.initialized))
-	status.WriteString(fmt.Sprintf("Secure storage .........: %v\n", token.SNVS))
-	status.WriteString(fmt.Sprintf("User presence test .....: %v\n", token.Presence != nil))
+	fmt.Fprintf(&status, "------------------------------------------------------------ U2F token ----\n")
+	fmt.Fprintf(&status, "Initialized ............: %v\n", token.initialized)
+	fmt.Fprintf(&status, "Secure storage .........: %v\n", token.SNVS)
+	fmt.Fprintf(&status, "User presence test .....: %v\n", token.Presence != nil)
 
 	if token.initialized {
 		val, err := token.counter.Read()
@@ -157,8 +157,8 @@ func (token *Token) Status() string {
 		s = "N/A"
 	}
 
-	status.WriteString(fmt.Sprintf("Counter ................: %v\n", s))
-	status.WriteString("Attestation certificate.: ")
+	fmt.Fprintf(&status, "Counter ................: %v\n", s)
+	fmt.Fprintf(&status, "Attestation certificate.: ")
 
 	r := regexp.MustCompile(`([[:xdigit:]]{4})`)
 

@@ -291,18 +291,18 @@ func (card *Interface) Command(capdu *apdu.CAPDU) (rapdu *apdu.RAPDU, err error)
 func (card *Interface) Status() string {
 	var status bytes.Buffer
 
-	status.WriteString("---------------------------------------------------- OpenPGP smartcard ----\n")
-	status.WriteString(fmt.Sprintf("Initialized ............: %v\n", card.initialized))
-	status.WriteString(fmt.Sprintf("Secure storage .........: %v\n", card.SNVS))
-	status.WriteString(fmt.Sprintf("Serial number ..........: %X\n", card.Serial))
-	status.WriteString(fmt.Sprintf("Digital signature count.: %v\n", card.digitalSignatureCounter))
-	status.WriteString("Secret key .............: ")
+	fmt.Fprintf(&status, "---------------------------------------------------- OpenPGP smartcard ----\n")
+	fmt.Fprintf(&status, "Initialized ............: %v\n", card.initialized)
+	fmt.Fprintf(&status, "Secure storage .........: %v\n", card.SNVS)
+	fmt.Fprintf(&status, "Serial number ..........: %X\n", card.Serial)
+	fmt.Fprintf(&status, "Digital signature count.: %v\n", card.digitalSignatureCounter)
+	fmt.Fprintf(&status, "Secret key .............: ")
 
 	r := regexp.MustCompile(`([[:xdigit:]]{4})`)
 
 	if k := card.Key; k != nil {
 		fp := fmt.Sprintf("%X\n", k.PrimaryKey.Fingerprint)
-		status.WriteString(r.ReplaceAllString(fp, "$1 "))
+		fmt.Fprint(&status, r.ReplaceAllString(fp, "$1 "))
 	} else {
 		status.WriteString("missing\n")
 	}
@@ -317,7 +317,7 @@ func (card *Interface) Status() string {
 			status.WriteString(r.ReplaceAllString(fp, "$1 "))
 
 			if pk := sk.PrivateKey; pk != nil {
-				status.WriteString(fmt.Sprintf("               encrypted: %v\n", pk.Encrypted))
+				fmt.Fprintf(&status, "               encrypted: %v\n", pk.Encrypted)
 			}
 		} else {
 			status.WriteString("missing\n")

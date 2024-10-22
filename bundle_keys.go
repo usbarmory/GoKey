@@ -154,37 +154,37 @@ func init() {
 `)
 
 	if SNVS {
-		out.WriteString(fmt.Sprintf("\tSNVS = true\n"))
+		fmt.Fprint(out, "\tSNVS = true\n")
 	}
 
 	if os.Getenv("SNVS") == "ssh" {
-		out.WriteString(fmt.Sprintf("\tinitAtBoot = false\n"))
+		fmt.Fprint(out, "\tinitAtBoot = false\n")
 	} else {
-		out.WriteString(fmt.Sprintf("\tinitAtBoot = true\n"))
+		fmt.Fprint(out, "\tinitAtBoot = true\n")
 	}
 
 	if len(sshPublicKey) > 0 {
-		out.WriteString(fmt.Sprintf("\tsshPublicKey = []byte(%s)\n", strconv.Quote(string(sshPublicKey))))
+		fmt.Fprintf(out, "\tsshPublicKey = []byte(%s)\n", strconv.Quote(string(sshPublicKey)))
 	}
 
 	if len(sshPrivateKey) > 0 {
-		out.WriteString(fmt.Sprintf("\tsshPrivateKey = []byte(%s)\n", strconv.Quote(string(sshPrivateKey))))
+		fmt.Fprintf(out, "\tsshPrivateKey = []byte(%s)\n", strconv.Quote(string(sshPrivateKey)))
 	}
 
 	if len(pgpSecretKey) > 0 {
-		out.WriteString(fmt.Sprintf("\tpgpSecretKey = []byte(%s)\n", strconv.Quote(string(pgpSecretKey))))
-		out.WriteString(fmt.Sprintf("\tURL = %s\n", strconv.Quote(os.Getenv("URL"))))
-		out.WriteString(fmt.Sprintf("\tNAME = %s\n", strconv.Quote(os.Getenv("NAME"))))
-		out.WriteString(fmt.Sprintf("\tLANGUAGE = %s\n", strconv.Quote(os.Getenv("LANGUAGE"))))
-		out.WriteString(fmt.Sprintf("\tSEX = %s\n", strconv.Quote(os.Getenv("SEX"))))
+		fmt.Fprintf(out, "\tpgpSecretKey = []byte(%s)\n", strconv.Quote(string(pgpSecretKey)))
+		fmt.Fprintf(out, "\tURL = %s\n", strconv.Quote(os.Getenv("URL")))
+		fmt.Fprintf(out, "\tNAME = %s\n", strconv.Quote(os.Getenv("NAME")))
+		fmt.Fprintf(out, "\tLANGUAGE = %s\n", strconv.Quote(os.Getenv("LANGUAGE")))
+		fmt.Fprintf(out, "\tSEX = %s\n", strconv.Quote(os.Getenv("SEX")))
 	}
 
 	if len(u2fPublicKey) > 0 {
-		out.WriteString(fmt.Sprintf("\tu2fPublicKey = []byte(%s)\n", strconv.Quote(string(u2fPublicKey))))
+		fmt.Fprintf(out, "\tu2fPublicKey = []byte(%s)\n", strconv.Quote(string(u2fPublicKey)))
 	}
 
 	if len(u2fPrivateKey) > 0 {
-		out.WriteString(fmt.Sprintf("\tu2fPrivateKey = []byte(%s)\n", strconv.Quote(string(u2fPrivateKey))))
+		fmt.Fprintf(out, "\tu2fPrivateKey = []byte(%s)\n", strconv.Quote(string(u2fPrivateKey)))
 	}
 
 	out.WriteString(`
