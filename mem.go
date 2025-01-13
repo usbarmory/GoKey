@@ -16,8 +16,8 @@ import (
 	"github.com/usbarmory/tamago/dma"
 )
 
-// Override usbarmory pkg ramSize and `mem` allocation, as having 3 USB
-// endpoints (CDC, ICC, U2F) requires more than what the iRAM can handle.
+// Override standard memory allocation as having 3 USB endpoints (CDC, ICC,
+// U2F) requires more than what the iRAM can handle.
 
 //go:linkname ramSize runtime.ramSize
 var ramSize uint = 0x10000000 - 0x100000 // 256MB - 1MB
