@@ -3,7 +3,7 @@ module github.com/usbarmory/GoKey
 go 1.23.5
 
 require (
-	filippo.io/age v1.2.1
+	filippo.io/age v1.2.1-0.20240926110859-2214a556f604
 	filippo.io/keygen v0.0.0-20240718133620-7f162efbbd87
 	github.com/ProtonMail/go-crypto v1.1.5
 	github.com/google/go-p11-kit v0.4.0
