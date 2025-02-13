@@ -2,7 +2,7 @@ Authors
 =======
 
 Andrea Barisani  
-andrea.barisani@withsecure.com | andrea@inversepath.com  
+andrea@inversepath.com  
 
 Introduction
 ============
@@ -461,6 +461,7 @@ U2F user presence and perform additional management functions.
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
   status                        # display smartcard/token status
+  build                         # display build information
 
   init                          # initialize OpenPGP smartcard
   lock   (all|sig|dec)          # OpenPGP key(s) lock

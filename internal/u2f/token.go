@@ -12,14 +12,13 @@ package u2f
 
 import (
 	"bytes"
+	"crypto/pbkdf2"
 	"crypto/sha1"
 	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
 	"regexp"
-
-	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/usbarmory/GoKey/internal/snvs"
 
@@ -115,7 +114,10 @@ func (token *Token) Init() (err error) {
 		// This provides a non-predictable master key which must
 		// however be assumed compromised if a device is stolen/lost.
 		uid := imx6ul.UniqueID()
-		mk = pbkdf2.Key(counter.Serial(), uid[:], 4096, 16, sha256.New)
+
+		if mk, err = pbkdf2.Key(sha256.New, string(counter.Serial()), uid[:], 4096, 16); err != nil {
+			return
+		}
 	}
 
 	token.keyring.MasterKey = mk

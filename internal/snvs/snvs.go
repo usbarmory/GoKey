@@ -14,11 +14,11 @@ import (
 	"crypto/aes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/hkdf"
 	"crypto/sha256"
 	"errors"
 
 	"filippo.io/keygen"
-	"golang.org/x/crypto/hkdf"
 
 	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 	"github.com/usbarmory/tamago/soc/nxp/snvs"
@@ -68,9 +68,12 @@ func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
 	}
 
 	salt := imx6ul.UniqueID()
-	r := hkdf.New(sha256.New, key, salt[:], nil)
 
-	return keygen.ECDSALegacy(elliptic.P256(), r)
+	if key, err = hkdf.Key(sha256.New, key, salt[:], "", sha256.BlockSize); err != nil {
+		return
+	}
+
+	return keygen.ECDSA(elliptic.P256(), key)
 }
 
 // Encrypt performs symmetric AES encryption using AES-256-CTR. The

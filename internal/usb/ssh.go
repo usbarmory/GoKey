@@ -23,6 +23,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"runtime/debug"
 	"strings"
 
 	"github.com/usbarmory/GoKey/internal/age"
@@ -42,6 +43,8 @@ const help = `
   rand                          # gather 32 bytes from TRNG via crypto/rand
   reboot                        # restart
   status                        # display smartcard/token status
+  build                         # display build information
+
 
   init                          # initialize OpenPGP smartcard
   lock   (all|sig|dec)          # OpenPGP key(s) lock
@@ -214,6 +217,10 @@ func (c *Console) handleCommand(conn ssh.Channel, cmd string) (err error) {
 		imx6ul.Reset()
 	case "status":
 		res = strings.Join([]string{c.Card.Status(), c.Token.Status()}, "")
+	case "build":
+		if bi, ok := debug.ReadBuildInfo(); ok {
+			res = bi.String()
+		}
 	default:
 		if m := pageCommandPattern.FindStringSubmatch(cmd); len(m) == 2 {
 			if !c.Plugin.Initialized() {
