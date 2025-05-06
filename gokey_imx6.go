@@ -35,12 +35,6 @@ const (
 	hostMAC   = "1a:55:89:a2:69:42"
 )
 
-// initialized at compile time (see Makefile)
-var (
-	Build    string
-	Revision string
-)
-
 func init() {
 	imx6ul.SetARMFreq(imx6ul.FreqMax)
 }
@@ -148,8 +142,8 @@ func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.
 		log.Fatalf("could not initialize SSH listener, %v", err)
 	}
 
-	banner := fmt.Sprintf("GoKey • %s/%s (%s) • %s %s",
-		runtime.GOOS, runtime.GOARCH, runtime.Version(), Revision, Build)
+	banner := fmt.Sprintf("GoKey • %s/%s (%s)",
+		runtime.GOOS, runtime.GOARCH, runtime.Version())
 
 	console := &usb.Console{
 		AuthorizedKey: sshPublicKey,
