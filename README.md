@@ -112,9 +112,6 @@ These are security features, not bugs:
 
 These are current limitations:
 
-* Only signature (Sig) and decryption (Dec) keys are supported, authentication
-  keys (Aut) are pending [this pull request](https://github.com/keybase/go-crypto/pull/86).
-
 * PW1 and DSO counters are volatile (e.g. not permanent across reboots), other
   such as RC and PW3 are unused due to lack of functionality.
 
