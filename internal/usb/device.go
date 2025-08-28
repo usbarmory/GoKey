@@ -1,6 +1,6 @@
 // https://github.com/usbarmory/GoKey
 //
-// Copyright (c) WithSecure Corporation
+// Copyright (c) The GoKey authors. All Rights Reserved.
 //
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
@@ -37,6 +37,7 @@ func ConfigureDevice(device *usb.Device, serial string) {
 
 	device.Descriptor.Device = 0x0001
 
+	// historical value kept to avoid caching issues
 	iManufacturer, _ := device.AddString(`WithSecure Foundry`)
 	device.Descriptor.Manufacturer = iManufacturer
 

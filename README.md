@@ -582,7 +582,6 @@ $ pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-slots
 Available slots:
 Slot 0 (0x1): example-slot
   token label        : GoKey
-  token manufacturer : WithSecure Foundry
   token model        : USB armory Mk II
   token flags        : token initialized, readonly
   hardware version   : 2.0
@@ -680,14 +679,7 @@ License
 =======
 
 GoKey | https://github.com/usbarmory/GoKey  
-Copyright (c) WithSecure Corporation
+Copyright (c) The GoKey authors. All Rights Reserved.
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation under version 3 of the License.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-See accompanying LICENSE file for full details.
+This project is distributed under the BSD-style license found in the
+[LICENSE](https://github.com/usbarmory/GoKey/blob/master/LICENSE) file.

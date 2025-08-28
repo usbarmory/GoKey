@@ -1,6 +1,6 @@
 // https://github.com/usbarmory/GoKey
 //
-// Copyright (c) WithSecure Corporation
+// Copyright (c) The GoKey authors. All Rights Reserved.
 //
 // Use of this source code is governed by the license
 // that can be found in the LICENSE file.
@@ -122,6 +122,7 @@ func (card *Interface) initRPC() {
 		ID:              0x01,
 		Description:     "GoKey PKCS#11 RPC",
 		Label:           "GoKey",
+		// historical value kept to avoid caching issues
 		Manufacturer:    "WithSecure Foundry",
 		Model:           "USB armory Mk II",
 		Serial:          fmt.Sprintf("%X", card.Serial),
@@ -131,6 +132,7 @@ func (card *Interface) initRPC() {
 	}
 
 	card.rpc = &p11kit.Handler{
+		// historical value kept to avoid caching issues
 		Manufacturer:   "WithSecure Foundry",
 		Library:        "GoKey",
 		LibraryVersion: p11kit.Version{Major: 0, Minor: 1},
