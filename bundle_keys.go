@@ -44,6 +44,12 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const (
+	ALG_TYPE            = "skcipher"
+	ALG_NAME            = "cbc-paes-dcp"
+	DCP_PAES_KEY_UNIQUE = "\xfe" // Defined in Linux `include/soc/fsl/dcp.h`
+)
+
 type af_alg_iv struct {
 	ivlen uint32
 	iv    [aes.BlockSize]byte
@@ -236,22 +242,15 @@ func deriveKey(diversifier string, iv []byte) (key []byte, err error) {
 	defer unix.Close(fd)
 
 	addr := &unix.SockaddrALG{
-		Type: "skcipher",
-		Name: "cbc-aes-dcp",
+		Type: ALG_TYPE,
+		Name: ALG_NAME,
 	}
 
-	err = unix.Bind(fd, addr)
-
-	if err != nil {
+	if err = unix.Bind(fd, addr); err != nil {
 		return
 	}
 
-	// https://github.com/golang/go/issues/31277
-	// SetsockoptString does not allow empty strings
-	_, _, e1 := syscall.Syscall6(syscall.SYS_SETSOCKOPT, uintptr(fd), uintptr(unix.SOL_ALG), uintptr(unix.ALG_SET_KEY), uintptr(0), uintptr(0), 0)
-
-	if e1 != 0 {
-		err = errors.New("setsockopt failed")
+	if err = syscall.SetsockoptString(fd, unix.SOL_ALG, unix.ALG_SET_KEY, DCP_PAES_KEY_UNIQUE); err != nil {
 		return
 	}
 
