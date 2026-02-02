@@ -74,7 +74,7 @@ $(APP): check_tamago check_bundled_keys
 
 $(APP).dcd: check_tamago
 $(APP).dcd: GOMODCACHE=$(shell ${TAMAGO} env GOMODCACHE)
-$(APP).dcd: TAMAGO_PKG=$(shell go list -m -f '{{.Path}}@{{.Version}}' github.com/usbarmory/tamago)
+$(APP).dcd: TAMAGO_PKG=$(shell ${TAMAGO} list -m -f '{{.Path}}@{{.Version}}' github.com/usbarmory/tamago)
 $(APP).dcd: dcd
 
 $(APP).bin: CROSS_COMPILE=arm-none-eabi-
