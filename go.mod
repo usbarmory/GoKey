@@ -1,6 +1,6 @@
 module github.com/usbarmory/GoKey
 
-go 1.25.6
+go 1.26.0
 
 require (
 	filippo.io/age v1.3.1
@@ -11,8 +11,8 @@ require (
 	github.com/hsanjuan/go-nfctype4 v0.0.2
 	github.com/usbarmory/armoryctl v0.0.0-20250827133621-4af21c7459fa
 	github.com/usbarmory/imx-usbnet v0.0.0-20250916125502-9c92e5468e13
-	github.com/usbarmory/tamago v1.25.6
-	golang.org/x/crypto v0.47.0
+	github.com/usbarmory/tamago v1.26.0
+	golang.org/x/crypto v0.48.0
 )
 
 require (
@@ -24,8 +24,8 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/term v0.39.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/term v0.40.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gvisor.dev/gvisor v0.0.0-20240909175600-91fb8ad18db5 // indirect
 	periph.io/x/conn/v3 v3.7.1 // indirect

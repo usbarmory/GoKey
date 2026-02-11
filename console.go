@@ -32,7 +32,7 @@ func init() {
 	imx6ul.UART2.Disable()
 }
 
-//go:linkname printk runtime.printk
+//go:linkname printk runtime/goos.Printk
 func printk(c byte) {
 	// ensure that any serial output is supressed before UART2 disabling
 }

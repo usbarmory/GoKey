@@ -18,7 +18,7 @@ import (
 // Override standard memory allocation as having 3 USB endpoints (CDC, ICC,
 // U2F) requires more than what the iRAM can handle.
 
-//go:linkname ramSize runtime.ramSize
+//go:linkname ramSize runtime/goos.RamSize
 var ramSize uint = 0x10000000 - 0x100000 // 256MB - 1MB
 var dmaStart uint = 0xa0000000 - 0x100000
 
