@@ -111,8 +111,6 @@ func dialVPCD(card *icc.Interface) {
 
 		if err != nil {
 			log.Printf("retrying (%v)", err)
-			conn.Close()
-
 			time.Sleep(1 * time.Second)
 			continue
 		}
