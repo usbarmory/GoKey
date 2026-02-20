@@ -2,6 +2,8 @@ module github.com/usbarmory/GoKey
 
 go 1.26.0
 
+tool github.com/usbarmory/tamago/cmd/tamago
+
 require (
 	filippo.io/age v1.3.1
 	filippo.io/keygen v0.0.0-20260114151900-8e2790ea4c5b

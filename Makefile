@@ -5,6 +5,7 @@
 # Use of this source code is governed by the license
 # that can be found in the LICENSE file.
 
+TAMAGO ?= $(shell go tool -n github.com/usbarmory/tamago/cmd/tamago)
 BUILD_TAGS = "linkramsize,linkprintk"
 REV = $(shell git rev-parse --short HEAD 2> /dev/null)
 
