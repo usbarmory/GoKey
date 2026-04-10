@@ -1,6 +1,6 @@
 module github.com/usbarmory/GoKey
 
-go 1.26.1
+go 1.26.2
 
 tool github.com/usbarmory/tamago/cmd/tamago
 
@@ -13,7 +13,7 @@ require (
 	github.com/hsanjuan/go-nfctype4 v0.0.2
 	github.com/usbarmory/armoryctl v0.0.0-20250827133621-4af21c7459fa
 	github.com/usbarmory/imx-usbnet v0.0.0-20250916125502-9c92e5468e13
-	github.com/usbarmory/tamago v1.26.1
+	github.com/usbarmory/tamago v1.26.2
 	golang.org/x/crypto v0.48.0
 )
 
