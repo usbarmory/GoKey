@@ -22,15 +22,15 @@ func StartInterruptHandler(port *usb.USB) {
 		return
 	}
 
-	imx6ul.GIC.Init(true, false)
-	imx6ul.GIC.EnableInterrupt(port.IRQ, true)
+	imx6ul.GIC.Init()
+	imx6ul.GIC.EnableInterrupt(port.IRQ)
 
 	port.EnableInterrupt(usb.IRQ_URI) // reset
 	port.EnableInterrupt(usb.IRQ_PCI) // port change detect
 	port.EnableInterrupt(usb.IRQ_UI)  // transfer completion
 
 	isr := func() {
-		irq := imx6ul.GIC.GetInterrupt(true)
+		irq := imx6ul.GIC.GetInterrupt()
 
 		switch irq {
 		case port.IRQ:
