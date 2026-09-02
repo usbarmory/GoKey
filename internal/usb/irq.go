@@ -12,7 +12,6 @@ package usb
 import (
 	"log"
 
-	"github.com/usbarmory/tamago/arm"
 	"github.com/usbarmory/tamago/soc/nxp/imx6ul"
 	"github.com/usbarmory/tamago/soc/nxp/usb"
 )
@@ -40,5 +39,5 @@ func StartInterruptHandler(port *usb.USB) {
 		}
 	}
 
-	arm.ServiceInterrupts(isr)
+	imx6ul.ARM.ServiceInterrupts(isr)
 }
