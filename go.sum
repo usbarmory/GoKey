@@ -42,8 +42,8 @@ github.com/usbarmory/armoryctl v0.0.0-20250827133621-4af21c7459fa/go.mod h1:l0cQ
 github.com/usbarmory/imx-usbnet v0.0.0-20260416165017-2d35fe73e4e2 h1:LcA4NW3oT0MvpP6vqO+VEAlRqdUdAEM3mpWcbiwAqkM=
 github.com/usbarmory/imx-usbnet v0.0.0-20260416165017-2d35fe73e4e2/go.mod h1:zvzUu4SfzoCEDVnxzga81SoK3ezsW8gjxck2v1Ry1zw=
 github.com/usbarmory/tamago v0.0.0-20220823080407-04f05cf2a5a3/go.mod h1:Lok79mjbJnhoBGqhX5cCUsZtSemsQF5FNZW+2R1dRr8=
-github.com/usbarmory/tamago v1.27.1 h1:Zl4w3hu5DaogGvcLzunS4gjwNEqdjFFJedMO3pDQa5k=
-github.com/usbarmory/tamago v1.27.1/go.mod h1:nLuV/bBHbtlpWOJftse7cr219b/Z6vitr5fyv/OHkK4=
+github.com/usbarmory/tamago v1.27.2-0.20260923104811-857b3fbd9abe h1:39HnxRoLivXXpkLXCOUr73ugAr2/kRzzOqd6XxgurCI=
+github.com/usbarmory/tamago v1.27.2-0.20260923104811-857b3fbd9abe/go.mod h1:nLuV/bBHbtlpWOJftse7cr219b/Z6vitr5fyv/OHkK4=
 go.uber.org/atomic v1.10.0 h1:9qC72Qh0+3MqyJbAn8YU5xVq1frD8bn3JtD2oXtafVQ=
 go.uber.org/atomic v1.10.0/go.mod h1:LUxbIzbOniOlMKjJjyPfpl4v+PKK2cNJn91OQbhoJI0=
 go.uber.org/multierr v1.9.0 h1:7fIwc/ZtS0q++VgcfqFDxSBZVv/Xo49/SYnDFupUwlI=
