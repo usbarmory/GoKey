@@ -186,7 +186,12 @@ export SSH_AUTH_SOCK=~/.ssh/agent/gokey.sock
 ssh gokey@example.com
 ```
 
-The agent public key can be retrieved with the `ssh-agent` command.
+The agent public key can be retrieved with the `ssh-agent` command:
+
+```
+ssh 10.0.0.10 ssh-agent
+ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABB......
+```
 
 Additional keys can be added and used with the agent (e.g. `ssh-add`) but
 without persistent storage, in other words only the derived uniqye key remains
