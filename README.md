@@ -167,7 +167,7 @@ SSH authentication agent
 ------------------------
 
 When the SSH interface is enabled (see _Management_) on secure booted units
-e.g. `SNVS` set to non empty value when _Compiling_) a GoKey protected SSH key
+(e.g. `SNVS` set to non empty value when _Compiling_) a GoKey protected SSH key
 can be exposed through the [Secure Shell (SSH) Agent
 Protocol](https://www.rfc-editor.org/info/rfc9987/) SSH forwarded through a
 Unix socket.
