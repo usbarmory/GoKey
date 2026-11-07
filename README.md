@@ -204,7 +204,7 @@ A direct SSH TCP forward of port 11 to a Unix socket exposes GoKey PKCS#11 over
 RPC interface:
 
 ```
-ssh -N -L p11kit.sock:127.0.0.1:11 10.0.0.10
+ssh -N -L p11kit.sock:127.0.0.1:111 10.0.0.10
 ```
 
 This allows use of such key through PKCS#11 API clients, the following example
