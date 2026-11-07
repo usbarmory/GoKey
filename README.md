@@ -12,18 +12,501 @@ The GoKey application implements a USB smartcard in pure Go with support for:
   * [OpenPGP 3.4](https://gnupg.org/ftp/specs/OpenPGP-smart-card-application-3.4.pdf)
   * [FIDO U2F](https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/fido-u2f-overview-v1.2-ps-20170411.pdf)
   * [age plugin](https://github.com/FiloSottile/age)
+  * [SSH authentication agent](https://en.wikipedia.org/wiki/Ssh-agent)
   * [PKCS#11 over RPC](https://github.com/google/go-p11-kit)
 
 In combination with the [TamaGo framework](https://github.com/usbarmory/tamago)
 GoKey is meant to be executed on ARM bare metal on hardware such as the
 [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki).
 
-> :warning: the SSH management console only works on Linux or macOS hosts.
+Documentation:
+
+  * [Operation](#operation)
+  * [Installing](#installing)
+  * [Host configuration](#host-configuration)
+  * [Security model](#security-model)
+  * [Debugging](#debugging)
 
 ![GoKey demo](https://github.com/usbarmory/GoKey/wiki/media/gokey-usage.gif)
 
+Operation
+=========
+
+GoKey can be conveniently accessed from either the USB armory Type-C plug (e.g.
+USB armory directly connected to a Type-C host port) or receptacle (e.g. USB
+armory connected with a Type-C to Type-A cable).
+
+Management
+----------
+
+When running on bare metal the GoKey firmware exposes, on top of the USB CCID
+smartcard and/or U2F token interfaces, an SSH server started on
+[Ethernet over USB](https://github.com/usbarmory/usbarmory/wiki/Host-communication).
+
+The SSH server authenticates the user using the public key passed at
+compilation time with the `SSH_PUBLIC_KEY` environment variable. Any username
+can be passed when connecting. If empty the SSH interface is disabled.
+
+A private key for the SSH server can be optionally passed at compilation time
+with the `SSH_PRIVATE_KEY` environment variable, on secure booted units it can
+also be deterministically generated at each boot (see _Compiling_).
+
+The server responds on address 10.0.0.10, with standard port 22, and can be
+used to securely message passphrase verification, in alternative to smartcard
+clients which issue unencrypted VERIFY commands with PIN/passphrases, signal
+U2F user presence and perform additional management functions.
+
+```
+  help                          # this help
+  exit, quit                    # close session
+  rand                          # gather 32 bytes from TRNG via crypto/rand
+  reboot                        # restart
+  status                        # display smartcard/token status
+  build                         # display build information
+
+  init                          # initialize OpenPGP smartcard
+  lock   (all|sig|dec)          # OpenPGP key(s) lock
+  unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
+
+  rpc                           # PKCS#11 RPC socket
+                                # use with 'ssh -L p11kit.sock:127.0.0.1:22'
+
+  age-plugin (gen|identity-v1)  # handle age plugin state machine
+
+  ssh-agent                     # list SSH agent known identities
+
+  u2f                           # initialize U2F token w/  user presence test
+  u2f !test                     # initialize U2F token w/o user presence test
+  p                             # confirm user presence
+```
+
+Note that to prevent plaintext transmission of the PIN/passphrase, the VERIFY
+command requested by any OpenPGP host client will take any PIN (>= 6
+characters) if the relevant OpenPGP key has been already unlocked over SSH.
+
+OpenPGP smartcard
+-----------------
+
+You should be able to use the GoKey smartcard like any other OpenPGP card, you
+can test its operation with the following commands:
+
+* OpenSC detection: `pcsc_scan`
+
+* OpenSC explorer: `opensc-explorer`
+
+* OpenPGP tool key information: `openpgp-tool -K`
+
+* GnuPG card status: `gpg --card-status` (`>` shows keys stored on a smartcard)
+
+U2F token
+---------
+
+The U2F functionality can be used with any website or application that supports
+FIDO U2F.
+
+When the SSH interface is enabled (see _Management_) the U2F functionality must
+be initialized with the `u2f` command, user presence can be demonstrated with
+the `p` command (not required if `u2f !test` is used for initialization).
+
+When the SSH interface is disabled user presence is automatically acknowledged
+at each request.
+
+age plugin
+----------
+
+The [age plugin](https://github.com/FiloSottile/age) functionality is available
+only on secure booted units (e.g. `SNVS` set to non empty value when
+_Compiling_).
+
+An age key pair can be generated through the _Management_ interface with the
+`age gen` command:
+
+```sh
+ssh 10.0.0.10 age-plugin gen
+
+# public key: age1u7q3elfae7wawlneek660ayqd8270u6c35mdt246rmq79z8k5p2qqwxry6
+AGE-PLUGIN-GOKEY-1EPZFX6TNDUCF55FQLU83VW820GZGKMU2QSZ577SCH8CLKXGHXS7JZLPRY8...
+```
+
+The generated recipient and identity file can now be used with an age plugin
+that relays the `identity-v1` command, over SSH, to the GoKey _Management_
+interface.
+
+The following example shell wrapper can be used by an age client if present in
+the `PATH`:
+
+```shell
+#!/bin/sh
+
+OPTS=$(getopt -n age-plugin-gokey --options p: --longoptions 'age-plugin:' -- $@)
+
+eval set -- "$OPTS"
+
+while (($#)); do
+	case $1 in
+		-p|--age-plugin)	sm=$2; shift;;
+		--)			shift; break;;
+		*)			echo "invalid argument";;
+	esac
+	shift
+done
+
+ssh 10.0.0.10 age-plugin $sm
+```
+
+Once the plugin wrapper is present in the `PATH`, the GoKey generated identity
+can be used as follows while the GoKey device is reachable via its _Management_
+interface:
+
+```sh
+age -a -R gokey.recipient -o secret.txt.age -e secret.txt
+age -i gokey.identity -d secret.txt.age
+```
+
+SSH authentication agent
+------------------------
+
+When the SSH interface is enabled (see _Management_) on secure booted units
+e.g. `SNVS` set to non empty value when _Compiling_) a GoKey protected SSH key
+can be exposed through the [Secure Shell (SSH) Agent
+Protocol](https://www.rfc-editor.org/info/rfc9987/) SSH forwarded through a
+Unix socket.
+
+A direct SSH TCP forward of port 22 to a Unix socket exposes GoKey SSH agent:
+
+```sh
+ssh -N -L ~/.ssh/agent/gokey.sock:127.0.0.1:22 10.0.0.10
+```
+
+This allows use of such key through the SSH agent protocol, the following example
+illustrates integration with an OpenSSH client:
+
+```
+export SSH_AUTH_SOCK=~/.ssh/agent/gokey.sock
+ssh gokey@example.com
+```
+
+The agent public key can be retrieved with the `ssh-agent` command.
+
+Additional keys can be added and used with the agent (e.g. `ssh-add`) but
+without persistent storage, in other words only the derived uniqye key remains
+available at GoKey device reboot.
+
+PKCS#11 token
+-------------
+
+When the SSH interface is enabled (see _Management_) a GoKey protected
+ECDSA/RSA key can be exposed through
+[PKCS#11 over RPC](https://github.com/google/go-p11-kit) through an
+[SSH forwarded Unix socket](https://p11-glue.github.io/p11-glue/p11-kit/manual/remoting.html).
+
+A direct SSH TCP forward of port 11 to a Unix socket exposes GoKey PKCS#11 over
+RPC interface:
+
+```
+ssh -N -L p11kit.sock:127.0.0.1:11 10.0.0.10
+```
+
+This allows use of such key through PKCS#11 API clients, the following example
+illustrates integration with OpenSSL.
+
+```
+export P11_KIT_SERVER_ADDRESS=unix:path=p11kit.sock
+pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-slots
+
+Available slots:
+Slot 0 (0x1): example-slot
+  token label        : GoKey
+  token model        : USB armory Mk II
+  token flags        : token initialized, readonly
+  hardware version   : 2.0
+  firmware version   : 0.1
+  serial num         : C148261A
+  pin min/max        : 0/0
+
+pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-objects
+
+Using slot 0 with a present token (0x1)
+Certificate Object; type = X.509 cert
+  subject:    DN:
+  serial:     75A3F93B15D62D15
+  ID:         010275a3f93b15d62d15
+Private Key Object; RSA
+  Usage:      decrypt, sign
+  Access:     sensitive, always sensitive, never extractable
+Public Key Object; RSA 2048 bits
+  ID:         010275a3f93b15d62d15
+  Usage:      encrypt, verify
+  Access:     none
+```
+
+LED status
+----------
+
+On the [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki)
+the LEDs are used as follows:
+
+| LED           | On                                               | Off                                    |
+|:-------------:|--------------------------------------------------|----------------------------------------|
+| blue + white  | at startup: card is initializing¹                | card has been initialized              |
+| blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
+| white         | OpenPGP security operation in progress           | no security operation in progress      |
+| white         | blinking: U2F user presence is requested         | no presence requested                  |
+
+¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
+
+Installing
+==========
+
+The next sections detail the compilation, configuration, execution and
+operation for bare metal, virtualized and simulated environments.
+
+A simplified tutorial for secure booted USB armory Mk II boards is available in
+the [project wiki](https://github.com/usbarmory/GoKey/wiki).
+
+Compiling
+---------
+
+The [TamaGo compiler](https://github.com/usbarmory/tamago-go) is automatically
+downloaded and compiled as a `go tool` by the `Makefile`.
+
+Alternatively the `TAMAGO` environment variable can be overridden to use the
+[latest binary release](https://github.com/usbarmory/tamago-go/releases/latest):
+
+```sh
+wget https://github.com/usbarmory/tamago-go/archive/refs/tags/latest.zip
+unzip latest.zip
+cd tamago-go-latest/src && ./all.bash
+cd ../bin && export TAMAGO=`pwd`/go
+```
+
+Unless otherwise stated, all commands shown are relative to this repository
+directory:
+
+```sh
+git clone https://github.com/usbarmory/GoKey && cd GoKey
+```
+
+As a pre-requisite for all compilation targets, the following environment
+variables must be set or passed to the make command:
+
+* `SNVS`: when set to a non empty value, use hardware encryption for OpenPGP,
+  SSH, U2F and age private keys wrapping, see the _Security Model_ section for
+  more information.
+
+  If set to "ssh", OpenPGP and U2F key decryption, rather than executed at
+  boot, must be initialized by the user over SSH (see _Management_). This improve
+  resilience against physical hardware attacks as the SNVS decryption process
+  cannot happen automatically on a stolen devices.
+
+  This option can only be used when compiling on a [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
+  [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki).
+
+> :warning: the SSH management console only works on Linux or macOS hosts, it
+> must be disabled for Windows hosts.
+
+* `SSH_PUBLIC_KEY`: public key for SSH client authentication by the network
+  management interface (see _Management_). If empty the SSH interface is
+  disabled.
+
+* `SSH_PRIVATE_KEY`: private key for SSH client authentication of the
+  management interface SSH server (see _Management_). The key must not have a
+  passphrase. When SNVS is set the key is encrypted, before being bundled, for a
+  specific hardware unit.
+
+  On secure booted units, if left empty, the SSH server key is uniquely and
+  deterministically generated for each hardware unit.
+
+  On units which are not secure booted, if left empty, the SSH server key is
+  randomly generated at each boot.
+
+OpenPGP
+-------
+
+* `PGP_SECRET_KEY`: OpenPGP secret keys in ASCII armor format, bundled
+  in the output firmware. If empty OpenPGP smartcard support is disabled.
+
+  When SNVS is set the key is encrypted, before being bundled, for a specific
+  hardware unit.
+
+* `URL`: optional public key URL.
+
+* `NAME`, `LANGUAGE`, `SEX`: optional cardholder related data elements.
+
+OpenPGP smartcard secret keys are typically made of 3 subkeys: signature,
+decryption, authentication.
+
+The GoKey card cannot import keys while running as any runtime change is not
+allowed (see _Deviations from OpenPGP standard support_), only key bundling at
+compile time is currently supported.
+
+There are several resources on-line on OpenPGP key creation and should all be
+applicable to GoKey as long as the smartcard specific `keytocard` command is
+not used, but rather keys are exported armored and passed via `PGP_SECRET_KEY`
+at compile time.
+
+Some good references to start:
+  * [Subkeys](https://wiki.debian.org/Subkeys)
+  * [Creating newer ECC keys for GnuPG](https://www.gniibe.org/memo/software/gpg/keygen-25519.html)
+
+Finally always ensure that existing keys are imported with minimal content, an
+example preparation is the following:
+
+```
+gpg --armor --export-options export-minimal,export-clean --export-secret-key ID
+```
+
+> :warning: Please note that only RSA, ECDSA, ECDH keys are supported. Any
+> other key (such as ElGamal, Ed25519) will not work.
+
+U2F keys
+--------
+
+To enable U2F support using the [fidati](https://github.com/gsora/fidati)
+library, the following variables can be set:
+
+* `U2F_PUBLIC_KEY`: U2F device attestation certificate, if empty the U2F
+  interface is disabled.
+
+* `U2F_PRIVATE_KEY`: U2F device attestation private key, if empty the U2F
+  interface is disabled.
+
+  When SNVS is set the key is encrypted, before being bundled, for a specific
+  hardware unit.
+
+The attestation key material can be created using the
+[gen-cert](https://github.com/gsora/fidati/tree/master/cmd/gen-cert) tool from
+the [fidati](https://github.com/gsora/fidati) library.
+
+On USB armory Mk II rev. β models the ATECC608B security element is used as
+hardware backed monotonic counter for U2F purposes. The counter runs out at
+2097151, which is considered a range sufficient for its intended purpose.
+
+On USB armory Mk II rev. γ models a 32-bit monotonic counter is saved on the
+internal eMMC in an unused reserved sector.
+
+The U2F library performs peer-specific key derivation using a master secret
+([U2F Key Wrapping](https://www.yubico.com/blog/yubicos-u2f-key-wrapping)),
+GoKey derives such master secret using the SNVS to obtain an authenticated
+device specific value.
+
+When the management interface is disabled, FIDO U2F user presence is
+automatically acknowledged, otherwise it can be configured at initialization
+through the management interface (see _Management_).
+
+Building the bare metal executable
+----------------------------------
+
+Build the [TamaGo compiler](https://github.com/usbarmory/tamago-go)
+(or use the [latest binary release](https://github.com/usbarmory/tamago-go/releases/latest)):
+
+```sh
+wget https://github.com/usbarmory/tamago-go/archive/refs/tags/latest.zip
+unzip latest.zip
+cd tamago-go-latest/src && ./all.bash
+cd ../bin && export TAMAGO=`pwd`/go
+```
+
+Please note that if performed on the USB armory Mk II, due to this
+[issue](https://github.com/golang/go/issues/37122), this requires adding some
+temporary [swap space](http://raspberrypimaker.com/adding-swap-to-the-raspberrypi/)
+to be disabled and removed after this step is completed (to prevent eMMC wear),
+alternatively you can cross compile from another host or use the
+[latest binary release](https://github.com/usbarmory/tamago-go/releases/latest)).
+
+Build the `gokey.imx` application executable with the desired variables:
+
+```
+make imx CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path>
+```
+
+For signed images to be executed on [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
+USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
+(SNVS), the `imx_signed` target should be used with the relevant `HAB_KEYS`
+set:
+
+```
+make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> HAB_KEYS=<secure boot keys path> SNVS=ssh
+```
+
+Installing the bare metal executable
+------------------------------------
+
+Follow [these instructions](https://github.com/usbarmory/usbarmory/wiki/Boot-Modes-(Mk-II)#flashing-bootable-images-on-externalinternal-media)
+using the built `gokey.imx` or `gokey_signed.imx` image.
+
+It is recommended to keep the Debian installation on a microSD card and GoKey
+on the built-in eMMC, this way you can use the microSD to update/re-install
+GoKey and remove it to just run GoKey from internal storage ([changing boot
+mode](https://github.com/usbarmory/usbarmory/wiki/Boot-Modes-(Mk-II))).
+
+Host configuration
+==================
+
+macOS
+-----
+
+The GoKey USB smartcard works out of the box on modern macOS installations with
+[GPG Suite](https://gpgtools.org/).
+
+If the SSH _Management_ console has been enabled at compile time see [Ethernet
+over USB](https://github.com/usbarmory/usbarmory/wiki/Host-communication) for
+host networking configuration.
+
+Linux
+-----
+
+The GoKey USB smartcard has been tested with [libccid](https://ccid.apdu.fr/),
+used by [OpenSC](https://github.com/OpenSC/OpenSC/wiki) on most Linux
+distributions.
+
+The libccid library [now supports](https://ccid.apdu.fr/ccid/shouldwork.html#0x12090x2702) GoKey vendor
+and product IDs, if your installed version is older than this change apply the
+following instructions.
+
+To enable detection an entry must be added in `libccid_Info.plist` (typically
+located in `/etc`):
+
+* Locate the `ifdVendorID` array and add the following at its bottom:
+
+```
+<string>0x1209</string>
+```
+
+* Locate the `ifdProductID` array and add the following at its bottom:
+
+```
+<string>0x2702</string>
+```
+
+* Locate the `ifdFriendlyName` array and add the following at its bottom:
+
+```
+<string>USB armory Mk II</string>
+```
+
+The GoKey USB smartcard, once the CCID driver entries are added as in the
+previous section, can then be used as any other smartcard via OpenSC on Linux.
+
+You can refer to [Arch Linux smartcards documentation](https://wiki.archlinux.org/index.php/Smartcards)
+for configuration documentation.
+
+If the SSH _Management_ console has been enabled at compile time see [Ethernet
+over USB](https://github.com/usbarmory/usbarmory/wiki/Host-communication) for
+host networking configuration.
+
+Windows
+-------
+
+Windows does not support Ethernet over USB devices implemented with CDC-ECM,
+therefore the SSH management console must be disabled (e.g. `SNVS` can be non
+empty but not to `ssh`, see _Compiling_)
+
+Smartcard operation has not been tested but should be possible with software
+that uses up-to-date smartcard drivers.
+
 Security model
---------------
+==============
 
 When running on [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
 NXP i.MX6ULL devices, the built-in Data Co-Processor (DCP) is used to provide
@@ -183,455 +666,6 @@ smartcard authentication model:
 | Yes over VERIFY    | Yes                                   | Good security, plaintext passphrase but standard SSH authentication required to enable key use  |
 | None               | Yes                                   | Good security and convenience, standard SSH authentication required for hardware key decryption |
 | Yes over SSH       | Yes                                   | High security, standard SSH authentication enables key use, passphrase transmitted securely     |
-
-Tutorial
-========
-
-The next sections detail the compilation, configuration, execution and
-operation for bare metal, virtualized and simulated environments.
-
-A simplified tutorial for secure booted USB armory Mk II boards is available in
-the [project wiki](https://github.com/usbarmory/GoKey/wiki).
-
-Compiling
-=========
-
-The [TamaGo compiler](https://github.com/usbarmory/tamago-go) is automatically
-downloaded and compiled as a `go tool` by the `Makefile`.
-
-Alternatively the `TAMAGO` environment variable can be overridden to use the
-[latest binary release](https://github.com/usbarmory/tamago-go/releases/latest):
-
-```sh
-wget https://github.com/usbarmory/tamago-go/archive/refs/tags/latest.zip
-unzip latest.zip
-cd tamago-go-latest/src && ./all.bash
-cd ../bin && export TAMAGO=`pwd`/go
-```
-
-Unless otherwise stated, all commands shown are relative to this repository
-directory:
-
-```
-git clone https://github.com/usbarmory/GoKey && cd GoKey
-```
-
-As a pre-requisite for all compilation targets, the following environment
-variables must be set or passed to the make command:
-
-* `SNVS`: when set to a non empty value, use hardware encryption for OpenPGP,
-  SSH, U2F and age private keys wrapping, see the _Security Model_ section for
-  more information.
-
-  If set to "ssh", OpenPGP and U2F key decryption, rather than executed at
-  boot, must be initialized by the user over SSH (see _Management_). This improve
-  resilience against physical hardware attacks as the SNVS decryption process
-  cannot happen automatically on a stolen devices.
-
-  This option can only be used when compiling on a [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
-  [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki).
-
-> :warning: the SSH management console only works on Linux or macOS hosts, it
-> must be disabled for Windows hosts.
-
-* `SSH_PUBLIC_KEY`: public key for SSH client authentication by the network
-  management interface (see _Management_). If empty the SSH interface is
-  disabled.
-
-* `SSH_PRIVATE_KEY`: private key for SSH client authentication of the
-  management interface SSH server (see _Management_). The key must not have a
-  passphrase. When SNVS is set the key is encrypted, before being bundled, for a
-  specific hardware unit.
-
-  On secure booted units, if left empty, the SSH server key is uniquely and
-  deterministically generated for each hardware unit.
-
-  On units which are not secure booted, if left empty, the SSH server key is
-  randomly generated at each boot.
-
-OpenPGP
--------
-
-* `PGP_SECRET_KEY`: OpenPGP secret keys in ASCII armor format, bundled
-  in the output firmware. If empty OpenPGP smartcard support is disabled.
-
-  When SNVS is set the key is encrypted, before being bundled, for a specific
-  hardware unit.
-
-* `URL`: optional public key URL.
-
-* `NAME`, `LANGUAGE`, `SEX`: optional cardholder related data elements.
-
-OpenPGP smartcard secret keys are typically made of 3 subkeys: signature,
-decryption, authentication.
-
-The GoKey card cannot import keys while running as any runtime change is not
-allowed (see _Deviations from OpenPGP standard support_), only key bundling at
-compile time is currently supported.
-
-There are several resources on-line on OpenPGP key creation and should all be
-applicable to GoKey as long as the smartcard specific `keytocard` command is
-not used, but rather keys are exported armored and passed via `PGP_SECRET_KEY`
-at compile time.
-
-Some good references to start:
-  * [Subkeys](https://wiki.debian.org/Subkeys)
-  * [Creating newer ECC keys for GnuPG](https://www.gniibe.org/memo/software/gpg/keygen-25519.html)
-
-Finally always ensure that existing keys are imported with minimal content, an
-example preparation is the following:
-
-```
-gpg --armor --export-options export-minimal,export-clean --export-secret-key ID
-```
-
-> :warning: Please note that only RSA, ECDSA, ECDH keys are supported. Any
-> other key (such as ElGamal, Ed25519) will not work.
-
-U2F keys
---------
-
-To enable U2F support using the [fidati](https://github.com/gsora/fidati)
-library, the following variables can be set:
-
-* `U2F_PUBLIC_KEY`: U2F device attestation certificate, if empty the U2F
-  interface is disabled.
-
-* `U2F_PRIVATE_KEY`: U2F device attestation private key, if empty the U2F
-  interface is disabled.
-
-  When SNVS is set the key is encrypted, before being bundled, for a specific
-  hardware unit.
-
-The attestation key material can be created using the
-[gen-cert](https://github.com/gsora/fidati/tree/master/cmd/gen-cert) tool from
-the [fidati](https://github.com/gsora/fidati) library.
-
-On USB armory Mk II rev. β models the ATECC608B security element is used as
-hardware backed monotonic counter for U2F purposes. The counter runs out at
-2097151, which is considered a range sufficient for its intended purpose.
-
-On USB armory Mk II rev. γ models a 32-bit monotonic counter is saved on the
-internal eMMC in an unused reserved sector.
-
-The U2F library performs peer-specific key derivation using a master secret
-([U2F Key Wrapping](https://www.yubico.com/blog/yubicos-u2f-key-wrapping)),
-GoKey derives such master secret using the SNVS to obtain an authenticated
-device specific value.
-
-When the management interface is disabled, FIDO U2F user presence is
-automatically acknowledged, otherwise it can be configured at initialization
-through the management interface (see _Management_).
-
-Building the bare metal executable
-----------------------------------
-
-Build the [TamaGo compiler](https://github.com/usbarmory/tamago-go)
-(or use the [latest binary release](https://github.com/usbarmory/tamago-go/releases/latest)):
-
-```
-wget https://github.com/usbarmory/tamago-go/archive/refs/tags/latest.zip
-unzip latest.zip
-cd tamago-go-latest/src && ./all.bash
-cd ../bin && export TAMAGO=`pwd`/go
-```
-
-Please note that if performed on the USB armory Mk II, due to this
-[issue](https://github.com/golang/go/issues/37122), this requires adding some
-temporary [swap space](http://raspberrypimaker.com/adding-swap-to-the-raspberrypi/)
-to be disabled and removed after this step is completed (to prevent eMMC wear),
-alternatively you can cross compile from another host or use the
-[latest binary release](https://github.com/usbarmory/tamago-go/releases/latest)).
-
-Build the `gokey.imx` application executable with the desired variables:
-
-```
-make imx CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path>
-```
-
-For signed images to be executed on [secure booted](https://github.com/usbarmory/usbarmory/wiki/Secure-boot-(Mk-II))
-USB armory Mk II devices, which enable use of Secure Non-Volatile Storage
-(SNVS), the `imx_signed` target should be used with the relevant `HAB_KEYS`
-set:
-
-```
-make imx_signed CROSS_COMPILE=arm-none-eabi- NAME="Alice" PGP_SECRET_KEY=<secret key path> SSH_PUBLIC_KEY=<public key path> SSH_PRIVATE_KEY=<private key path> HAB_KEYS=<secure boot keys path> SNVS=ssh
-```
-
-OpenPGP host configuration
-==========================
-
-macOS
------
-
-The GoKey USB smartcard works out of the box on modern macOS installations with
-[GPG Suite](https://gpgtools.org/).
-
-Linux
------
-
-The GoKey USB smartcard has been tested with [libccid](https://ccid.apdu.fr/),
-used by [OpenSC](https://github.com/OpenSC/OpenSC/wiki) on most Linux
-distributions.
-
-The libccid library [now supports](https://ccid.apdu.fr/ccid/shouldwork.html#0x12090x2702) GoKey vendor
-and product IDs, if your installed version is older than this change apply the
-following instructions.
-
-To enable detection an entry must be added in `libccid_Info.plist` (typically
-located in `/etc`):
-
-* Locate the `ifdVendorID` array and add the following at its bottom:
-
-```
-<string>0x1209</string>
-```
-
-* Locate the `ifdProductID` array and add the following at its bottom:
-
-```
-<string>0x2702</string>
-```
-
-* Locate the `ifdFriendlyName` array and add the following at its bottom:
-
-```
-<string>USB armory Mk II</string>
-```
-
-The GoKey USB smartcard, once the CCID driver entries are added as in the
-previous section, can then be used as any other smartcard via OpenSC on Linux.
-
-You can refer to [Arch Linux smartcards documentation](https://wiki.archlinux.org/index.php/Smartcards)
-for configuration documentation.
-
-Windows
--------
-
-Windows does not support Ethernet over USB devices implemented with CDC-ECM,
-therefore the SSH management console must be disabled (e.g. `SNVS` can be non
-empty but not to `ssh`, see _Compiling_)
-
-Smartcard operation has not been tested but should be possible with software
-that uses up-to-date smartcard drivers.
-
-Executing
-=========
-
-USB armory Mk II: imx image
----------------------------
-
-Follow [these instructions](https://github.com/usbarmory/usbarmory/wiki/Boot-Modes-(Mk-II)#flashing-bootable-images-on-externalinternal-media)
-using the built `gokey.imx` or `gokey_signed.imx` image.
-
-USB armory Mk II: existing bootloader
--------------------------------------
-
-Copy the built `gokey` binary on an external microSD card (replace `$dev` with
-`0`) or the internal eMMC (replace `$dev` with `1`), then launch it from the
-U-Boot console as follows:
-
-```
-ext2load mmc $dev:1 0x90000000 gokey
-bootelf -p 0x90000000
-```
-
-For non-interactive execution modify U-Boot configuration accordingly.
-
-Operation
-=========
-
-GoKey can be conveniently accessed from either the USB armory Type-C plug (e.g.
-USB armory directly connected to a Type-C host port) or receptacle (e.g. USB
-armory connected with a Type-C to Type-A cable).
-
-Management
-----------
-
-When running on bare metal the GoKey firmware exposes, on top of the USB CCID
-smartcard and/or U2F token interfaces, an SSH server started on
-[Ethernet over USB](https://github.com/usbarmory/usbarmory/wiki/Host-communication).
-
-The SSH server authenticates the user using the public key passed at
-compilation time with the `SSH_PUBLIC_KEY` environment variable. Any username
-can be passed when connecting. If empty the SSH interface is disabled.
-
-A private key for the SSH server can be optionally passed at compilation time
-with the `SSH_PRIVATE_KEY` environment variable, on secure booted units it can
-also be deterministically generated at each boot (see _Compiling_).
-
-The server responds on address 10.0.0.10, with standard port 22, and can be
-used to securely message passphrase verification, in alternative to smartcard
-clients which issue unencrypted VERIFY commands with PIN/passphrases, signal
-U2F user presence and perform additional management functions.
-
-```
-  help                          # this help
-  exit, quit                    # close session
-  rand                          # gather 32 bytes from TRNG via crypto/rand
-  reboot                        # restart
-  status                        # display smartcard/token status
-  build                         # display build information
-
-  init                          # initialize OpenPGP smartcard
-  lock   (all|sig|dec)          # OpenPGP key(s) lock
-  unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
-
-  rpc                           # PKCS#11 RPC socket
-                                # use with 'ssh -L p11kit.sock:127.0.0.1:22'
-
-  age-plugin (gen|identity-v1)  # handle age plugin state machine
-
-  u2f                           # initialize U2F token w/  user presence test
-  u2f !test                     # initialize U2F token w/o user presence test
-  p                             # confirm user presence
-```
-
-Note that to prevent plaintext transmission of the PIN/passphrase, the VERIFY
-command requested by any OpenPGP host client will take any PIN (>= 6
-characters) if the relevant OpenPGP key has been already unlocked over SSH.
-
-OpenPGP smartcard
------------------
-
-You should be able to use the GoKey smartcard like any other OpenPGP card, you
-can test its operation with the following commands:
-
-* OpenSC detection: `pcsc_scan`
-
-* OpenSC explorer: `opensc-explorer`
-
-* OpenPGP tool key information: `openpgp-tool -K`
-
-* GnuPG card status: `gpg --card-status` (`>` shows keys stored on a smartcard)
-
-U2F token
----------
-
-The U2F functionality can be used with any website or application that supports
-FIDO U2F.
-
-When the SSH interface is enabled (see _Management_) the U2F functionality must
-be initialized with the `u2f` command, user presence can be demonstrated with
-the `p` command (not required if `u2f !test` is used for initialization).
-
-When the SSH interface is disabled user presence is automatically acknowledged
-at each request.
-
-age plugin
-----------
-
-The [age plugin](https://github.com/FiloSottile/age) functionality is available
-only on secure booted units (e.g. `SNVS` set to non empty value when
-_Compiling_).
-
-An age key pair can be generated through the _Management_ interface with the
-`age gen` command:
-
-```
-ssh 10.0.0.1 age-plugin gen
-
-# public key: age1u7q3elfae7wawlneek660ayqd8270u6c35mdt246rmq79z8k5p2qqwxry6
-AGE-PLUGIN-GOKEY-1EPZFX6TNDUCF55FQLU83VW820GZGKMU2QSZ577SCH8CLKXGHXS7JZLPRY8...
-```
-
-The generated recipient and identity file can now be used with an age plugin
-that relays the `identity-v1` command, over SSH, to the GoKey _Management_
-interface.
-
-The following example shell wrapper can be used by an age client if present in
-the `PATH`:
-
-```shell
-#!/bin/sh
-
-OPTS=$(getopt -n age-plugin-gokey --options p: --longoptions 'age-plugin:' -- $@)
-
-eval set -- "$OPTS"
-
-while (($#)); do
-	case $1 in
-		-p|--age-plugin)	sm=$2; shift;;
-		--)			shift; break;;
-		*)			echo "invalid argument";;
-	esac
-	shift
-done
-
-ssh 10.0.0.1 age-plugin $sm
-```
-
-Once the plugin wrapper is present in the `PATH`, the GoKey generated identity
-can be used as follows while the GoKey device is reachable via its _Management_
-interface:
-
-```
-age -a -R gokey.recipient -o secret.txt.age -e secret.txt
-age -i gokey.identity -d secret.txt.age
-```
-
-PKCS#11 token
--------------
-
-When the SSH interface is enabled (see _Management_) a GoKey protected
-ECDSA/RSA key can be exposed through
-[PKCS#11 over RPC](https://github.com/google/go-p11-kit) through an
-[SSH forwarded Unix socket](https://p11-glue.github.io/p11-glue/p11-kit/manual/remoting.html).
-
-A direct SSH TCP forward to a Unix socket exposes GoKey PKCS#11 over RPC
-interface:
-
-```
-$ ssh -N -L p11kit.sock:127.0.0.1:22 10.0.0.10
-```
-
-This allows use of such key through PKCS#11 API clients, the following example
-illustrates integration with OpenSSL.
-
-```
-$ export P11_KIT_SERVER_ADDRESS=unix:path=p11kit.sock
-$ pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-slots
-
-Available slots:
-Slot 0 (0x1): example-slot
-  token label        : GoKey
-  token model        : USB armory Mk II
-  token flags        : token initialized, readonly
-  hardware version   : 2.0
-  firmware version   : 0.1
-  serial num         : C148261A
-  pin min/max        : 0/0
-
-$ pkcs11-tool --module /usr/lib/pkcs11/p11-kit-client.so --list-objects
-
-Using slot 0 with a present token (0x1)
-Certificate Object; type = X.509 cert
-  subject:    DN:
-  serial:     75A3F93B15D62D15
-  ID:         010275a3f93b15d62d15
-Private Key Object; RSA
-  Usage:      decrypt, sign
-  Access:     sensitive, always sensitive, never extractable
-Public Key Object; RSA 2048 bits
-  ID:         010275a3f93b15d62d15
-  Usage:      encrypt, verify
-  Access:     none
-```
-
-LED status
-----------
-
-On the [USB armory Mk II](https://github.com/usbarmory/usbarmory/wiki)
-the LEDs are used as follows:
-
-| LED           | On                                               | Off                                    |
-|:-------------:|--------------------------------------------------|----------------------------------------|
-| blue + white  | at startup: card is initializing¹                | card has been initialized              |
-| blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
-| white         | OpenPGP security operation in progress           | no security operation in progress      |
-| white         | blinking: U2F user presence is requested         | no presence requested                  |
-
-¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
 
 Debugging
 =========

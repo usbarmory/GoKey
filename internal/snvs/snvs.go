@@ -23,8 +23,6 @@ import (
 	"github.com/usbarmory/tamago/soc/nxp/snvs"
 )
 
-const diversifierDev = "GoKeySNVSDeviceK"
-
 func init() {
 	if !imx6ul.SNVS.Available() {
 		return
@@ -58,9 +56,9 @@ func init() {
 
 // DeviceKey derives a device key, uniquely and deterministically generated for
 // this SoC for attestation purposes.
-func DeviceKey() (deviceKey *ecdsa.PrivateKey, err error) {
+func DeviceKey(diversifier string) (deviceKey *ecdsa.PrivateKey, err error) {
 	iv := make([]byte, aes.BlockSize)
-	key, err := imx6ul.DCP.DeriveKey([]byte(diversifierDev), iv, -1)
+	key, err := imx6ul.DCP.DeriveKey([]byte(diversifier), iv, -1)
 
 	if err != nil {
 		return

@@ -54,6 +54,8 @@ const help = `
 
   age-plugin (gen|identity-v1)  # handle age plugin state machine
 
+  ssh-agent                     # list SSH agent known identities
+
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
   p                             # confirm user presence
@@ -84,6 +86,14 @@ type Console struct {
 	Banner   string
 
 	term *terminal.Terminal
+}
+
+// See RFC 4254, section 7.2
+type directTCPPayload struct {
+	Addr       string
+	Port       uint32
+	OriginAddr string
+	OriginPort uint32
 }
 
 var lockCommandPattern = regexp.MustCompile(`(lock|unlock) (all|sig|dec)`)
@@ -190,6 +200,8 @@ func (c *Console) handleCommand(conn ssh.Channel, cmd string) (err error) {
 		err = c.Card.Init()
 	case "rpc":
 		return c.Card.ServeRPC(conn)
+	case "ssh-agent":
+		res, err = c.Card.Identities()
 	case "u2f":
 		c.Token.Presence = make(chan bool)
 		err = c.Token.Init()
@@ -239,7 +251,6 @@ func (c *Console) handleCommand(conn ssh.Channel, cmd string) (err error) {
 	return
 }
 
-// handleDirectForward forwards the `rpc` command regardless of the request
 func (c *Console) handleDirectForward(srvConn *ssh.ServerConn, newChannel ssh.NewChannel) {
 	conn, _, err := newChannel.Accept()
 
@@ -247,9 +258,27 @@ func (c *Console) handleDirectForward(srvConn *ssh.ServerConn, newChannel ssh.Ne
 		log.Printf("error accepting channel, %v", err)
 		return
 	}
+	defer conn.Close()
 
-	c.handleCommand(conn, "rpc")
-	conn.Close()
+	params := &directTCPPayload{}
+
+	if err = ssh.Unmarshal(newChannel.ExtraData(), params); err != nil {
+		log.Printf("error accepting direct forward, %v", err)
+		return
+	}
+
+	if params.Addr != "127.0.0.1" {
+		return
+	}
+
+	switch params.Port {
+	case 111:
+		c.handleCommand(conn, "rpc")
+	case 22:
+		if err = c.Card.ServeAgent(conn); err != nil {
+			log.Printf("error serving ssh agent, %v", err)
+		}
+	}
 }
 
 func (c *Console) handleSession(newChannel ssh.NewChannel) {
@@ -394,7 +423,7 @@ func (c *Console) Start() (err error) {
 
 		key, err = ssh.ParseRawPrivateKey(c.PrivateKey)
 	} else if c.Card.SNVS || c.Token.SNVS {
-		key, err = snvs.DeviceKey()
+		key, err = snvs.DeviceKey(snvs.DiversifierDev)
 	} else {
 		key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	}

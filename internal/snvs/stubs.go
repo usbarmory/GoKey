@@ -11,8 +11,13 @@ package snvs
 
 import (
 	"crypto/aes"
+	"crypto/ecdsa"
 	"errors"
 )
+
+func DeviceKey(diversifier string) (deviceKey *ecdsa.PrivateKey, err error) {
+	return nil, errors.New("not implemented")
+}
 
 func Encrypt(input []byte, key []byte, iv []byte) (output []byte, err error) {
 	if len(input) < aes.BlockSize {

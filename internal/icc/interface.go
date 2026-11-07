@@ -16,6 +16,8 @@ import (
 	"regexp"
 	"sync"
 
+	"golang.org/x/crypto/ssh/agent"
+
 	"github.com/usbarmory/GoKey/internal/snvs"
 
 	"github.com/ProtonMail/go-crypto/openpgp"
@@ -108,6 +110,9 @@ type Interface struct {
 
 	// PKCS#11 RPC handler
 	rpc *p11kit.Handler
+
+	// SSH agent instance
+	agent agent.Agent
 
 	// internal state flags
 	selected    bool
