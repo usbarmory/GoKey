@@ -15,6 +15,10 @@ import (
 	"errors"
 )
 
+func Available() bool {
+	return false
+}
+
 func DeviceKey(diversifier string) (deviceKey *ecdsa.PrivateKey, err error) {
 	return nil, errors.New("not implemented")
 }

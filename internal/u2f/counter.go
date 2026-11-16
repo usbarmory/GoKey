@@ -13,13 +13,13 @@ import (
 	"encoding/binary"
 	"errors"
 	"log"
-	"runtime"
 	"time"
+
+	"github.com/usbarmory/GoKey/internal/led"
 
 	usbarmory "github.com/usbarmory/tamago/board/usbarmory/mk2"
 
 	"github.com/usbarmory/armoryctl/atecc608"
-	"github.com/usbarmory/armoryctl/led"
 )
 
 const (
@@ -152,7 +152,7 @@ func (c *Counter) UserPresence() (present bool) {
 	}
 
 	var done = make(chan bool)
-	go blink(done)
+	go led.Blink("white", done)
 
 	log.Printf("U2F user presence request, type `p` within %ds to confirm", timeout)
 
@@ -170,23 +170,4 @@ func (c *Counter) UserPresence() (present bool) {
 	}
 
 	return
-}
-
-func blink(done chan bool) {
-	var on bool
-
-	for {
-		select {
-		case <-done:
-			led.Set("white", false)
-			return
-		default:
-		}
-
-		on = !on
-		led.Set("white", on)
-
-		runtime.Gosched()
-		time.Sleep(200 * time.Millisecond)
-	}
 }

@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/usbarmory/GoKey/internal/age"
+	"github.com/usbarmory/GoKey/internal/agent"
 	"github.com/usbarmory/GoKey/internal/icc"
 	"github.com/usbarmory/GoKey/internal/snvs"
 	"github.com/usbarmory/GoKey/internal/u2f"
@@ -50,11 +51,13 @@ const help = `
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
 
   rpc                           # PKCS#11 RPC socket
-                                # use with 'ssh -L p11kit.sock:127.0.0.1:22'
+                                #          'ssh -L p11kit.sock:127.0.0.1:111'
 
   age-plugin (gen|identity-v1)  # handle age plugin state machine
 
   ssh-agent                     # list SSH agent known identities
+                                #           'ssh -L p11kit.sock:127.0.0.1:22'
+  s                             # confirm user presence
 
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
@@ -78,8 +81,10 @@ type Console struct {
 	Card *icc.Interface
 	// Token is the U2F token instance.
 	Token *u2f.Token
-	// PLugin is the age plugin instance.
+	// Plugin is the age plugin instance.
 	Plugin *age.Plugin
+	// Agent is the SSH authentication agent instance.
+	Agent *agent.Agent
 
 	Started  chan bool
 	Listener net.Listener
@@ -157,6 +162,10 @@ func (c *Console) handleTerminal(conn ssh.Channel) {
 	log.SetOutput(io.MultiWriter(os.Stdout, c.term))
 	defer log.SetOutput(os.Stdout)
 
+	if c.Agent.Presence == nil {
+		c.Agent.Presence = make(chan bool)
+	}
+
 	fmt.Fprintf(c.term, "%s\n", c.Banner)
 	fmt.Fprintf(c.term, "%s\n", string(c.term.Escape.Cyan)+help+string(c.term.Escape.Reset))
 
@@ -201,7 +210,17 @@ func (c *Console) handleCommand(conn ssh.Channel, cmd string) (err error) {
 	case "rpc":
 		return c.Card.ServeRPC(conn)
 	case "ssh-agent":
-		res, err = c.Card.Identities()
+		res, err = c.Agent.Identities()
+	case "s":
+		if c.Agent.Presence == nil {
+			res = "agent presence not required"
+		} else {
+			select {
+			case c.Agent.Presence <- true:
+			default:
+				res = "agent presence not requested"
+			}
+		}
 	case "u2f":
 		c.Token.Presence = make(chan bool)
 		err = c.Token.Init()
@@ -275,7 +294,7 @@ func (c *Console) handleDirectForward(srvConn *ssh.ServerConn, newChannel ssh.Ne
 	case 111:
 		c.handleCommand(conn, "rpc")
 	case 22:
-		if err = c.Card.ServeAgent(conn); err != nil {
+		if err = c.Agent.Serve(conn); err != nil && err != io.EOF {
 			log.Printf("error serving ssh agent, %v", err)
 		}
 	}

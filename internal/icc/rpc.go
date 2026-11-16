@@ -119,9 +119,9 @@ func (card *Interface) getObjects() (objs []p11kit.Object, err error) {
 
 func (card *Interface) initRPC() {
 	slot := p11kit.Slot{
-		ID:              0x01,
-		Description:     "GoKey PKCS#11 RPC",
-		Label:           "GoKey",
+		ID:          0x01,
+		Description: "GoKey PKCS#11 RPC",
+		Label:       "GoKey",
 		// historical value kept to avoid caching issues
 		Manufacturer:    "WithSecure Foundry",
 		Model:           "USB armory Mk II",

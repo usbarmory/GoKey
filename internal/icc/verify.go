@@ -10,6 +10,8 @@ package icc
 import (
 	"log"
 
+	"github.com/usbarmory/GoKey/internal/led"
+
 	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/hsanjuan/go-nfctype4/apdu"
 )
@@ -133,11 +135,11 @@ func (card *Interface) signalVerificationStatus() {
 	for _, subkey := range []*openpgp.Subkey{card.Sig, card.Dec} {
 		if subkey != nil && subkey.PrivateKey != nil && subkey.PrivateKey.PrivateKey != nil && !subkey.PrivateKey.Encrypted {
 			// at least one key is unlocked
-			LED("blue", true)
+			led.Set("blue", true)
 			return
 		}
 	}
 
 	// all keys are locked
-	LED("blue", false)
+	led.Set("blue", false)
 }

@@ -54,7 +54,7 @@ also be deterministically generated at each boot (see _Compiling_).
 The server responds on address 10.0.0.10, with standard port 22, and can be
 used to securely message passphrase verification, in alternative to smartcard
 clients which issue unencrypted VERIFY commands with PIN/passphrases, signal
-U2F user presence and perform additional management functions.
+user presence and perform additional management functions.
 
 ```
   help                          # this help
@@ -69,11 +69,13 @@ U2F user presence and perform additional management functions.
   unlock (all|sig|dec)          # OpenPGP key(s) unlock, prompts passphrase
 
   rpc                           # PKCS#11 RPC socket
-                                # use with 'ssh -L p11kit.sock:127.0.0.1:22'
+                                #          'ssh -L p11kit.sock:127.0.0.1:111'
 
   age-plugin (gen|identity-v1)  # handle age plugin state machine
 
   ssh-agent                     # list SSH agent known identities
+                                #            'ssh -L gokey.sock:127.0.0.1:22'
+  s                             # confirm user presence
 
   u2f                           # initialize U2F token w/  user presence test
   u2f !test                     # initialize U2F token w/o user presence test
@@ -166,20 +168,29 @@ age -i gokey.identity -d secret.txt.age
 SSH authentication agent
 ------------------------
 
-When the SSH interface is enabled (see _Management_) on secure booted units
-(e.g. `SNVS` set to non empty value when _Compiling_) a GoKey protected SSH key
-can be exposed through the [Secure Shell (SSH) Agent
-Protocol](https://www.rfc-editor.org/info/rfc9987/) SSH forwarded through a
-Unix socket.
+When the SSH interface is enabled (see _Management_) on secure booted units, a
+GoKey protected SSH key, uniquely derived by the device SoC, can be exposed
+through the [Secure Shell (SSH) Agent
+Protocol](https://www.rfc-editor.org/info/rfc9987/).
 
 A direct SSH TCP forward of port 22 to a Unix socket exposes GoKey SSH agent:
 
 ```sh
+# user presence automatically acknowledged at each signing request
 ssh -N -L ~/.ssh/agent/gokey.sock:127.0.0.1:22 10.0.0.10
 ```
 
-This allows use of such key through the SSH agent protocol, the following example
-illustrates integration with an OpenSSH client:
+When the SSH _Management_ console is accessed, either through the port
+forwarding client itself (e.g. without `-N`) or a separate connection, user
+presence can be demonstrated with the `s` command:
+
+```sh
+# user presence needed with the `s` command
+ssh -L ~/.ssh/agent/gokey.sock:127.0.0.1:22 10.0.0.10
+```
+
+This allows use of such key through the SSH agent protocol, the following
+example illustrates integration with an OpenSSH client:
 
 ```
 export SSH_AUTH_SOCK=~/.ssh/agent/gokey.sock
@@ -256,7 +267,7 @@ the LEDs are used as follows:
 | blue + white  | at startup: card is initializing¹                | card has been initialized              |
 | blue          | one or more OpenPGP private subkeys are unlocked | all OpenPGP private subkeys are locked |
 | white         | OpenPGP security operation in progress           | no security operation in progress      |
-| white         | blinking: U2F user presence is requested         | no presence requested                  |
+| white         | blinking: U2F or SSH user presence is requested  | no presence requested                  |
 
 ¹ With `SNVS=ssh` both LEDs remain on until the `init` command has been issued over SSH management interface.
 

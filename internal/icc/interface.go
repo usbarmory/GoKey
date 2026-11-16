@@ -16,8 +16,7 @@ import (
 	"regexp"
 	"sync"
 
-	"golang.org/x/crypto/ssh/agent"
-
+	"github.com/usbarmory/GoKey/internal/led"
 	"github.com/usbarmory/GoKey/internal/snvs"
 
 	"github.com/ProtonMail/go-crypto/openpgp"
@@ -111,9 +110,6 @@ type Interface struct {
 	// PKCS#11 RPC handler
 	rpc *p11kit.Handler
 
-	// SSH agent instance
-	agent agent.Agent
-
 	// internal state flags
 	selected    bool
 	initialized bool
@@ -164,8 +160,8 @@ func (card *Interface) Init() (err error) {
 	log.Printf("OpenPGP card initialized")
 	log.Print(card.Status())
 
-	LED("white", false)
-	LED("blue", false)
+	led.Set("white", false)
+	led.Set("blue", false)
 
 	card.signalVerificationStatus()
 
@@ -262,8 +258,8 @@ func (card *Interface) Command(capdu *apdu.CAPDU) (rapdu *apdu.RAPDU, err error)
 	case GET_CHALLENGE:
 		rapdu, err = card.GetChallenge(int(capdu.GetLe()))
 	case PERFORM_SECURITY_OPERATION:
-		LED("white", true)
-		defer LED("white", false)
+		led.Set("white", true)
+		defer led.Set("white", false)
 
 		switch params {
 		case COMPUTE_DIGITAL_SIGNATURE:

@@ -16,6 +16,7 @@ import (
 	"runtime"
 
 	"github.com/usbarmory/GoKey/internal/age"
+	"github.com/usbarmory/GoKey/internal/agent"
 	"github.com/usbarmory/GoKey/internal/ccid"
 	"github.com/usbarmory/GoKey/internal/icc"
 	"github.com/usbarmory/GoKey/internal/u2f"
@@ -85,6 +86,7 @@ func main() {
 	device := &imxusb.Device{}
 	card := &icc.Interface{}
 	token := &u2f.Token{}
+	agent := &agent.Agent{}
 
 	log.SetFlags(0)
 	log.SetOutput(os.Stdout)
@@ -108,7 +110,7 @@ func main() {
 	}
 
 	if len(sshPublicKey) != 0 {
-		configureNetworking(device, card, token)
+		configureNetworking(device, card, token, agent)
 	}
 
 	// The plug is checked, rather than the receptacle, as a workaround for:
@@ -127,7 +129,7 @@ func main() {
 	usb.StartInterruptHandler(port)
 }
 
-func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.Token) {
+func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.Token, agent *agent.Agent) {
 	gonet := usbnet.Interface{}
 
 	if err := gonet.Add(device, deviceIP, deviceMAC, hostMAC); err != nil {
@@ -150,6 +152,7 @@ func configureNetworking(device *imxusb.Device, card *icc.Interface, token *u2f.
 		PrivateKey:    sshPrivateKey,
 		Card:          card,
 		Token:         token,
+		Agent:         agent,
 		Started:       make(chan bool),
 		Listener:      listener,
 		Banner:        banner,

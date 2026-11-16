@@ -24,7 +24,7 @@ import (
 )
 
 func init() {
-	if !imx6ul.SNVS.Available() {
+	if !Available() {
 		return
 	}
 
@@ -52,6 +52,10 @@ func init() {
 			HardFail:          true,
 		},
 	)
+}
+
+func Available() bool {
+	return imx6ul.SNVS.Available()
 }
 
 // DeviceKey derives a device key, uniquely and deterministically generated for
