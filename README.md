@@ -180,9 +180,9 @@ A direct SSH TCP forward of port 22 to a Unix socket exposes GoKey SSH agent:
 ssh -N -L ~/.ssh/agent/gokey.sock:127.0.0.1:22 10.0.0.10
 ```
 
-When the SSH _Management_ console is accessed, either through the port
-forwarding client itself (e.g. without `-N`) or a separate connection, user
-presence can be demonstrated with the `s` command:
+From the moment an SSH _Management_ console is accessed, either through the
+port forwarding client itself (e.g. without `-N`) or a separate connection,
+user presence must be demonstrated with the `s` command:
 
 ```sh
 # user presence needed with the `s` command
