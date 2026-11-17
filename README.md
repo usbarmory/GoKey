@@ -394,12 +394,12 @@ The attestation key material can be created using the
 [gen-cert](https://github.com/gsora/fidati/tree/master/cmd/gen-cert) tool from
 the [fidati](https://github.com/gsora/fidati) library.
 
-On USB armory Mk II rev. β models the ATECC608B security element is used as
-hardware backed monotonic counter for U2F purposes. The counter runs out at
+On USB armory Mk II models carrying the ATECC608, the security element is used
+as hardware backed monotonic counter for U2F purposes. The counter runs out at
 2097151, which is considered a range sufficient for its intended purpose.
 
-On USB armory Mk II rev. γ models a 32-bit monotonic counter is saved on the
-internal eMMC in an unused reserved sector.
+On all other USB armory Mk II revisions a 32-bit monotonic counter is saved on
+the internal eMMC in an unused reserved sector.
 
 The U2F library performs peer-specific key derivation using a master secret
 ([U2F Key Wrapping](https://www.yubico.com/blog/yubicos-u2f-key-wrapping)),

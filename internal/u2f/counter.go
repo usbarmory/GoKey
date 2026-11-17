@@ -48,21 +48,21 @@ const (
 	timeout = 10
 )
 
-// Counter represents an ATECC608A based monotonic counter instance.
+// Counter represents an ATECC608 based monotonic counter instance.
 type Counter struct {
 	kind     int
 	uid      []byte
 	presence chan bool
 }
 
-// Init initializes an ATECC608A backed U2F counter. A channel can be passed to
+// Init initializes an ATECC608 backed U2F counter. A channel can be passed to
 // receive user presence notifications, if nil user presence is automatically
 // assumed.
 func (c *Counter) Init(presence chan bool) (err error) {
 	boardModel, _ := usbarmory.Model()
 
 	switch boardModel {
-	case usbarmory.BETA: // ATECC608A
+	case usbarmory.BETA: // ATECC608
 		var info string
 
 		if info, err = atecc608.Info(); err != nil {
@@ -129,7 +129,8 @@ func (c *Counter) counterCmd(mode byte) (cnt uint32, err error) {
 	return
 }
 
-// Increment increases the ATECC608A monotonic counter in slot <1> (not attached to any key).
+// Increment increases the ATECC608 monotonic counter in slot <1> (not attached
+// to any key).
 func (c *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error) {
 	if cnt, err = c.counterCmd(increment); err != nil {
 		log.Printf("U2F increment failed, %v", err)
@@ -140,7 +141,8 @@ func (c *Counter) Increment(_ []byte, _ []byte, _ []byte) (cnt uint32, err error
 	return
 }
 
-// Read reads the ATECC608A monotonic counter in slot <1> (not attached to any key).
+// Read reads the ATECC608 monotonic counter in slot <1> (not attached to any
+// key).
 func (c *Counter) Read() (cnt uint32, err error) {
 	return c.counterCmd(read)
 }
